@@ -18,6 +18,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
+    'usuarios', 
+    
     
     # Librerías de terceros
     'mozilla_django_oidc',
@@ -84,13 +87,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 AUTHENTICATION_BACKENDS = (
-    'core.backends.KeycloakOIDCAuthenticationBackend',
+    'usuarios.backends.KeycloakOIDCAuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
 # Identificación del Cliente Keycloak
 OIDC_RP_CLIENT_ID = config('KEYCLOAK_CLIENT_ID', default='django-backend')
 OIDC_RP_CLIENT_SECRET = config('KEYCLOAK_CLIENT_SECRET', default='')
+
+
+AUTH_USER_MODEL = 'usuarios.Usuario'
 
 # Servidores Keycloak (Navegador e Interno Docker)
 KEYCLOAK_SERVER_URL_BROWSER = config('KEYCLOAK_SERVER_URL_BROWSER', default='http://localhost:8180')

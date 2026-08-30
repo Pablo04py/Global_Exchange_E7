@@ -23,4 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Rutas para la autenticación con Keycloak (mozilla-django-oidc)
     path('oidc/', include('mozilla_django_oidc.urls')),
+    path('usuarios/', include('usuarios.urls')),
 ]
