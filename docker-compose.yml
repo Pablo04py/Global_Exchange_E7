@@ -27,7 +27,7 @@ services:
       KC_HTTP_ENABLED: "true" #Agregadoo
       KC_HOSTNAME: "localhost" #Se agrego y modifico por un problema     
     volumes:
-      - ./docker/keycloak:/opt/keycloak/data/import
+      - ./docker/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
     ports:
       - "8180:8080"
     depends_on:
