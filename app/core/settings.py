@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     
     # Librerías de terceros
     'mozilla_django_oidc',
+    'main',
 ]
 
 MIDDLEWARE = [
@@ -46,6 +47,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                #Removido de mientras 'main.menu_procesos.menu_context',
             ],
         },
     },
