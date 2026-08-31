@@ -99,7 +99,7 @@ OIDC_RP_CLIENT_SECRET = config('KEYCLOAK_CLIENT_SECRET', default='')
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
 # Servidores Keycloak (Navegador e Interno Docker)
-KEYCLOAK_SERVER_URL_BROWSER = config('KEYCLOAK_SERVER_URL_BROWSER', default='http://localhost:8180')
+KEYCLOAK_SERVER_URL_BROWSER = config('KEYCLOAK_SERVER_URL_BROWSER', default='http://localhost:8080')
 KEYCLOAK_SERVER_URL_INTERNAL = config('KEYCLOAK_SERVER_URL_INTERNAL', default='http://keycloak:8080')
 KEYCLOAK_REALM = config('KEYCLOAK_REALM', default='globalexchange')
 
