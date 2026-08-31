@@ -25,6 +25,7 @@ from django.views.generic import TemplateView
     # Rutas para la autenticación con Keycloak (mozilla-django-oidc)
     path('oidc/', include('mozilla_django_oidc.urls')),
     path('', include('main.urls')),
+    path('usuarios/', include('usuarios.urls')),
 ]
  
 """
@@ -33,6 +34,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('oidc/', include('mozilla_django_oidc.urls')),
     path('', include('main.urls')),
+    path('usuarios/', include('usuarios.urls')), #Agregado 
 ]
 
 
