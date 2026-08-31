@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Global Exchange{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  {# ── SIDEBAR ─────────────────────────────────────────────── #}
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <i class="ti ti-arrows-exchange"></i>
+      </div>
+      <span class="logo-text">Global<strong>Exchange</strong></span>
+    </div>
+
+    <nav class="sidebar-nav">
+      {% for section in menu_sections %}
+        {% if section.label %}
+          <div class="nav-section-label">{{ section.label }}</div>
+        {% endif %}
+        {% for item in section.items %}
+          <a href="{{ item.url }}"
+             class="nav-item {% if request.path == item.url %}active{% endif %}"
+             title="{{ item.name }}">
+            <i class="ti {{ item.icon }}"></i>
+            <span class="nav-label">{{ item.name }}</span>
+            {% if item.badge %}
+              <span class="nav-badge">{{ item.badge }}</span>
+            {% endif %}
+          </a>
+        {% endfor %}
+      {% endfor %}
+    </nav>
+
+    <button class="sidebar-toggle" id="sidebarToggle" title="Colapsar menú">
+      <i class="ti ti-chevrons-left" id="toggleIcon"></i>
+    </button>
+
+  </aside>
+
+  {# ── MAIN WRAPPER ─────────────────────────────────────────── #}
+  <div class="main-wrapper">
+
+    {# ── TOPBAR ───────────────────────────────────────────────── #}
+    <header class="topbar">
+
+      <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="ti ti-menu-2"></i>
+      </button>
+
+      <div class="topbar-title">
+        {% block page_title %}Dashboard{% endblock %}
+      </div>
+
+      <!-- Ticker de Cotizaciones en Tiempo Real (RF12) -->
+      <div class="topbar-ticker">
+        <span class="ticker-label"><i class="ti ti-bolt"></i> BCP:</span>
+        <div class="ticker-item">
+          <span class="ticker-symbol">USD</span>
+          <span class="ticker-val up">C: 7.620 / V: 7.660</span>
+        </div>
+        <div class="ticker-item">
+          <span class="ticker-symbol">EUR</span>
+          <span class="ticker-val down">C: 8.310 / V: 8.390</span>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+
+        {% if request.user.is_authenticated %}
+
+          <!-- Selector de Cliente Activo y Categoría (RF9, RF26) -->
+          {% if associated_clients %}
+          <div class="client-selector-container">
+            <i class="ti ti-building-bank"></i>
+            <select class="client-select" id="activeClientSelect" onchange="switchClient(this.value)">
+              {% for client in associated_clients %}
+                <option value="{{ client.id }}" {% if client.id == active_client.id %}selected{% endif %}>
+                  {{ client.name }}
+                </option>
+              {% endfor %}
+            </select>
+
+            {% if active_client %}
+              <span class="category-badge category-{{ active_client.category|lower }}">
+                {{ active_client.category }}
+              </span>
+            {% endif %}
+          </div>
+          <div class="topbar-divider"></div>
+          {% endif %}
+
+          <button class="topbar-icon-btn" title="Notificaciones">
+            <i class="ti ti-bell"></i>
+            <span class="notif-dot"></span>
+          </button>
+
+          <div class="topbar-divider"></div>
+
+          <div class="user-menu" id="userMenuTrigger">
+            <div class="user-info">
+              <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+              {% if user_role %}
+                <span class="role-badge role-{{ user_role|slugify }}">{{ user_role_label }}</span>
+              {% endif %}
+            </div>
+            <div class="user-avatar">
+              <i class="ti ti-user"></i>
+            </div>
+
+            <div class="user-dropdown" id="userDropdown">
+              <a href="/cuenta/perfil/" class="dropdown-item">
+                <i class="ti ti-user-circle"></i> Mi perfil
+              </a>
+              {% if user_role == 'Sin Rol' %}
+                <a href="/cuenta/verificacion/" class="dropdown-item">
+                  <i class="ti ti-id-badge-2"></i> Estado de verificación
+                </a>
+              {% endif %}
+              <div class="dropdown-divider"></div>
+              <a href="/logout/" class="dropdown-item dropdown-item--danger">
+                <i class="ti ti-logout"></i> Cerrar sesión
+              </a>
+            </div>
+          </div>
+
+        {% else %}
+
+          <!-- Acciones para Visitantes Públicos -->
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{% url 'oidc_authentication_init' %}" style="padding: 8px 16px; font-size: 13px; font-weight: 600; color: #1A2840; text-decoration: none; border-radius: 6px; border: 1px solid #E5E9F0; background: #fff; display: inline-flex; align-items: center; gap: 6px;">
+              <i class="ti ti-login"></i> Ingresar
+            </a>
+          </div>
+
+        {% endif %}
+
+      </div>
+    </header>
+
+    {# ── PAGE CONTENT ─────────────────────────────────────────── #}
+    <main class="page-content">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">
+            <i class="ti ti-info-circle"></i>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+  </div>
+
+  {% load static %}
+  <script src="{% static 'js/layout.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
