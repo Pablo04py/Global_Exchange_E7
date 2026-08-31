@@ -29,7 +29,7 @@
 * **Contexto / Objetivo**: Implementar la suite de pruebas unitarias, resolver fallos de red en Docker y corregir el mock de APIs externas.
 * **Prompts Determinantes Utilizados**:
 
-  2. **Ajuste de importación en el test unitario:**
+  1. **Ajuste de importación en el test unitario:**
      > *"ModuleNotFoundError: No module named 'apps' al ejecutar python manage.py test tests dentro del contenedor."*
      > 
      > **Decisión**: Se simplificó la ruta del parche en `app/tests/test_example.py` utilizando `@patch('requests.get')`, logrando la ejecución exitosa de la suite con resultado **`OK`**.
