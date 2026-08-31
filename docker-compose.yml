@@ -1,0 +1,51 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pguser} -d ${POSTGRES_DB:-globalexchange}"]
+      interval: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    command: start-dev --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-globalexchange}
+      KC_DB_USERNAME: ${POSTGRES_USER:-pguser}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-pgpassword}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin123}
+      KC_HOSTNAME_STRICT: "false" #Agrgado para evitar inconvenientes
+      KC_HOSTNAME_STRICT_HTTPS: "false" #Agregado
+      KC_HTTP_ENABLED: "true" #Agregadoo
+      KC_HOSTNAME: "localhost" #Se agrego y modifico por un problema     
+    ports:
+      - "8080:8080"
+    volumes:
+        - ./docker/keycloak:/opt/keycloak/data/import
+    depends_on:
+      db:
+        condition: service_healthy
+  web:
+    build:
+      context: .
+      dockerfile: docker/django/Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./app:/app
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

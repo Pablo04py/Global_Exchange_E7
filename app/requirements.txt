@@ -1,0 +1,5 @@
+Django>=5.2
+psycopg2-binary
+python-dotenv
+mozilla-django-oidc
+python-decouple

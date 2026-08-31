@@ -1,0 +1,39 @@
+.env
+
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Django
+db.sqlite3
+/app/staticfiles/
+/app/mediafiles/
+
+# Docker
+.docker/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# Python virtual environments (si alguien desarrolla sin Docker localmente)
+.venv/
+venv/
+ENV/
+env/
+
+# Coverage & Testing (Para tu tarea SCRUM-44)
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Archivos del SO
+.DS_Store
+Thumbs.db
