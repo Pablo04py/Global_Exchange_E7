@@ -409,3 +409,16 @@ body.sidebar-collapsed .main-wrapper {
     z-index: 99;
   }
 }
+
+.dropdown-item-form { 
+  margin: 0; 
+  padding: 0; 
+} 
+.dropdown-item-form .dropdown-item { 
+  width: 100%; 
+  border: none; 
+  background: none; 
+  font: inherit; 
+  text-align: left; 
+  cursor: pointer; 
+}

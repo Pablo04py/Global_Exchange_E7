@@ -128,9 +128,7 @@
                 </a>
               {% endif %}
               <div class="dropdown-divider"></div>
-              <a href="/logout/" class="dropdown-item dropdown-item--danger">
-                <i class="ti ti-logout"></i> Cerrar sesión
-              </a>
+                <form method="post" action="{% url 'oidc_logout' %}" class="dropdown-item-form"> {% csrf_token %} <button type="submit" class="dropdown-item dropdown-item--danger"> <i class="ti ti-logout"></i> Cerrar sesión </button> </form>
             </div>
           </div>
 

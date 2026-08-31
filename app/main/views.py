@@ -5,6 +5,28 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.conf import settings as django_settings
 
 
+# Mapeo slug de URL -> etiqueta interna de rol
+ROLE_SLUGS = {
+    "admin": "Administrador General",
+    "analista": "Analista Cambiario",
+    "cajero": "Cajero",
+    "cliente": "Cliente",
+    "sinrol": "Sin Rol",
+}
+
+# Prioridad para resolver el rol real de Keycloak (por si el usuario tiene varios roles)
+ROLE_PRIORITY = ["Administrador General", "Analista Cambiario", "Cajero", "Cliente"]
+
+
+def resolve_keycloak_role(user_roles):
+    """Devuelve la etiqueta interna del rol principal según los roles reales de Keycloak."""
+    if not user_roles:
+        return "Sin Rol"
+    for role in ROLE_PRIORITY:
+        if role in user_roles:
+            return role
+    return "Sin Rol"
+
 def get_menu_sections(role, active_client, is_authenticated=False):
     """Genera las secciones del menú lateral según autenticación, rol y cliente activo"""
 
@@ -106,7 +128,14 @@ def get_menu_sections(role, active_client, is_authenticated=False):
 
 def dashboard(request):
     is_auth = request.user.is_authenticated
-    role = request.session.get('ge_role', 'Sin Rol') if is_auth else None
+
+    if is_auth:
+        # Prioridad: si hay override de dev (session), se usa; si no, el rol real de Keycloak
+        role = request.session.get('ge_role')
+        if not role:
+            role = resolve_keycloak_role(getattr(request.user, 'roles', []))
+    else:
+        role = None
 
     # Datos simulados de clientes asociados al usuario (RF4, RF9, RF26)
     mock_clients = [
@@ -172,7 +201,7 @@ def set_role(request, role):
     if not django_settings.DEBUG:
         return HttpResponseForbidden()
 
-    valid_roles = ["Administrador General", "Analista Cambiario", "Cajero", "Cliente", "Sin Rol"]
-    if role in valid_roles:
-        request.session['ge_role'] = role
+    internal_role = ROLE_SLUGS.get(role)
+    if internal_role:
+        request.session['ge_role'] = internal_role
     return redirect(request.GET.get('next', '/dashboard/'))
