@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Cliente, UsuarioCliente
 from .forms import ClienteForm, AsignacionForm
+from .forms import ClienteFisicaForm
 from usuarios.decorators import requiere_rol
 # read
 @requiere_rol('Administrador General')
@@ -58,3 +59,24 @@ def asignar_cliente(request):
     else:
         form = AsignacionForm()
     return render(request, 'clientes/form_asignacion.html', {'form': form})
+
+@login_required
+def convertirse_en_cliente(request):
+    # Si ya tiene no se permite
+    if UsuarioCliente.objects.filter(usuario=request.user).exists():
+        return redirect('mis_clientes') 
+
+    if request.method == 'POST':
+        form = ClienteFisicaForm(request.POST)
+        if form.is_valid():
+            cliente = form.save(commit=False)
+            cliente.tipo_persona = Cliente.TipoPersona.FISICA
+            cliente.save()
+            UsuarioCliente.objects.create(usuario=request.user, cliente=cliente)
+            return redirect('mis_clientes')
+    else:
+        form = ClienteFisicaForm(initial={
+            'nombre_o_denominacion': f"{request.user.first_name} {request.user.last_name}".strip()
+        })
+
+    return render(request, 'clientes/convertirse_en_cliente.html', {'form': form})
