@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+<h1>Mis Clientes</h1>
+
+<table>
+  <tr>
+    <th>Nombre / Denominación</th>
+    <th>Documento</th>
+    <th>Categoría</th>
+    <th>Tipo de Persona</th>
+  </tr>
+  {% for cliente in clientes %}
+  <tr>
+    <td>{{ cliente.nombre_o_denominacion }}</td>
+    <td>{{ cliente.documento }}</td>
+    <td>{{ cliente.categoria }}</td>
+    <td>{{ cliente.tipo_persona }}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="4">No tenés clientes asignados todavía.</td></tr>
+  {% endfor %}
+</table>
+</body>
+</html>

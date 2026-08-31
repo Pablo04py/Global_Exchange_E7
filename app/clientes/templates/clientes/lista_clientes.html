@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Clientes</title>
+</head>
+<body>
+    <h1>Listado de Clientes</h1>
+    
+    <!-- Botones de navegación -->
+    <p>
+        <a href="{% url 'crear_cliente' %}">➕ Crear Nuevo Cliente</a> | 
+        <a href="{% url 'asignar_cliente' %}">🔗 Asignar Cliente a Usuario</a>
+    </p>
+
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Nombre / Denominación</th>
+                <th>Documento</th>
+                <th>Categoría</th>
+                <th>Tipo de Persona</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr>
+                <td>{{ cliente.nombre_o_denominacion }}</td>
+                <td>{{ cliente.documento }}</td>
+                <td>{{ cliente.categoria }}</td>
+                <td>{{ cliente.tipo_persona }}</td>
+                <td>
+                    <a href="{% url 'editar_cliente' cliente.id %}">✏️ Editar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No tenés clientes asignados todavía.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

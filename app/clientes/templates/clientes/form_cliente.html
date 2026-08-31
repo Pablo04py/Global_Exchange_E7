@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Guardar Cliente</title>
+</head>
+<body>
+    <h1>Formulario de Cliente</h1>
+
+    <!-- EL ATRIBUTO method="POST" ES OBLIGATORIO PARA ENVIAR DATOS -->
+    <form method="POST">
+        <!-- EL TOKEN csrf_token ES OBLIGATORIO EN DJANGO POR SEGURIDAD -->
+        {% csrf_token %}
+        
+        <!-- Así mostramos los campos del formulario automáticamente -->
+        {{ form.as_p }}
+        
+        <button type="submit">💾 Guardar</button>
+    </form>
+
+    <br>
+    <a href="{% url 'lista_clientes' %}">⬅️ Volver a la lista</a>
+
+</body>
+</html>
