@@ -11,6 +11,19 @@
 
 ---
 
+### 📋 Plantilla de Registro (Ejemplo Reusable)
+
+### Registro #N - [DD/MM/AAAA]
+* **Tarea / Historia**: `SCRUM-XX` (Nombre de la Historia de Usuario)
+* **Autor**: [Nombre del Desarrollador]
+* **Herramienta / Modelo**: [Gemini / ChatGPT / Claude / etc.]
+* **Contexto / Objetivo**: [Breve descripción del problema o la necesidad técnica]
+* **Prompt Utilizado**:
+  > *"[Escribir aquí el prompt o la instrucción clave enviada a la IA]"*
+* **Resultado / Decisión**: [Decisión técnica tomada, cambios aplicados o solución obtenida]
+
+---
+
 ### Registro #1 - 20/02/2026
 * **Tarea / Historia**: `SCRUM-46` (Gestión de Documentación y Prompts de IA)
 * **Autor**: Fabio
@@ -26,10 +39,7 @@
 * **Tarea / Historia**: `SCRUM-44` (Framework de Pruebas Unitarias)
 * **Autor**: Fabio
 * **Herramienta / Modelo**: Gemini
-* **Contexto / Objetivo**: Implementar la suite de pruebas unitarias, resolver fallos de red en Docker y corregir el mock de APIs externas.
-* **Prompts Determinantes Utilizados**:
-
-  1. **Ajuste de importación en el test unitario:**
-     > *"ModuleNotFoundError: No module named 'apps' al ejecutar python manage.py test tests dentro del contenedor."*
-     > 
-     > **Decisión**: Se simplificó la ruta del parche en `app/tests/test_example.py` utilizando `@patch('requests.get')`, logrando la ejecución exitosa de la suite con resultado **`OK`**.
+* **Contexto / Objetivo**: Diseñar la arquitectura de pruebas automáticas para el proyecto, organizar la estructura del directorio y definir los tests unitarios de las apps `main` y `usuarios`.
+* **Prompt Utilizado**:
+  > *"Establecer una estructura limpia de tests con el patrón espejo en app/tests/ para la app main y usuarios sin modificar el código fuente, probando vistas, URLs, endpoints AJAX, el modelo Usuario, el decorador requiere_rol y el backend OIDC de Keycloak."*
+* **Resultado / Decisión**: Se descartaron los archivos `tests.py` individuales dentro de cada app y se adoptó la suite centralizada en `app/tests/`. Se implementaron exitosamente las pruebas unitarias para `main/test_views.py`, `usuarios/test_models.py`, `usuarios/test_decorators.py` y `usuarios/test_backends.py`, verificando su ejecución mediante `docker compose exec web python manage.py test tests`.

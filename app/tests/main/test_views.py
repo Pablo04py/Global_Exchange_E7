@@ -1,5 +1,5 @@
 import json
-from django.test import TestCase, Client
+from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 
@@ -68,6 +68,7 @@ class MainViewsTestCase(TestCase):
         self.assertEqual(self.client.session.get('ge_active_client'), 'c2')
 
     # 4. Pruebas de la Vista de Desarrollo (set_role)
+    @override_settings(DEBUG=True)
     def test_set_role_updates_session(self):
         """Verifica que en ambiente de desarrollo (DEBUG=True) se pueda cambiar de rol."""
         response = self.client.get(reverse('set_role', kwargs={'role': 'Cajero'}))
