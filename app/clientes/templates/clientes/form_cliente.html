@@ -1,25 +1,23 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Guardar Cliente</title>
-</head>
-<body>
-    <h1>Formulario de Cliente</h1>
+{% extends "layouts/base.html" %}
 
-    <!-- EL ATRIBUTO method="POST" ES OBLIGATORIO PARA ENVIAR DATOS -->
-    <form method="POST">
-        <!-- EL TOKEN csrf_token ES OBLIGATORIO EN DJANGO POR SEGURIDAD -->
-        {% csrf_token %}
-        
-        <!-- Así mostramos los campos del formulario automáticamente -->
+{% block title %}Formulario de Cliente — Global Exchange{% endblock %}
+{% block page_title %}Datos del Cliente{% endblock %}
+
+{% block content %}
+<div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 28px; max-width: 650px; margin: 0 auto; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+  <form method="POST">
+      {% csrf_token %}
+      <div style="display: flex; flex-direction: column; gap: 14px;">
         {{ form.as_p }}
-        
-        <button type="submit">💾 Guardar</button>
-    </form>
-
-    <br>
-    <a href="{% url 'lista_clientes' %}">⬅️ Volver a la lista</a>
-
-</body>
-</html>
+      </div>
+      <div style="margin-top: 24px; display: flex; gap: 12px; align-items: center;">
+        <button type="submit" style="background: #2563EB; color: #fff; padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;">
+          💾 Guardar Cliente
+        </button>
+        <a href="{% url 'lista_clientes' %}" style="color: #6B7A99; text-decoration: none; font-size: 14px;">
+          Cancelar / Volver
+        </a>
+      </div>
+  </form>
+</div>
+{% endblock %}

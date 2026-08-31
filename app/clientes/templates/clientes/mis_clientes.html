@@ -1,32 +1,55 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-<h1>Mis Clientes</h1>
+{% extends "layouts/base.html" %}
 
-<table>
-  <tr>
-    <th>Nombre / Denominación</th>
-    <th>Documento</th>
-    <th>Categoría</th>
-    <th>Tipo de Persona</th>
-  </tr>
-  {% for cliente in clientes %}
-  <tr>
-    <td>{{ cliente.nombre_o_denominacion }}</td>
-    <td>{{ cliente.documento }}</td>
-    <td>{{ cliente.categoria }}</td>
-    <td>{{ cliente.tipo_persona }}</td>
-  </tr>
-  {% empty %}
-  <tr>
-      <td colspan="4">
-          No tenés clientes asignados todavía.
-          <a href="{% url 'convertirse_en_cliente' %}">Operar como particular</a>
-      </td>
-  </tr>
-  {% endfor %}
+{% block title %}Mis Clientes — Global Exchange{% endblock %}
+{% block page_title %}Mis Clientes Asociados{% endblock %}
 
-</table>
-</body>
-</html>
+{% block content %}
+<div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+      <h3 style="font-size: 16px; font-weight: 700; color: #1A2840; margin: 0;">Cuentas y Representaciones</h3>
+      <p style="font-size: 13px; color: #6B7A99; margin-top: 4px;">Clientes vinculados a tu usuario para operar en la plataforma.</p>
+    </div>
+    <a href="{% url 'convertirse_en_cliente' %}" style="background: #2563EB; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+      <i class="ti ti-user-plus"></i> Registrarme como Particular
+    </a>
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+      <thead>
+        <tr style="border-bottom: 2px solid #E5E9F0; color: #6B7A99; font-size: 12px; text-transform: uppercase; letter-spacing: .05em;">
+          <th style="padding: 12px 16px;">Nombre / Razón Social</th>
+          <th style="padding: 12px 16px;">Documento / RUC</th>
+          <th style="padding: 12px 16px;">Categoría</th>
+          <th style="padding: 12px 16px;">Tipo de Persona</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cliente in clientes %}
+        <tr style="border-bottom: 1px solid #E5E9F0; color: #1A2840;">
+          <td style="padding: 14px 16px; font-weight: 600;">{{ cliente.nombre_o_denominacion }}</td>
+          <td style="padding: 14px 16px;">{{ cliente.documento }}</td>
+          <td style="padding: 14px 16px;">
+            <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+              {{ cliente.get_categoria_display|default:cliente.categoria }}
+            </span>
+          </td>
+          <td style="padding: 14px 16px;">{{ cliente.get_tipo_persona_display|default:cliente.tipo_persona }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" style="padding: 32px; text-align: center; color: #6B7A99;">
+            <i class="ti ti-address-book-off" style="font-size: 32px; display: block; margin-bottom: 8px; color: #9CA3AF;"></i>
+            No tienes clientes o cuentas asignadas a tu usuario todavía.<br>
+            <a href="{% url 'convertirse_en_cliente' %}" style="color: #2563EB; font-weight: 600; text-decoration: none; margin-top: 8px; display: inline-block;">
+              Solicitar registro como particular &rarr;
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

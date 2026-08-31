@@ -1,15 +1,13 @@
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
-
+from django.contrib.auth.models import Group
 
 class KeycloakOIDCAuthenticationBackend(OIDCAuthenticationBackend):
     def create_user(self, claims):
-        """Se ejecuta la primera vez que un usuario se registra/autentica."""
         user = super().create_user(claims)
         self._sync_datos(user, claims)
         return user
 
     def update_user(self, user, claims):
-        """Mantiene los datos y roles actualizados en cada inicio de sesión."""
         self._sync_datos(user, claims)
         return user
 
@@ -19,9 +17,17 @@ class KeycloakOIDCAuthenticationBackend(OIDCAuthenticationBackend):
         user.email = claims.get('email', '')
 
         roles = claims.get('realm_access', {}).get('roles', [])
-        user.roles = roles  # requiere el campo ArrayField en el modelo Usuario
+        user.roles = roles  # Guarda en tu ArrayField
 
-        user.is_staff = 'Administrador General' in roles
-        user.is_superuser = 'Administrador General' in roles
+        # Sincronización con Grupos de Django (Clave para views.py)
+        user.groups.clear()
+        for role_name in roles:
+            group, _ = Group.objects.get_or_create(name=role_name)
+            user.groups.add(group)
+
+        # Tolerancia a nombres cortos de Keycloak (admin, Administrador General, etc.)
+        is_admin = any(r in roles for r in ['Administrador General', 'admin', 'Admin'])
+        user.is_staff = is_admin
+        user.is_superuser = is_admin
 
         user.save()

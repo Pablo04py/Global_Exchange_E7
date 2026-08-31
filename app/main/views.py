@@ -3,19 +3,20 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseForbidden
 from django.conf import settings as django_settings
+from django.urls import reverse 
 
+from clientes.models import Cliente
 
 # Mapeo slug de URL -> etiqueta interna de rol
 ROLE_SLUGS = {
     "admin": "Administrador General",
     "analista": "Analista Cambiario",
     "cajero": "Cajero",
-    "cliente": "Cliente",
     "sinrol": "Sin Rol",
 }
 
 # Prioridad para resolver el rol real de Keycloak (por si el usuario tiene varios roles)
-ROLE_PRIORITY = ["Administrador General", "Analista Cambiario", "Cajero", "Cliente"]
+ROLE_PRIORITY = ["Administrador General", "Analista Cambiario", "Cajero"]
 
 
 def resolve_keycloak_role(user_roles):
@@ -78,19 +79,26 @@ def get_menu_sections(role, active_client, is_authenticated=False):
                 {"name": "Dashboard", "url": "/dashboard/", "icon": "ti-layout-dashboard"},
                 {"name": "Cotizaciones y Gráficos", "url": "/cotizaciones/", "icon": "ti-trending-up"},
             ]
+        },
+        {
+            "label": "Mi Gestión",
+            "items": [
+                {"name": "Mis Clientes", "url": reverse("mis_clientes"), "icon": "ti-address-book"},
+            ]
         }
     ]
 
     # RF13, RF15, RF23, RF41: Solo si el usuario tiene un cliente activo seleccionado
-    if role == "Cliente" and active_client:
-        sections.append({
-            "label": "Operativa",
-            "items": [
-                {"name": "Operar / Cambiar Divisas", "url": "/operar/", "icon": "ti-arrows-exchange"},
-                {"name": "Historial de Operaciones", "url": "/historial/", "icon": "ti-history"},
-                {"name": "Facturas DNIT", "url": "/facturas/", "icon": "ti-receipt"},
-            ]
-        })
+
+    sections.append({
+        "label": "Operativa",
+        "items": [
+            {"name": "Mis Clientes", "url": reverse("mis_clientes"), "icon": "ti-address-book"},
+            {"name": "Operar / Cambiar Divisas", "url": "/operar/", "icon": "ti-arrows-exchange"},
+            {"name": "Historial de Operaciones", "url": "/historial/", "icon": "ti-history"},
+            {"name": "Facturas DNIT", "url": "/facturas/", "icon": "ti-receipt"},
+        ]
+    })
 
     # RF30-RF35: Funciones del Cajero
     if role == "Cajero":
@@ -117,7 +125,9 @@ def get_menu_sections(role, active_client, is_authenticated=False):
         sections.append({
             "label": "Administración",
             "items": [
-                {"name": "Usuarios y Clientes", "url": "/admin/usuarios/", "icon": "ti-users"},
+                {"name": "Clientes", "url": reverse("lista_clientes"), "icon": "ti-users"},
+                {"name": "Nuevo Cliente", "url": reverse("crear_cliente"), "icon": "ti-user-plus"},
+                {"name": "Asignar Cliente", "url": reverse("asignar_cliente"), "icon": "ti-link"},
                 {"name": "Parámetros del Sistema", "url": "/admin/parametros/", "icon": "ti-settings"},
                 {"name": "Auditoría de Logs", "url": "/admin/auditoria/", "icon": "ti-shield-check"},
             ]
@@ -133,30 +143,51 @@ def dashboard(request):
         # Prioridad: si hay override de dev (session), se usa; si no, el rol real de Keycloak
         role = request.session.get('ge_role')
         if not role:
-            role = resolve_keycloak_role(getattr(request.user, 'roles', []))
+            # 2. Extraer roles desde los Grupos de Django asignados por el backend
+            user_roles = list(request.user.groups.values_list('name', flat=True))
+            
+            # 3. Fallback: buscar en el payload del token OIDC en sesión
+            if not user_roles:
+                oidc_payload = request.session.get('oidc_access_token_payload', {})
+                user_roles = oidc_payload.get('realm_access', {}).get('roles', [])
+
+            role = resolve_keycloak_role(user_roles)
     else:
         role = None
 
-    # Datos simulados de clientes asociados al usuario (RF4, RF9, RF26)
-    mock_clients = [
-        {"id": "c1", "name": "Juan Pérez (Personal)", "category": "Minorista"},
-        {"id": "c2", "name": "Empresa S.A.", "category": "Corporativo"},
-    ] if (is_auth and role == "Cliente") else []
+    associated_clients = []
+    if is_auth:
+        clientes_qs = Cliente.objects.filter(usuarios_asociados__usuario=request.user)
+        associated_clients = [
+            {
+                "id": str(c.id),
+                "name": c.nombre_o_denominacion,
+                "category": c.get_categoria_display(),
+            }
+            for c in clientes_qs
+        ]
 
-    active_client_id = request.session.get('ge_active_client', mock_clients[0]['id'] if mock_clients else None)
-    active_client = next((c for c in mock_clients if c['id'] == active_client_id), None)
+    active_client_id = request.session.get('ge_active_client')
+    valid_ids = [c['id'] for c in associated_clients]
+
+    # Asigna primer cliente de la lista si no hay activo o si el activo guardado en sesión no le pertenece
+    if (not active_client_id or active_client_id not in valid_ids) and associated_clients:
+        active_client_id = associated_clients[0]['id']
+        request.session['ge_active_client'] = active_client_id
+
+    active_client = next((c for c in associated_clients if c['id'] == active_client_id), None)
 
     cards_by_role = {
         "Administrador General": [
             {"label": "Transacciones hoy", "value": "142",     "sub": "+12% vs ayer",          "icon": "ti-arrows-right-left", "bg": "#DBEAFE", "color": "#2563EB"},
-            {"label": "Clientes activos",  "value": "1.284",   "sub": "8 nuevos esta semana",  "icon": "ti-users",             "bg": "#D1FAE5", "color": "#059669"},
+            {"label": "Clientes activos",  "value": str(len(associated_clients)),   "sub": "8 nuevos esta semana",  "icon": "ti-users",             "bg": "#D1FAE5", "color": "#059669"},
             {"label": "Ganancia del día",  "value": "G. 4,2M", "sub": "en 3 monedas",          "icon": "ti-trending-up",       "bg": "#FEF3C7", "color": "#D97706"},
             {"label": "Cajas abiertas",    "value": "6 / 8",   "sub": "2 pendientes",          "icon": "ti-cash-register",     "bg": "#EDE9FE", "color": "#7C3AED"},
         ],
         "Analista Cambiario": [
             {"label": "Tasa USD/PYG",      "value": "7.620",   "sub": "Actualizada hace 3min", "icon": "ti-currency-dollar",   "bg": "#DBEAFE", "color": "#2563EB"},
             {"label": "Tasa EUR/PYG",      "value": "8.310",   "sub": "Actualizada hace 3min", "icon": "ti-currency-euro",     "bg": "#D1FAE5", "color": "#059669"},
-            {"label": "Ganancia del día",  "value": "G. 4,2M", "sub": "en 3 monedas",          "icon": "ti-trending-up",       "bg": "#FEF3C7", "color": "#D97706"},
+            {"label": "Clientes vinculados", "value": str(len(associated_clients)), "sub": "Cuentas asociadas", "icon": "ti-address-book", "bg": "#FEF3C7", "color": "#D97706"},
             {"label": "Transacciones",     "value": "142",     "sub": "Procesadas hoy",        "icon": "ti-arrows-right-left", "bg": "#EDE9FE", "color": "#7C3AED"},
         ],
         "Cajero": [
@@ -164,21 +195,22 @@ def dashboard(request):
             {"label": "Stock USD",         "value": "$ 12.400","sub": "En caja",               "icon": "ti-currency-dollar",   "bg": "#DBEAFE", "color": "#2563EB"},
             {"label": "Transacciones",     "value": "38",      "sub": "En tu turno",           "icon": "ti-arrows-right-left", "bg": "#FEF3C7", "color": "#D97706"},
             {"label": "Diferencia",        "value": "G. 0",    "sub": "Sin discrepancias",     "icon": "ti-check",             "bg": "#D1FAE5", "color": "#059669"},
-        ],
-        "Cliente": [
-            {"label": "Mis operaciones",   "value": "24",      "sub": "Este mes",              "icon": "ti-history",           "bg": "#DBEAFE", "color": "#2563EB"},
-            {"label": "USD/PYG hoy",       "value": "7.620",   "sub": "Tasa de venta",         "icon": "ti-currency-dollar",   "bg": "#D1FAE5", "color": "#059669"},
-            {"label": "Última operación",  "value": "$ 500",   "sub": "hace 2 días",           "icon": "ti-arrows-right-left", "bg": "#FEF3C7", "color": "#D97706"},
+            {"label": "Clientes vinculados", "value": str(len(associated_clients)), "sub": "En tu cuenta", "icon": "ti-address-book", "bg": "#D1FAE5", "color": "#059669"},
         ],
         "Sin Rol": [],
     }
+
+    default_cards = [
+        {"label": "Clientes asociados", "value": str(len(associated_clients)), "sub": "Cuentas vinculadas a tu usuario", "icon": "ti-address-book", "bg": "#DBEAFE", "color": "#2563EB"},
+        {"label": "USD/PYG hoy",       "value": "7.620",   "sub": "Tasa de venta",         "icon": "ti-currency-dollar",   "bg": "#D1FAE5", "color": "#059669"},
+    ]
 
     context = {
         "summary_cards": cards_by_role.get(role, []) if is_auth else [],
         "user_role": role,
         "user_role_label": role if is_auth else "Visitante",
         "menu_sections": get_menu_sections(role, active_client, is_authenticated=is_auth),
-        "associated_clients": mock_clients,
+        "associated_clients": associated_clients,
         "active_client": active_client,
     }
 
@@ -191,8 +223,10 @@ def select_client(request):
     if request.method == "POST":
         data = json.loads(request.body)
         client_id = data.get("client_id")
-        request.session['ge_active_client'] = client_id
-        return JsonResponse({"status": "ok"})
+        if Cliente.objects.filter(id=client_id, usuarios_asociados__usuario=request.user).exists():
+            request.session['ge_active_client'] = client_id
+            return JsonResponse({"status": "ok"})
+        return JsonResponse({"status": "forbidden", "message": "No tiene permisos sobre este cliente"}, status=403)
     return JsonResponse({"status": "error"}, status=400)
 
 

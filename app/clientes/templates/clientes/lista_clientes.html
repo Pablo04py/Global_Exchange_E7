@@ -1,46 +1,60 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Mis Clientes</title>
-</head>
-<body>
-    <h1>Listado de Clientes</h1>
-    
-    <!-- Botones de navegación -->
-    <p>
-        <a href="{% url 'crear_cliente' %}">➕ Crear Nuevo Cliente</a> | 
-        <a href="{% url 'asignar_cliente' %}">🔗 Asignar Cliente a Usuario</a>
-    </p>
+{% extends "layouts/base.html" %}
 
-    <table border="1" cellpadding="5" cellspacing="0">
-        <thead>
-            <tr>
-                <th>Nombre / Denominación</th>
-                <th>Documento</th>
-                <th>Categoría</th>
-                <th>Tipo de Persona</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cliente in clientes %}
-            <tr>
-                <td>{{ cliente.nombre_o_denominacion }}</td>
-                <td>{{ cliente.documento }}</td>
-                <td>{{ cliente.categoria }}</td>
-                <td>{{ cliente.tipo_persona }}</td>
-                <td>
-                    <a href="{% url 'editar_cliente' cliente.id %}">✏️ Editar</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5">No tenés clientes asignados todavía.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
+{% block title %}Gestión de Clientes — Global Exchange{% endblock %}
+{% block page_title %}Directorio de Clientes del Sistema{% endblock %}
+
+{% block content %}
+<div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+      <h3 style="font-size: 16px; font-weight: 700; color: #1A2840; margin: 0;">Clientes Registrados</h3>
+      <p style="font-size: 13px; color: #6B7A99; margin-top: 4px;">Administración general de empresas y personas físicas.</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="{% url 'crear_cliente' %}" style="background: #2563EB; color: #fff; padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+        <i class="ti ti-user-plus"></i> Crear Nuevo Cliente
+      </a>
+      <a href="{% url 'asignar_cliente' %}" style="background: #F3F4F6; color: #374151; border: 1px solid #D1D5DB; padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+        <i class="ti ti-link"></i> Asignar a Usuario
+      </a>
+    </div>
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+      <thead>
+        <tr style="border-bottom: 2px solid #E5E9F0; color: #6B7A99; font-size: 12px; text-transform: uppercase; letter-spacing: .05em;">
+          <th style="padding: 12px 16px;">Nombre / Razón Social</th>
+          <th style="padding: 12px 16px;">Documento</th>
+          <th style="padding: 12px 16px;">Categoría</th>
+          <th style="padding: 12px 16px;">Tipo de Persona</th>
+          <th style="padding: 12px 16px; text-align: right;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cliente in clientes %}
+        <tr style="border-bottom: 1px solid #E5E9F0; color: #1A2840;">
+          <td style="padding: 14px 16px; font-weight: 600;">{{ cliente.nombre_o_denominacion }}</td>
+          <td style="padding: 14px 16px;">{{ cliente.documento }}</td>
+          <td style="padding: 14px 16px;">
+            <span style="background: #E0E7FF; color: #3730A3; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+              {{ cliente.get_categoria_display|default:cliente.categoria }}
+            </span>
+          </td>
+          <td style="padding: 14px 16px;">{{ cliente.get_tipo_persona_display|default:cliente.tipo_persona }}</td>
+          <td style="padding: 14px 16px; text-align: right;">
+            <a href="{% url 'editar_cliente' cliente.id %}" style="color: #2563EB; font-weight: 600; text-decoration: none; font-size: 13px;">
+              <i class="ti ti-edit"></i> Editar
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" style="padding: 24px; text-align: center; color: #6B7A99;">No hay clientes registrados en el sistema.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
-
-</body>
-</html>
+  </div>
+</div>
+{% endblock %}
