@@ -1,0 +1,143 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+  {% if not request.user.is_authenticated %}
+    Bienvenido a Global Exchange
+  {% else %}
+    Dashboard — Global Exchange
+  {% endif %}
+{% endblock %}
+
+{% block page_title %}
+  {% if not request.user.is_authenticated %}
+    Inicio
+  {% else %}
+    Dashboard
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+{# ── 1. VISITANTE PÚBLICO (No registrado / No autenticado) ── #}
+{% if not request.user.is_authenticated %}
+
+<div style="background: linear-gradient(135deg, #0F2744 0%, #1E3A8A 100%); border-radius: 16px; padding: 50px 24px; color: #fff; text-align: center; margin-bottom: 28px; box-shadow: 0 10px 25px -5px rgba(15, 39, 68, 0.15);">
+  <div style="max-width: 650px; margin: 0 auto;">
+    <span style="background: rgba(255, 255, 255, 0.12); padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; display: inline-block; margin-bottom: 16px;">
+      MESA DE CAMBIOS DIGITAL
+    </span>
+    <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 12px; line-height: 1.2;">
+      Bienvenido a Global Exchange
+    </h1>
+    <p style="color: rgba(255, 255, 255, 0.8); font-size: 15px; margin-bottom: 28px; line-height: 1.5;">
+      La plataforma para tus operaciones de cambio en Guaraníes, Dólares y Euros con la mejor cotización del mercado y facturación electrónica legal DNIT.
+    </p>
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <a href="{% url 'oidc_authentication_init' %}" style="background: #2563EB; color: #fff; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="ti ti-login"></i> Ingresar / Registrarse
+      </a>
+      <a href="/cotizaciones/" style="background: rgba(255, 255, 255, 0.1); color: #fff; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid rgba(255, 255, 255, 0.2); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="ti ti-trending-up"></i> Ver Cotizaciones
+      </a>
+    </div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+  <div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <span style="font-weight: 700; color: #1A2840;">USD / PYG</span>
+      <span style="font-size: 11px; background: #D1FAE5; color: #047857; padding: 2px 6px; border-radius: 4px; font-weight: 600;">En vivo</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 12px;">
+      <div>
+        <div style="font-size: 11px; color: #6B7A99;">Compra</div>
+        <div style="font-size: 18px; font-weight: 700; color: #1A2840;">7.620 Gs.</div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 11px; color: #6B7A99;">Venta</div>
+        <div style="font-size: 18px; font-weight: 700; color: #2563EB;">7.660 Gs.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <span style="font-weight: 700; color: #1A2840;">EUR / PYG</span>
+      <span style="font-size: 11px; background: #D1FAE5; color: #047857; padding: 2px 6px; border-radius: 4px; font-weight: 600;">En vivo</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 12px;">
+      <div>
+        <div style="font-size: 11px; color: #6B7A99;">Compra</div>
+        <div style="font-size: 18px; font-weight: 700; color: #1A2840;">8.310 Gs.</div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 11px; color: #6B7A99;">Venta</div>
+        <div style="font-size: 18px; font-weight: 700; color: #2563EB;">8.390 Gs.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ── 2. USUARIO REGISTRADO PENDIENTE (Sin Rol) ── #}
+{% elif user_role == 'Sin Rol' %}
+
+<div style="background:#fff; border:1px solid #E5E9F0; border-radius:12px; padding:32px; max-width:750px; margin:0 auto">
+  <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px">
+    <div style="width:48px; height:48px; border-radius:10px; background:#FEF3C7; color:#D97706; display:flex; align-items:center; justify-content:center; font-size:24px">
+      <i class="ti ti-clock-hour-4"></i>
+    </div>
+    <div>
+      <h2 style="font-size:18px; font-weight:700; color:#1A2840; margin:0">Tu cuenta está en proceso de verificación</h2>
+      <p style="font-size:13px; color:#6B7A99; margin-top:4px">Un administrador revisará tus datos para habilitar tu perfil operativo.</p>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid #E5E9F0; padding-top:20px; display:flex; flex-direction:column; gap:12px">
+    <div style="display:flex; align-items:center; gap:12px; font-size:13px; color:#1A2840">
+      <i class="ti ti-circle-check-filled" style="color:#059669; font-size:18px"></i>
+      <span>Registro inicial completado</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; font-size:13px; color:#1A2840">
+      <i class="ti ti-circle-number-2" style="color:#2563EB; font-size:18px"></i>
+      <span>Verificación de documentos e identidad</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; font-size:13px; color:#6B7A99">
+      <i class="ti ti-circle" style="font-size:18px"></i>
+      <span>Asignación de perfil y habilitación de operaciones</span>
+    </div>
+  </div>
+</div>
+
+{# ── 3. USUARIO OPERATIVO (Cliente, Cajero, Admin, etc.) ── #}
+{% else %}
+
+  {% if active_client and user_role == 'Cliente' %}
+  <div style="background:#fff; border:1px solid #E5E9F0; border-radius:10px; padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between">
+    <div>
+      <span style="font-size:11px; font-weight:600; color:#6B7A99; text-transform:uppercase; letter-spacing:.05em">Vista de Operativa</span>
+      <div style="font-size:18px; font-weight:700; color:#1A2840; margin-top:2px">{{ active_client.name }}</div>
+    </div>
+    <span class="category-badge category-{{ active_client.category|lower }}">
+      Categoría {{ active_client.category }}
+    </span>
+  </div>
+  {% endif %}
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; margin-bottom:28px">
+    {% for card in summary_cards %}
+    <div style="background:#fff; border:1px solid #E5E9F0; border-radius:10px; padding:20px">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px">
+        <span style="font-size:12px; font-weight:600; color:#6B7A99; text-transform:uppercase; letter-spacing:.05em">{{ card.label }}</span>
+        <div style="width:36px; height:36px; border-radius:8px; background:{{ card.bg }}; display:flex; align-items:center; justify-content:center; color:{{ card.color }}; font-size:18px">
+          <i class="ti {{ card.icon }}"></i>
+        </div>
+      </div>
+      <div style="font-size:24px; font-weight:700; color:#1A2840">{{ card.value }}</div>
+      <div style="font-size:12px; color:#6B7A99; margin-top:4px">{{ card.sub }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+{% endif %}
+{% endblock %}

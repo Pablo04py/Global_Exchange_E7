@@ -29,7 +29,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-        - ./keycloak/import:/opt/keycloak/data/import
+        - ./docker/keycloak:/opt/keycloak/data/import
     depends_on:
       db:
         condition: service_healthy

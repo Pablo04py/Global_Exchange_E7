@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     
     # Librerías de terceros
     'mozilla_django_oidc',
+    'main',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +52,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                #Removido de mientras 'main.menu_procesos.menu_context',
             ],
         },
     },
@@ -110,9 +112,11 @@ OIDC_OP_AUTHORIZATION_ENDPOINT = f"{KEYCLOAK_SERVER_URL_BROWSER}/realms/{KEYCLOA
 OIDC_OP_TOKEN_ENDPOINT = f"{KEYCLOAK_SERVER_URL_INTERNAL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/token"
 OIDC_OP_USER_ENDPOINT = f"{KEYCLOAK_SERVER_URL_INTERNAL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/userinfo"
 OIDC_OP_JWKS_ENDPOINT = f"{KEYCLOAK_SERVER_URL_INTERNAL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/certs"
+OIDC_OP_LOGOUT_ENDPOINT = f"{KEYCLOAK_SERVER_URL_BROWSER}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/logout"
 
 # Algoritmo de firma
 OIDC_RP_SIGN_ALGO = 'RS256'
+OIDC_STORE_ID_TOKEN = True
 
 # Redirecciones
 LOGIN_REDIRECT_URL = '/'
