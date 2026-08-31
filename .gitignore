@@ -22,3 +22,18 @@ db.sqlite3
 .vscode/
 .idea/
 *.swp
+
+# Python virtual environments (si alguien desarrolla sin Docker localmente)
+.venv/
+venv/
+ENV/
+env/
+
+# Coverage & Testing (Para tu tarea SCRUM-44)
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Archivos del SO
+.DS_Store
+Thumbs.db
