@@ -7,4 +7,5 @@ urlpatterns = [
     path('editar/<uuid:cliente_id>/', views.editar_cliente, name='editar_cliente'),
     path('asignar/', views.asignar_cliente, name='asignar_cliente'),
     path('mis-clientes/', views.mis_clientes, name='mis_clientes'),
+    path('convertirse-en-cliente/', views.convertirse_en_cliente, name='convertirse_en_cliente'),
 ]

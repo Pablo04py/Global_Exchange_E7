@@ -19,8 +19,14 @@
     <td>{{ cliente.tipo_persona }}</td>
   </tr>
   {% empty %}
-  <tr><td colspan="4">No tenés clientes asignados todavía.</td></tr>
+  <tr>
+      <td colspan="4">
+          No tenés clientes asignados todavía.
+          <a href="{% url 'convertirse_en_cliente' %}">Operar como particular</a>
+      </td>
+  </tr>
   {% endfor %}
+
 </table>
 </body>
 </html>
