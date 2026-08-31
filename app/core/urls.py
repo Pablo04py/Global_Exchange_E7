@@ -19,9 +19,13 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='home.html'), name='home'),
-    path('admin/', admin.site.urls),
+    path('', TemplateView.as_view(template_name='home.html'), name='home'), #el inicio
     # Rutas para la autenticación con Keycloak (mozilla-django-oidc)
     path('oidc/', include('mozilla_django_oidc.urls')),
+    #ruta a app usuarios
     path('usuarios/', include('usuarios.urls')),
+    #ruta app cliente
+    path('clientes/', include('clientes.urls')), 
+    #panel de adm de django
+     path('admin/', admin.site.urls),
 ]

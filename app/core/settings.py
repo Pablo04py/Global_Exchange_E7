@@ -20,6 +20,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
     'usuarios', 
+    'clientes', 
+
     
     
     # Librerías de terceros
@@ -115,3 +117,4 @@ OIDC_RP_SIGN_ALGO = 'RS256'
 # Redirecciones
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = 'oidc_authentication_init'
