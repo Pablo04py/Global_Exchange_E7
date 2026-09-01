@@ -20,19 +20,27 @@ services:
       KC_DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-globalexchange}
       KC_DB_USERNAME: ${POSTGRES_USER:-pguser}
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-pgpassword}
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin123}
-      KC_HOSTNAME_STRICT: "false" #Agrgado para evitar inconvenientes
-      KC_HOSTNAME_STRICT_HTTPS: "false" #Agregado
-      KC_HTTP_ENABLED: "true" #Agregadoo
-      KC_HOSTNAME: "localhost" #Se agrego y modifico por un problema     
+      KEYCLOAK_ADMIN: ${KC_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:-admin123}
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: "localhost"
     ports:
       - "8080:8080"
     volumes:
-        - ./docker/keycloak:/opt/keycloak/data/import
+      - ./docker/keycloak:/opt/keycloak/data/import
     depends_on:
       db:
         condition: service_healthy
+    # Agregado: Healthcheck para garantizar que Keycloak esté respondiendo antes de levantar Django
+    healthcheck:
+      test: ["CMD", "/opt/keycloak/bin/kcadm.sh", "config", "credentials", "--help"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   web:
     build:
       context: .
@@ -45,6 +53,9 @@ services:
     env_file: .env
     depends_on:
       db:
+        condition: service_healthy
+      # Agregado: Espera a que Keycloak esté listo
+      keycloak:
         condition: service_healthy
 
 volumes:

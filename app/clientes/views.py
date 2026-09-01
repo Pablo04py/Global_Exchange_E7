@@ -1,42 +1,34 @@
-from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from django.contrib import messages
 from .models import Cliente, UsuarioCliente
-from .forms import ClienteForm, AsignacionForm
-from .forms import ClienteFisicaForm
+from .forms import ClienteForm, AsignacionForm, ClienteFisicaForm
 from usuarios.decorators import requiere_rol
-# read
+
 @requiere_rol('Administrador General')
 def lista_clientes(request):
-    # Filtrar  clientes para que solo traiga los que están asociados al usuario logueado
     clientes = Cliente.objects.all() 
-    
     return render(request, 'clientes/lista_clientes.html', {'clientes': clientes})  
 
-# Para cualquier usuario logueado: sus propios clientes operables
 @login_required
 def mis_clientes(request):
     clientes = Cliente.objects.filter(usuarios_asociados__usuario=request.user)
     return render(request, 'clientes/mis_clientes.html', {'clientes': clientes})
-
-# create
 
 @requiere_rol('Administrador General')
 def crear_cliente(request):
     if request.method == 'POST':
         form = ClienteForm(request.POST)
         if form.is_valid():
-            cliente = form.save() 
+            form.save() 
             return redirect('lista_clientes')
     else:
         form = ClienteForm()
     return render(request, 'clientes/form_cliente.html', {'form': form})
 
-#update
 @requiere_rol('Administrador General')
 def editar_cliente(request, cliente_id):
-    # El get_object_or_404 con filter asegura que si el usuario intenta 
-    # editar el cliente de otro poniendo el ID en la URL, le de error 404.
     cliente = get_object_or_404(Cliente, id=cliente_id)
     
     if request.method == 'POST':
@@ -48,22 +40,26 @@ def editar_cliente(request, cliente_id):
         form = ClienteForm(instance=cliente)
     return render(request, 'clientes/form_cliente.html', {'form': form})
 
-# 4. ASIGNACIÓN (Para que un usuario pueda asignar clientes a otros usuarios)
 @requiere_rol('Administrador General')
 def asignar_cliente(request):
     if request.method == 'POST':
         form = AsignacionForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('lista_clientes')
+            try:
+                form.save()
+                messages.success(request, "Asignación realizada exitosamente.")
+                return redirect('lista_clientes')
+            except ValidationError as e:
+                form.add_error(None, e.message)
     else:
         form = AsignacionForm()
     return render(request, 'clientes/form_asignacion.html', {'form': form})
 
 @login_required
 def convertirse_en_cliente(request):
-    # Si ya tiene no se permite
-    if UsuarioCliente.objects.filter(usuario=request.user).exists():
+    # Solo bloquea si el usuario ya posee un perfil propio como Persona FÍSICA
+    if UsuarioCliente.objects.filter(usuario=request.user, cliente__tipo_persona=Cliente.TipoPersona.FISICA).exists():
+        messages.warning(request, "Ya posees un perfil registrado como Persona Física.")
         return redirect('mis_clientes') 
 
     if request.method == 'POST':
