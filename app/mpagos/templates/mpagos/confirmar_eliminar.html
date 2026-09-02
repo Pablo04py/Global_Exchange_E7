@@ -1,0 +1,28 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Confirmar Eliminación{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 500px;">
+    <div class="card border-danger shadow-sm">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">¿Desea eliminar este medio de pago?</h5>
+        </div>
+        <div class="card-body">
+            <p>Está a punto de deshabilitar el siguiente registro:</p>
+            <ul>
+                <li><strong>Tipo:</strong> {{ medio.get_tipo_display }}</li>
+                <li><strong>Titular:</strong> {{ medio.nombre_titular }}</li>
+                <li><strong>Identificador:</strong> {{ medio.numero_enmascarado }}</li>
+            </ul>
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'mpagos:listar' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-danger">Sí, Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

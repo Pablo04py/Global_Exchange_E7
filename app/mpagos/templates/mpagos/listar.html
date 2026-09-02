@@ -1,0 +1,71 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Mis Medios de Pago{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Mis Medios de Pago</h2>
+        <a href="{% url 'mpagos:crear' %}" class="btn btn-primary">
+            + Agregar Medio de Pago
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Titular</th>
+                        <th>Banco</th>
+                        <th>Identificador / Número</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for medio in medios %}
+                    <tr>
+                        <td><strong>{{ medio.get_tipo_display }}</strong></td>
+                        <td>{{ medio.nombre_titular }}</td>
+                        <td>{{ medio.banco_emisor|default:"-" }}</td>
+                        <td><code>{{ medio.numero_enmascarado }}</code></td>
+                        <td>
+                            {% if medio.es_predeterminado %}
+                                <span class="badge bg-success">Predeterminado</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Opción Secundaria</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'mpagos:editar' medio.pk %}" class="btn btn-sm btn-outline-primary me-1">
+                                Editar
+                            </a>
+                            <a href="{% url 'mpagos:eliminar' medio.pk %}" class="btn btn-sm btn-outline-danger">
+                                Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            No posees medios de pago registrados actualmente.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
