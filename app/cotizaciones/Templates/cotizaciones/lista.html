@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Visualización de Cotizaciones</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 600px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <h1>Cotizaciones Global Exchange</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Moneda</th>
+                <th>Compra</th>
+                <th>Venta</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cot in cotizaciones %}
+            <tr>
+                <td><strong>{{ cot.moneda }}</strong></td>
+                <td>${{ cot.precio_compra }}</td>
+                <td>${{ cot.precio_venta }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No hay cotizaciones registradas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
