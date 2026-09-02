@@ -28,4 +28,5 @@ urlpatterns = [
     path('usuarios/', include('usuarios.urls')),
     #ruta app cliente
     path('clientes/', include('clientes.urls')), 
+    path('cotizaciones/', include('cotizaciones.urls')),
 ]
