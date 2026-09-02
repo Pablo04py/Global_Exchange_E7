@@ -1,31 +1,27 @@
 """
-URL configuration for core project.
+Módulo principal de enrutamiento de URLs del proyecto core[cite: 29].
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+Distribuye el tráfico y redirige las peticiones hacia las aplicaciones internas
+o paquetes de terceros según el prefijo de la ruta ingresada[cite: 29].
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    #path('', TemplateView.as_view(template_name='home.html'), name='home'),
+    # Panel de administración predeterminado de Django
     path('admin/', admin.site.urls),
-    # Rutas para la autenticación con Keycloak (mozilla-django-oidc)
+    
+    # Rutas para el flujo de autenticación SSO con Keycloak via mozilla-django-oidc
     path('oidc/', include('mozilla_django_oidc.urls')),
+    
+    # Rutas principales del sitio web (Home, landing pages, etc.)
     path('', include('main.urls')),
-    #ruta a app usuarios
+    
+    # Rutas del módulo de gestión de usuarios y roles
     path('usuarios/', include('usuarios.urls')),
-    #ruta app cliente
+    
+    # Rutas del módulo de gestión de clientes
     path('clientes/', include('clientes.urls')), 
 ]

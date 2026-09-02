@@ -1,16 +1,17 @@
 """
-ASGI config for core project.
+Configuración ASGI para el proyecto principal (core)[cite: 30].
 
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/6.1/howto/deployment/asgi/
+ASGI (Asynchronous Server Gateway Interface) es el estándar asíncrono para Python[cite: 30].
+Se utiliza para desplegar la aplicación en servidores asíncronos (Daphne, Uvicorn)
+y soporte de WebSockets, HTTP2 o tareas asíncronas[cite: 30].
+Expone la variable `application`[cite: 30].
 """
 
 import os
-
 from django.core.asgi import get_asgi_application
 
+# Establece el archivo de configuración predeterminado de Django para el entorno ASGI
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
+# Instancia la aplicación ASGI que procesará peticiones asíncronas
 application = get_asgi_application()
