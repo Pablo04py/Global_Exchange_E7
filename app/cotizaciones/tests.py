@@ -19,7 +19,7 @@ class CotizacionTestCase(TestCase):
 
     def test_creacion_modelo(self):
         """Verifica que el modelo guarde correctamente los datos."""
-        cot = Cotizacion.objects.get(moneda="USD")
+        cot = Cotizacion.objects.get(moneda="$")
         self.assertEqual(cot.precio_compra, 7200.50)
 
     def test_vista_listar_cotizaciones(self):
