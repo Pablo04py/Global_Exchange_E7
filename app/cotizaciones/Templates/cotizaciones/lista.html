@@ -1,18 +1,11 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Visualización de Cotizaciones</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; }
-        table { border-collapse: collapse; width: 100%; max-width: 600px; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-        th { background-color: #f4f4f4; }
-    </style>
-</head>
-<body>
-    <h1>Cotizaciones Global Exchange</h1>
-    <table>
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Cotizaciones Global Exchange</h2>
+    
+    <!-- Mantiene tu tabla existente -->
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Moneda</th>
@@ -21,11 +14,11 @@
             </tr>
         </thead>
         <tbody>
-            {% for cot in cotizaciones %}
+            {% for cotizacion in cotizaciones %}
             <tr>
-                <td><strong>{{ cot.moneda }}</strong></td>
-                <td>${{ cot.precio_compra }}</td>
-                <td>${{ cot.precio_venta }}</td>
+                <td>{{ cotizacion.moneda }}</td>
+                <td>{{ cotizacion.precio_compra }}</td>
+                <td>{{ cotizacion.precio_venta }}</td>
             </tr>
             {% empty %}
             <tr>
@@ -34,5 +27,5 @@
             {% endfor %}
         </tbody>
     </table>
-</body>
-</html>
+</div>
+{% endblock %}
