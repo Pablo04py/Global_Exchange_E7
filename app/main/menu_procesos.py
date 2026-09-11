@@ -137,7 +137,14 @@ ROLE_LABELS = {
 def menu_context(request):
     if not request.user.is_authenticated:
         return {
-            "menu_sections": [],
+            "menu_sections": [
+                {
+                    "label": "MERCADO",
+                    "items": [
+                        {"name": "Cotizaciones", "url": "/cotizaciones/", "icon": "ti-chart-line"},
+                    ]
+                }
+            ],
             "user_role": None,
             "user_role_label": None,
         }
