@@ -1,0 +1,76 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div style="padding: 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    
+    <div style="background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); max-width: 900px; margin: 0 auto; overflow: hidden;">
+        
+        <!-- Encabezado -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 28px; border-bottom: 1px solid #f1f5f9;">
+            <div>
+                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 700; color: #0f172a;">Cotizaciones Global Exchange</h2>
+                <p style="margin: 0; font-size: 13px; color: #64748b;">Precios del mercado en tiempo real</p>
+            </div>
+            <div style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12px; color: #475569; font-weight: 500;">
+                <i class="ti ti-clock"></i> Actualizado en vivo
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                        <th style="padding: 14px 28px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Moneda</th>
+                        <th style="padding: 14px 28px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; text-align: center;">Compra</th>
+                        <th style="padding: 14px 28px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; text-align: center;">Venta</th>
+                        <th style="padding: 14px 28px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; text-align: right;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cotizacion in cotizaciones %}
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <!-- Moneda -->
+                        <td style="padding: 18px 28px; vertical-align: middle;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;">
+                                    {{ cotizacion.moneda|slice:":2" }}
+                                </div>
+                                <span style="font-weight: 700; font-size: 15px; color: #1e293b;">{{ cotizacion.moneda }}</span>
+                            </div>
+                        </td>
+
+                        <!-- Compra -->
+                        <td style="padding: 18px 28px; text-align: center; vertical-align: middle;">
+                            <span style="display: inline-block; padding: 6px 18px; border-radius: 20px; background: #dcfce7; color: #15803d; font-weight: 700; font-size: 14px;">
+                                ₲ {{ cotizacion.precio_compra }}
+                            </span>
+                        </td>
+
+                        <!-- Venta -->
+                        <td style="padding: 18px 28px; text-align: center; vertical-align: middle;">
+                            <span style="display: inline-block; padding: 6px 18px; border-radius: 20px; background: #fee2e2; color: #b91c1c; font-weight: 700; font-size: 14px;">
+                                ₲ {{ cotizacion.precio_venta }}
+                            </span>
+                        </td>
+
+                        <!-- Estado -->
+                        <td style="padding: 18px 28px; text-align: right; vertical-align: middle;">
+                            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 12px; background: #f0fdf4; color: #16a34a; font-size: 12px; font-weight: 600; border: 1px solid #bbf7d0;">
+                                <span style="width: 6px; height: 6px; border-radius: 50%; background: #16a34a;"></span> En Línea
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="padding: 30px; text-align: center; color: #94a3b8; font-size: 14px;">
+                            No hay cotizaciones disponibles en este momento.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+  {% if form.instance.pk %}Editar Moneda{% else %}Nueva Moneda{% endif %} — Global Exchange
+{% endblock %}
+
+{% block page_title %}
+  {% if form.instance.pk %}Editar Moneda{% else %}Crear Moneda{% endif %}
+{% endblock %}
+
+{% block content %}
+<div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 28px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+  
+  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid #E5E9F0; padding-bottom: 16px;">
+    <div style="width: 40px; height: 40px; border-radius: 8px; background: #DBEAFE; color: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+      <i class="ti ti-coin"></i>
+    </div>
+    <div>
+      <h2 style="font-size: 16px; font-weight: 700; color: #1A2840; margin: 0;">
+        {% if form.instance.pk %}Editar Moneda{% else %}Crear Nueva Moneda{% endif %}
+      </h2>
+      <p style="font-size: 12px; color: #6B7A99; margin: 2px 0 0 0;">Ingresa los parámetros de la divisa para el sistema.</p>
+    </div>
+  </div>
+
+  <form method="post" style="display: flex; flex-direction: column; gap: 16px;">
+    {% csrf_token %}
+    
+    {{ form.as_p }}
+
+    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 12px;">
+      <a href="{% url 'lista_monedas' %}" style="background: #F1F5F9; color: #475569; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+        Cancelar
+      </a>
+      <button type="submit" style="background: #2563EB; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+        <i class="ti ti-device-floppy"></i> Guardar Moneda
+      </button>
+    </div>
+  </form>
+
+</div>
+{% endblock %}

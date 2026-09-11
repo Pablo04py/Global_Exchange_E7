@@ -1,39 +1,14 @@
-.env
-
-# Python
-*.pyc
+# Python / Django
 __pycache__/
-*.pyo
-*.pyd
-.Python
-*.egg-info/
-dist/
-build/
+*.py[cod]
+*$py.class
+*.sqlite3
 
-# Django
-db.sqlite3
-/app/staticfiles/
-/app/mediafiles/
-
-# Docker
-.docker/
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-
-# Python virtual environments (si alguien desarrolla sin Docker localmente)
-.venv/
+# Entornos virtuales y credenciales
+.env
+env
 venv/
 ENV/
-env/
 
-# Coverage & Testing (Para tu tarea SCRUM-44)
-.coverage
-htmlcov/
-.pytest_cache/
-
-# Archivos del SO
+# Sistema
 .DS_Store
-Thumbs.db

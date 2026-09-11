@@ -39,7 +39,7 @@ def get_menu_sections(role, active_client, is_authenticated=False):
                 "items": [
                     {"name": "Inicio", "url": "/", "icon": "ti-home"},
                     {"name": "Cotizaciones en Vivo", "url": "/cotizaciones/", "icon": "ti-trending-up"},
-                    {"name": "Simulador de Cambio", "url": "/calculadora/", "icon": "ti-calculator"},
+                    {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
                 ]
             },
             {
@@ -60,6 +60,7 @@ def get_menu_sections(role, active_client, is_authenticated=False):
                 "items": [
                     {"name": "Inicio", "url": "/dashboard/", "icon": "ti-layout-dashboard"},
                     {"name": "Cotizaciones", "url": "/cotizaciones/", "icon": "ti-trending-up"},
+                    {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
                 ]
             },
             {
@@ -107,6 +108,8 @@ def get_menu_sections(role, active_client, is_authenticated=False):
             "items": [
                 {"name": "Apertura / Cierre", "url": "/caja/gestion/", "icon": "ti-cash-register"},
                 {"name": "Movimientos de Efectivo", "url": "/caja/movimientos/", "icon": "ti-file-spreadsheet"},
+                {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
+                {"name": "Medios de Pago", "url": "/medios-pago", "icon": "ti-currency-dollar"},
             ]
         })
 
@@ -117,6 +120,8 @@ def get_menu_sections(role, active_client, is_authenticated=False):
             "items": [
                 {"name": "Ajuste de Tasas", "url": "/tasas/ajuste/", "icon": "ti-currency-dollar"},
                 {"name": "Monitoreo de Ganancias", "url": "/ganancias/", "icon": "ti-chart-bar"},
+                {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
+                {"name": "Medios de Pago", "url": "/medios-pago", "icon": "ti-currency-dollar"},
             ]
         })
 
@@ -128,6 +133,9 @@ def get_menu_sections(role, active_client, is_authenticated=False):
                 {"name": "Clientes", "url": reverse("lista_clientes"), "icon": "ti-users"},
                 {"name": "Nuevo Cliente", "url": reverse("crear_cliente"), "icon": "ti-user-plus"},
                 {"name": "Asignar Cliente", "url": reverse("asignar_cliente"), "icon": "ti-link"},
+                {"name": "Operaciones con Monedas", "url": reverse("crear_moneda"), "icon": "ti-coins"},
+                {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
+                {"name": "Medios de Pago", "url": "/medios-pago", "icon": "ti-currency-dollar"},
                 {"name": "Parámetros del Sistema", "url": "/admin/parametros/", "icon": "ti-settings"},
                 {"name": "Auditoría de Logs", "url": "/admin/auditoria/", "icon": "ti-shield-check"},
             ]

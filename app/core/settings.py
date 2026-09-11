@@ -20,7 +20,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
     'usuarios', 
-    'clientes', 
+    'clientes',
+    'mpagos',
+    'cotizaciones',
+    'operaciones',
 
     
     
