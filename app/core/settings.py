@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'usuarios', 
     'clientes',
     'cotizaciones',
+    'operaciones',
 
     
     
