@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><title>Tasas de Cambio</title></head>
+<body>
+<h1>Tasas de Cambio Vigentes</h1>
+<p><a href="{% url 'crear_tasa' %}">➕ Cargar Nueva Tasa</a></p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<thead>
+<tr><th>Moneda</th><th>Tasa Base</th><th>Precio Compra</th><th>Precio Venta</th><th>Vigencia</th></tr>
+</thead>
+<tbody>
+{% for item in tasas_actuales %}
+<tr>
+<td>{{ item.moneda.codigo }}</td>
+{% if item.tasa %}
+<td>{{ item.tasa.tasa_base }}</td>
+<td>{{ item.tasa.calcular_precio_compra }}</td>
+<td>{{ item.tasa.calcular_precio_venta }}</td>
+<td>{{ item.tasa.fecha_vigencia }}</td>
+{% else %}
+<td colspan="4">Sin tasa cargada todavía</td>
+{% endif %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</body>
+</html>

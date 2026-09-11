@@ -29,4 +29,6 @@ urlpatterns = [
     #ruta app cliente
     path('clientes/', include('clientes.urls')), 
     path('cotizaciones/', include('cotizaciones.urls')),
+    #ruta a operaciones
+    path('operaciones/', include('operaciones.urls')),
 ]

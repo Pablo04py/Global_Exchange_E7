@@ -1411,7 +1411,7 @@
     "auth": "true",
     "envelopeFrom": "",
     "ssl": "false",
-    "password": "CAMBIAR",
+    "password": "xsmtpsib-f817807c255d91095a6788763b71b0b31ea8cb44449691f1b5b1d98d24066d90-6cYbjdIL0lFIzbh4",
     "port": "587",
     "host": "smtp-relay.brevo.com",
     "replyTo": "",
