@@ -30,4 +30,8 @@ urlpatterns = [
     path('clientes/', include('clientes.urls')),
     #ruta app mpagos
     path('medios-pago/', include('mpagos.urls', namespace='mpagos')),
+    path('clientes/', include('clientes.urls')), 
+    path('cotizaciones/', include('cotizaciones.urls')),
+    #ruta a operaciones
+    path('operaciones/', include('operaciones.urls')),
 ]

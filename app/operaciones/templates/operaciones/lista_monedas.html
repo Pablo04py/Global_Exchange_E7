@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><title>Monedas</title></head>
+<body>
+<h1>Monedas</h1>
+<p><a href="{% url 'crear_moneda' %}">➕ Crear Nueva Moneda</a></p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<thead>
+<tr><th>Código</th><th>Nombre</th><th>Habilitada</th><th>Acciones</th></tr>
+</thead>
+<tbody>
+{% for moneda in monedas %}
+<tr>
+<td>{{ moneda.codigo }}</td>
+<td>{{ moneda.nombre }}</td>
+<td>{{ moneda.habilitada|yesno:"Sí,No" }}</td>
+<td><a href="{% url 'editar_moneda' moneda.id %}">✏️ Editar</a></td>
+</tr>
+{% empty %}
+<tr><td colspan="4">No hay monedas registradas todavía.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</body>
+</html>
