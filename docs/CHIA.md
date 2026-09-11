@@ -36,7 +36,42 @@
 
 ---
 
-### Registro #3 - 11/09/2026
+### Registro #3 - 31/08/2026
+* *Tarea / Historia*: SCRUM-28 (Integración de autenticación OIDC con Keycloak y control de acceso por roles)
+* *Autor*: Giovanni
+* *Herramienta / Modelo*: Claude
+* *Contexto / Objetivo*: Integrar Django con Keycloak como proveedor de identidad (IdP) vía OIDC, sincronizar roles de Keycloak hacia el modelo de Usuario local, e implementar un mecanismo de control de acceso por rol para las vistas.
+
+* *Prompts Determinantes Utilizados*:
+
+  1. *Elección del mecanismo de sincronización Usuario-Keycloak:*
+     > "Explicame cual es mejor, recorda que este proyecto lo hacemos en modo scrum, usamos github flow y hacemos releases..."
+     >
+     > *Decisión*: Se optó por mantener una tabla Usuario local liviana en Django (con keycloak_id, username, email), sincronizada automáticamente en cada login ("shadow user" pattern), en lugar de no persistir ningún dato de usuario y depender 100% de llamadas en vivo a Keycloak. Justificación: permite Foreign Keys reales desde otros modelos (Transaccion, Caja, etc.), compatibilidad con el admin de Django, y evita duplicar lógica de autenticación que Keycloak ya resuelve.
+
+  2. *Diseño del backend de autenticación custom (usuarios/backends.py):*
+     > "Y en actualizar_roles, guardás de verdad... esto en donde va en settings o en models.py"
+     >
+     > *Decisión*: Se extendió OIDCAuthenticationBackend de mozilla-django-oidc, sobrescribiendo create_user/update_user para sincronizar datos personales y roles (realm_access.roles del token) hacia el modelo Usuario en cada login, persistiendo los roles en un campo ArrayField de PostgreSQL.
+
+  3. *Diseño del control de acceso por rol (decorador requiere_rol):*
+     > "Ya, como hago las relaciones en Star UML como conecto los Foreign Keys y eso" (sesión de diseño previa) → "explicame para entender, así puedo usar en otros proyectos"
+     >
+     > *Decisión*: Se implementó un decorador propio (usuarios/decorators.py) que verifica request.user.roles contra una lista de roles permitidos, en lugar de usar el sistema de permisos nativo de Django (is_staff/Group), ya que los roles viven y se gestionan en Keycloak, no en la base de datos de Django.
+
+  4. *Resolución de configuración de hostname de Keycloak (KC_HOSTNAME_STRICT, KC_HOSTNAME):*
+     > "Sigue tirándome lo mismo, le doy a login y va a 8180 no es porque hardcodeamos..."
+     >
+     > *Decisión*: Se identificó que Keycloak (desde v22+) requiere KC_HOSTNAME con puerto explícito y KC_HOSTNAME_STRICT: false en modo desarrollo para evitar rechazos 401 en el endpoint userinfo por discrepancia entre el issuer del token y la URL real de acceso.
+
+  5. *Exportación/importación automática del realm de Keycloak:*
+     > "Decime a mi como hacer lo de la exportación automática del realm de Keycloak rápido paso a paso"
+     >
+     > *Decisión*: Se configuró command: start-dev --import-realm junto con un volumen montado hacia /opt/keycloak/data/import, versionando docker/keycloak/realm-export.json en el repositorio, para que la configuración del realm (roles, client, mappers) se reconstruya automáticamente ante cualquier reseteo de volúmenes de Docker, evitando pérdida de configuración manual repetida.
+
+* *Resultado*: Login funcional vía Keycloak (OIDC), con roles sincronizados y control de acceso por rol operativo en las vistas de clientes y operaciones. Configuración de Keycloak reproducible automáticamente para todo el equipo.
+
+### Registro #4 - 11/09/2026
 * **Tarea / Historia**: Hito 4 - Sprint 2 (Visualización de Tasas, Simulador de Conversión, Cierre de Sesión SSO y Estandarización UI/UX)
 * **Autor**: Pablo Portillo
 * **Herramienta / Modelo**: Gemini
