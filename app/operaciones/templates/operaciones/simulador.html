@@ -1,0 +1,99 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Simulador de Conversión — Global Exchange{% endblock %}
+{% block page_title %}Simulador de Cambio{% endblock %}
+
+{% block content %}
+<div style="max-width: 680px; margin: 0 auto;">
+  
+  <!-- Tarjeta del Formulario de Simulación -->
+  <div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); margin-bottom: 24px;">
+    
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid #E5E9F0; padding-bottom: 16px;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: #DBEAFE; color: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+        <i class="ti ti-calculator"></i>
+      </div>
+      <div>
+        <h2 style="font-size: 18px; font-weight: 700; color: #1A2840; margin: 0;">Calculadora de Conversión</h2>
+        <p style="font-size: 13px; color: #6B7A99; margin: 2px 0 0 0;">Simula el valor estimado de tus operaciones antes de ejecutarlas.</p>
+      </div>
+    </div>
+
+    <form method="get" action="{% url 'simulador' %}" style="display: flex; flex-direction: column; gap: 18px;">
+      
+      <div>
+        <label style="display: block; font-size: 13px; font-weight: 600; color: #1A2840; margin-bottom: 6px;">Monto a Operar</label>
+        <div style="position: relative;">
+          <input type="number" step="0.01" min="0.01" name="monto" value="{{ monto_input }}" placeholder="Ej. 1000" required style="width: 100%; padding: 10px 14px; border: 1px solid #E5E9F0; border-radius: 8px; font-size: 14px; font-family: inherit; color: #1A2840; outline: none; box-sizing: border-box;" />
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; color: #1A2840; margin-bottom: 6px;">Par de Divisas</label>
+          <select name="tasa_id" style="width: 100%; padding: 10px 14px; border: 1px solid #E5E9F0; border-radius: 8px; font-size: 13px; font-family: inherit; color: #1A2840; outline: none; background: #fff; box-sizing: border-box;">
+            {% for t in tasas %}
+              <option value="{{ t.id }}" {% if t.id|stringformat:"s" == tasa_id_sel %}selected{% endif %}>
+                {{ t.moneda.codigo }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; color: #1A2840; margin-bottom: 6px;">Tipo de Operación</label>
+          <select name="tipo_operacion" style="width: 100%; padding: 10px 14px; border: 1px solid #E5E9F0; border-radius: 8px; font-size: 13px; font-family: inherit; color: #1A2840; outline: none; background: #fff; box-sizing: border-box;">
+            <option value="compra" {% if tipo_op_sel == 'compra' %}selected{% endif %}>Vender Divisa (Precio Compra)</option>
+            <option value="venta" {% if tipo_op_sel == 'venta' %}selected{% endif %}>Comprar Divisa (Precio Venta)</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" style="background: #2563EB; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; margin-top: 6px;">
+        <i class="ti ti-arrows-right-left"></i> Calcular Conversión
+      </button>
+    </form>
+  </div>
+
+  <!-- Tarjeta de Desglose del Resultado -->
+  {% if resultado %}
+    {% if resultado.error %}
+      <div style="background: #FEE2E2; border: 1px solid #FCA5A5; border-radius: 12px; padding: 16px 20px; color: #991B1B; font-size: 13px; display: flex; align-items: center; gap: 10px;">
+        <i class="ti ti-alert-circle" style="font-size: 20px;"></i>
+        <span>{{ resultado.error }}</span>
+      </div>
+    {% else %}
+      <div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+        <div style="font-size: 11px; font-weight: 600; color: #6B7A99; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px;">
+          Resultado de la Simulación
+        </div>
+        
+        <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px;">
+          <span style="font-size: 32px; font-weight: 700; color: #1A2840;">
+            {{ resultado.monto_destino|floatformat:2 }}
+          </span>
+          <span style="font-size: 18px; font-weight: 600; color: #2563EB;">
+            {{ resultado.moneda_destino }}
+          </span>
+        </div>
+
+        <div style="border-top: 1px solid #E5E9F0; padding-top: 14px; display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+          <div style="display: flex; justify-content: space-between; color: #475569;">
+            <span>Monto entregado:</span>
+            <span style="font-weight: 600; color: #1A2840;">{{ resultado.monto_origen }} {{ resultado.moneda_origen }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; color: #475569;">
+            <span>Tasa de cambio aplicada:</span>
+            <span style="font-weight: 600; color: #059669;">1 {{ resultado.moneda_origen }} = {{ resultado.precio_aplicado }} {{ resultado.moneda_destino }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; color: #475569;">
+            <span>Modalidad:</span>
+            <span style="font-weight: 600; text-transform: capitalize;">{{ resultado.tipo_operacion }}</span>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+
+</div>
+{% endblock %}

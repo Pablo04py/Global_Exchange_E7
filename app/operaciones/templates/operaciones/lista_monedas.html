@@ -1,26 +1,57 @@
-<!DOCTYPE html>
-<html lang="es">
-<head><meta charset="UTF-8"><title>Monedas</title></head>
-<body>
-<h1>Monedas</h1>
-<p><a href="{% url 'crear_moneda' %}">➕ Crear Nueva Moneda</a></p>
+{% extends "layouts/base.html" %}
 
-<table border="1" cellpadding="5" cellspacing="0">
-<thead>
-<tr><th>Código</th><th>Nombre</th><th>Habilitada</th><th>Acciones</th></tr>
-</thead>
-<tbody>
-{% for moneda in monedas %}
-<tr>
-<td>{{ moneda.codigo }}</td>
-<td>{{ moneda.nombre }}</td>
-<td>{{ moneda.habilitada|yesno:"Sí,No" }}</td>
-<td><a href="{% url 'editar_moneda' moneda.id %}">✏️ Editar</a></td>
-</tr>
-{% empty %}
-<tr><td colspan="4">No hay monedas registradas todavía.</td></tr>
-{% endfor %}
-</tbody>
-</table>
-</body>
-</html>
+{% block title %}Monedas — Global Exchange{% endblock %}
+{% block page_title %}Administración de Monedas{% endblock %}
+
+{% block content %}
+<div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+      <h2 style="font-size: 18px; font-weight: 700; color: #1A2840; margin: 0;">Monedas Registradas</h2>
+      <p style="font-size: 13px; color: #6B7A99; margin-top: 2px;">Lista de divisas disponibles para operaciones financieras.</p>
+    </div>
+    <a href="{% url 'crear_moneda' %}" style="background: #2563EB; color: #fff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+      <i class="ti ti-plus"></i> Crear Nueva Moneda
+    </a>
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+      <thead>
+        <tr style="border-bottom: 2px solid #E5E9F0; color: #6B7A99; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em;">
+          <th style="padding: 12px 16px;">Código</th>
+          <th style="padding: 12px 16px;">Nombre</th>
+          <th style="padding: 12px 16px;">Estado</th>
+          <th style="padding: 12px 16px; text-align: right;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for moneda in monedas %}
+        <tr style="border-bottom: 1px solid #E5E9F0;">
+          <td style="padding: 14px 16px; font-weight: 700; color: #1A2840;">{{ moneda.codigo }}</td>
+          <td style="padding: 14px 16px; color: #1A2840;">{{ moneda.nombre }}</td>
+          <td style="padding: 14px 16px;">
+            {% if moneda.habilitada %}
+              <span style="background: #D1FAE5; color: #047857; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">Habilitada</span>
+            {% else %}
+              <span style="background: #FEE2E2; color: #DC2626; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">Inhabilitada</span>
+            {% endif %}
+          </td>
+          <td style="padding: 14px 16px; text-align: right;">
+            <a href="{% url 'editar_moneda' moneda.id %}" style="color: #2563EB; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+              <i class="ti ti-edit"></i> Editar
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" style="padding: 24px; text-align: center; color: #6B7A99;">No hay monedas registradas todavía.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}
