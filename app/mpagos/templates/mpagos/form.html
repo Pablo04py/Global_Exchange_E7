@@ -1,38 +1,175 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %}{{ titulo }}{% endblock %}
+{% block title %}{% if object %}Editar{% else %}Agregar{% endif %} Medio de Pago{% endblock %}
+{% block page_title %}{% if object %}Editar Medio de Pago{% else %}Nuevo Medio de Pago{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .mp-center-wrap {
+    min-height: calc(100vh - var(--topbar-h) - 48px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mp-form-card {
+    width: 100%;
+    max-width: 460px;
+    background: #fff;
+    border: 1px solid var(--topbar-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 10px 30px -10px rgba(15, 39, 68, 0.10);
+  }
+  .mp-form-header {
+    background: linear-gradient(135deg, #0F2744 0%, #16345C 100%);
+    padding: 26px 32px;
+    text-align: center;
+  }
+  .mp-form-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .mp-form-header p {
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.60);
+  }
+  .mp-form-body { padding: 32px; }
+
+  .mp-field { margin-bottom: 18px; }
+  .mp-field label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--topbar-text);
+    margin-bottom: 6px;
+  }
+  .mp-field .form-text {
+    font-size: 11.5px;
+    color: var(--topbar-muted);
+    margin-top: 5px;
+  }
+  .mp-field .field-error {
+    font-size: 11.5px;
+    color: #DC2626;
+    font-weight: 600;
+    margin-top: 5px;
+  }
+
+  .mp-field input[type="text"],
+  .mp-field input[type="number"],
+  .mp-field input[type="tel"],
+  .mp-field select,
+  .mp-field textarea {
+    width: 100%;
+    border: 1px solid var(--topbar-border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-size: 13.5px;
+    font-family: var(--font);
+    color: var(--topbar-text);
+    background: #fff;
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .mp-field input:focus,
+  .mp-field select:focus,
+  .mp-field textarea:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+
+  .mp-switch-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #F4F6FB;
+    border: 1px solid var(--topbar-border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin: 22px 0;
+  }
+  .mp-switch-row input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: #2563EB;
+    cursor: pointer;
+  }
+  .mp-switch-row label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--topbar-text);
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .mp-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px solid var(--topbar-border);
+  }
+
+  .mp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--radius);
+    padding: 10px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background var(--transition), border-color var(--transition);
+  }
+  .mp-btn-light { background: #fff; color: var(--topbar-text); border-color: var(--topbar-border); }
+  .mp-btn-light:hover { background: #F4F6FB; }
+  .mp-btn-primary { background: #2563EB; color: #fff; border: none; }
+  .mp-btn-primary:hover { background: #1D4ED8; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4" style="max-width: 600px;">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">{{ titulo }}</h4>
-        </div>
-        <div class="card-body">
-            <form method="post" novalidate>
-                {% csrf_token %}
-                
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label for="{{ field.id_for_label }}" class="form-label font-weight-bold">
-                            {{ field.label }}
-                        </label>
-                        {{ field }}
-                        {% if field.help_text %}
-                            <div class="form-text text-muted">{{ field.help_text }}</div>
-                        {% endif %}
-                        {% for error in field.errors %}
-                            <div class="text-danger small mt-1">{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="{% url 'mpagos:listar' %}" class="btn btn-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-success">Guardar Medio de Pago</button>
-                </div>
-            </form>
-        </div>
+<div class="mp-center-wrap">
+  <div class="mp-form-card">
+    <div class="mp-form-header">
+      <h3>{% if object %}Editar Medio de Pago{% else %}Nuevo Medio de Pago{% endif %}</h3>
+      <p>Completá la información de tu cuenta bancaria o tarjeta.</p>
     </div>
+    <div class="mp-form-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% for field in form %}
+          {% if field.name == 'es_predeterminado' %}
+            <div class="mp-switch-row">
+              {{ field }}
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            </div>
+          {% else %}
+            <div class="mp-field">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}
+                <div class="form-text">{{ field.help_text }}</div>
+              {% endif %}
+              {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        <div class="mp-form-actions">
+          <a href="{% url 'mpagos:listar' %}" class="mp-btn mp-btn-light">Cancelar</a>
+          <button type="submit" class="mp-btn mp-btn-primary">
+            {% if object %}Guardar Cambios{% else %}Registrar Medio{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}
