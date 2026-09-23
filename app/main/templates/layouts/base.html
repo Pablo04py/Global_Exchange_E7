@@ -23,6 +23,20 @@
       <span class="logo-text">Global<strong>Exchange</strong></span>
     </div>
 
+    {% if request.user.is_authenticated and request.resolver_match.url_name != 'dashboard' %}
+      <div class="sidebar-back">
+        <button
+          type="button"
+          id="sidebarBackButton"
+          class="sidebar-back-btn"
+          data-dashboard-url="{% url 'dashboard' %}"
+          title="Volver">
+          <i class="ti ti-arrow-left"></i>
+          <span class="nav-label">Volver</span>
+        </button>
+      </div>
+    {% endif %}
+    
     <nav class="sidebar-nav">
       {% for section in menu_sections %}
         {% if section.label %}
