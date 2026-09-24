@@ -26,14 +26,13 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: "false" #Agregado
       KC_HTTP_ENABLED: "true" #Agregadoo
       KC_HOSTNAME: "localhost" #Se agrego y modifico por un problema     
-    volumes:
-      - ./docker/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
     ports:
-      - "8180:8080"
+      - "8080:8080"
+    volumes:
+        - ./docker/keycloak:/opt/keycloak/data/import
     depends_on:
       db:
         condition: service_healthy
-
   web:
     build:
       context: .

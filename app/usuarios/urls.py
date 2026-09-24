@@ -1,0 +1,7 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('perfil/', views.perfil, name='perfil'),
+    path('zona-cajero/', views.zona_cajero, name='zona_cajero'),
+]
