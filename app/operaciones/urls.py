@@ -1,3 +1,5 @@
+"""Rutas de la aplicación operaciones (monedas, tasas y simulador)."""
+
 from django.urls import path
 from . import views
 
