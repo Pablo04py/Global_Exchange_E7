@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Docker: levantar",
+      "type": "shell",
+      "command": "docker compose up -d"
+    },
+    {
+      "label": "Pruebas unitarias",
+      "type": "shell",
+      "command": "docker compose run --rm web python manage.py test tests",
+      "group": { "kind": "test", "isDefault": true }
+    },
+    {
+      "label": "Generar documentación (pdoc)",
+      "type": "shell",
+      "command": "docker compose run --rm web python generar_docs.py",
+      "group": "build"
+    }
+  ]
+}

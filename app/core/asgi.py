@@ -1,10 +1,9 @@
-"""
-ASGI config for core project.
+"""Configuración ASGI del proyecto Global Exchange.
 
-It exposes the ASGI callable as a module-level variable named ``application``.
+Expone la aplicación ASGI en la variable de módulo ``application``, que usan
+los servidores asíncronos (por ejemplo, Uvicorn o Daphne) para ejecutar Django.
 
-For more information on this file, see
-https://docs.djangoproject.com/en/6.1/howto/deployment/asgi/
+Más información: https://docs.djangoproject.com/en/6.1/howto/deployment/asgi/
 """
 
 import os

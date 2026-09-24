@@ -1,3 +1,10 @@
+"""Configuración de Django para el proyecto Global Exchange.
+
+Los valores sensibles (clave secreta, credenciales de PostgreSQL y de Keycloak)
+se leen desde variables de entorno o del archivo `.env` mediante `python-decouple`.
+Ver `.env.example` en la raíz del repositorio.
+"""
+
 import os
 from pathlib import Path
 from decouple import config

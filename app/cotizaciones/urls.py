@@ -1,3 +1,5 @@
+"""Rutas de la aplicación cotizaciones."""
+
 from django.urls import path
 from . import views
 

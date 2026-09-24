@@ -92,5 +92,21 @@
      > *"Quiero que la estética de los formularios tenga la misma que el dashboard herede de base.html."*
      > 
      > **Decisión**: Se refactorizaron los archivos de plantilla (`form_moneda.html`, `form_tasa.html`, `lista_monedas.html`, `lista_tasas.html` y `simulador.html`) extendiendo de `layouts/base.html`, integrando la iconografía de Tabler e Inter font. Se estructuró la suite de pruebas en `cotizaciones/tests.py` validando la precisión decimal de las conversiones.
+### Registro #5 - 24/09/2026
+* **Tarea / Historia**: `SCRUM-47` (Documentación automática del código)
+* **Autor**: Alejandro Giménez
+* **Herramienta / Modelo**: Claude
+* **Contexto / Objetivo**: Verificar la rama feature/SCRUM-47 y dejar la documentación automática lista para integrar en develop.
+* **Prompts Determinantes Utilizados**:
+
+  1. **Revisión de la rama:**
+     > *"Quiero que verifiques si funciona correctamente para poder mergear... teniendo en cuenta los criterios IDE, PDO y CHIA."*
+     >
+     > **Decisión**: Se descartó el HTML generado a mano en `app/docs/` porque estaba desactualizado y no podía regenerarse. Se agregó pdoc a `app/requirements.txt`.
+
+  2. **Documentación automática con Django:**
+     > *"Ayudame a hacer la documentación automática y dejarlo listo para mergear."*
+     >
+     > **Decisión**: Se creó `app/generar_docs.py`, que ejecuta `django.setup()` antes de pdoc (sin eso fallan los imports de los modelos) y excluye las migraciones. La salida va a `docs/api/`, y se montó `./docs` en el contenedor `web`. Se agregaron tareas de VS Code en `.vscode/tasks.json`.
 
 * **Resultado / Decisión**: Culminación exitosa del Sprint 2 del Hito 4. Se verificó el paso correcto de las pruebas unitarias con `manage.py test`, se completó el flujo de integración en Git (`feature/sprint2-cotizaciones-simulador` hacia `develop`) y se publicó el tag de entrega `v1.2.0-sprint2`.

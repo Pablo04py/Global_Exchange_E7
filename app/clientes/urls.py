@@ -1,3 +1,5 @@
+"""Rutas de la aplicación clientes."""
+
 from django.urls import path
 from . import views
 

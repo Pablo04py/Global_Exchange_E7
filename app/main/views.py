@@ -1,3 +1,5 @@
+"""Vistas de la aplicación main: dashboard, menú lateral y cliente activo."""
+
 import json
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -145,6 +147,19 @@ def get_menu_sections(role, active_client, is_authenticated=False):
 
 
 def dashboard(request):
+    """Muestra el dashboard principal adaptado al rol del usuario.
+
+    El rol se resuelve en este orden: override de desarrollo en la sesión
+    (`ge_role`), grupos de Django y, por último, roles del token OIDC.
+    También carga los clientes asociados y fija el cliente activo en la
+    sesión (`ge_active_client`).
+
+    Args:
+        request: Petición HTTP.
+
+    Returns:
+        HttpResponse: Plantilla `dashboard.html` con tarjetas, menú y clientes.
+    """
     is_auth = request.user.is_authenticated
 
     if is_auth:
@@ -228,6 +243,18 @@ def dashboard(request):
 # Endpoint AJAX para cambiar de cliente activo (RF9)
 @login_required
 def select_client(request):
+    """Endpoint AJAX para cambiar el cliente activo del usuario.
+
+    Espera un POST con JSON `{"client_id": "<uuid>"}`. Solo permite
+    seleccionar clientes asociados al usuario.
+
+    Args:
+        request: Petición HTTP (POST con cuerpo JSON).
+
+    Returns:
+        JsonResponse: `{"status": "ok"}`, 403 si el cliente no le pertenece
+        o 400 si el método no es POST.
+    """
     if request.method == "POST":
         data = json.loads(request.body)
         client_id = data.get("client_id")
@@ -240,6 +267,18 @@ def select_client(request):
 
 # Solo para desarrollo — simular roles sin Keycloak
 def set_role(request, role):
+    """Cambia el rol simulado del usuario (solo en desarrollo).
+
+    Guarda el rol en la sesión (`ge_role`) para probar el sistema sin
+    Keycloak. Devuelve 403 si `DEBUG` está desactivado.
+
+    Args:
+        request: Petición HTTP. Acepta `?next=` para la redirección.
+        role: Slug del rol (`admin`, `analista`, `cajero` o `sinrol`).
+
+    Returns:
+        HttpResponse: Redirección a `next` o a `/dashboard/`.
+    """
     if not django_settings.DEBUG:
         return HttpResponseForbidden()
 

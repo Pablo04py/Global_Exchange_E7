@@ -15,6 +15,7 @@ class MedioPagoForm(forms.ModelForm):
     """
 
     class Meta:
+        """Campos, etiquetas y widgets del formulario de medios de pago."""
         model = MedioPago
         # Usamos numero_enmascarado que es el campo real del modelo
         fields = ['tipo', 'nombre_titular', 'banco_emisor', 'numero_enmascarado', 'es_predeterminado']
