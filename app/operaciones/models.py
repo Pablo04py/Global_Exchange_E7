@@ -1,10 +1,12 @@
-"""Modelos de la aplicación operaciones (monedas y tasas de cambio)."""
+"""Modelos de la aplicación operaciones (monedas, tasas de cambio y transacciones)."""
 
 from django.db import models
 
 
 import uuid
+from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class Moneda(models.Model):
@@ -77,3 +79,109 @@ class TasaDeCambio(models.Model):
             Decimal: `tasa_base + margen_venta`.
         """
         return self.tasa_base + self.margen_venta
+
+
+class Transaccion(models.Model):
+    """Operación de compra o venta de divisas realizada por un cliente.
+
+    El cliente es el propio usuario registrado que realiza la operación
+    (`usuario`); la transacción no referencia a un cliente separado.
+
+    El tipo se interpreta desde el punto de vista del cliente:
+
+    - `COMPRA`: el cliente paga guaraníes (PYG) y recibe la divisa.
+    - `VENTA`: el cliente paga la divisa y recibe guaraníes (PYG).
+
+    Los registros son de auditoría: las claves foráneas usan `PROTECT` para
+    que el historial no se pierda si se intenta borrar el usuario, una moneda
+    o un medio de pago.
+
+    Attributes:
+        id: Identificador UUID, no editable.
+        usuario: Usuario registrado (cliente) que realizó la operación.
+        cajero: Usuario (rol `Cajero`) que confirmó la operación. Vacío
+            mientras la transacción esté `PENDIENTE`.
+        tipo: `COMPRA` o `VENTA`.
+        moneda: Divisa operada.
+        medio_pago: Medio de pago utilizado.
+        monto_pagado: Monto entregado por el cliente.
+        monto_recibido: Monto recibido por el cliente.
+        tasa_aplicada: Precio en PYG de una unidad de la divisa.
+        facturada: Si se emitió factura de la operación.
+        dispositivo: Tipo de dispositivo desde el que se realizó
+            (ver `operaciones.utils.detectar_dispositivo`).
+        estado: `PENDIENTE`, `CONFIRMADA` o `CANCELADA`.
+        fecha: Fecha y hora de la operación.
+    """
+
+    class Tipo(models.TextChoices):
+        """Tipo de operación desde el punto de vista del cliente."""
+        COMPRA = 'COMPRA', 'Compra'
+        VENTA = 'VENTA', 'Venta'
+
+    class Dispositivo(models.TextChoices):
+        """Dispositivos reconocidos a partir del User-Agent del navegador."""
+        IPHONE = 'IPHONE', 'iPhone'
+        IPAD = 'IPAD', 'iPad'
+        ANDROID = 'ANDROID', 'Android'
+        WINDOWS = 'WINDOWS', 'PC (Windows)'
+        MAC = 'MAC', 'Mac'
+        LINUX = 'LINUX', 'PC (Linux)'
+        OTRO = 'OTRO', 'Otro'
+
+    class Estado(models.TextChoices):
+        """Estados de la transacción (la lógica de cambio de estado es de otra historia)."""
+        PENDIENTE = 'PENDIENTE', 'Pendiente'
+        CONFIRMADA = 'CONFIRMADA', 'Confirmada'
+        CANCELADA = 'CANCELADA', 'Cancelada'
+
+    MONEDA_LOCAL = 'PYG'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='transacciones_realizadas'
+    )
+    cajero = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='transacciones_atendidas'
+    )
+    tipo = models.CharField(max_length=10, choices=Tipo.choices)
+    moneda = models.ForeignKey(Moneda, on_delete=models.PROTECT, related_name='transacciones')
+    medio_pago = models.ForeignKey('mpagos.MedioPago', on_delete=models.PROTECT, related_name='transacciones')
+    monto_pagado = models.DecimalField(max_digits=18, decimal_places=2)
+    monto_recibido = models.DecimalField(max_digits=18, decimal_places=2)
+    tasa_aplicada = models.DecimalField(max_digits=12, decimal_places=4)
+    facturada = models.BooleanField(default=False)
+    dispositivo = models.CharField(max_length=10, choices=Dispositivo.choices, default=Dispositivo.OTRO)
+    estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
+    # default en lugar de auto_now_add para poder registrar operaciones con fecha pasada
+    fecha = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        """Nombres legibles, orden de más reciente a más antigua e índice por usuario."""
+        verbose_name = "Transacción"
+        verbose_name_plural = "Transacciones"
+        ordering = ['-fecha']
+        indexes = [models.Index(fields=['usuario', '-fecha'])]
+
+    def __str__(self):
+        """Devuelve `TIPO MONEDA - usuario (dd/mm/aaaa hh:mm)`."""
+        return f"{self.get_tipo_display()} {self.moneda.codigo} - {self.usuario} ({self.fecha:%d/%m/%Y %H:%M})"
+
+    @property
+    def moneda_pagada(self):
+        """Código de la moneda que entregó el cliente.
+
+        Returns:
+            str: `PYG` en una compra; el código de la divisa en una venta.
+        """
+        return self.MONEDA_LOCAL if self.tipo == self.Tipo.COMPRA else self.moneda.codigo
+
+    @property
+    def moneda_recibida(self):
+        """Código de la moneda que recibió el cliente.
+
+        Returns:
+            str: El código de la divisa en una compra; `PYG` en una venta.
+        """
+        return self.moneda.codigo if self.tipo == self.Tipo.COMPRA else self.MONEDA_LOCAL

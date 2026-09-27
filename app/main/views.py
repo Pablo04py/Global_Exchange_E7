@@ -30,6 +30,35 @@ def resolve_keycloak_role(user_roles):
             return role
     return "Sin Rol"
 
+def resolve_user_role(request):
+    """Resuelve el rol del usuario autenticado para armar el menú.
+
+    Orden: override de desarrollo en la sesión (`ge_role`), grupos de Django
+    y, por último, roles del token OIDC.
+
+    Args:
+        request: Petición HTTP.
+
+    Returns:
+        str | None: Etiqueta interna del rol, o `None` si no inició sesión.
+    """
+    if not request.user.is_authenticated:
+        return None
+
+    # Prioridad: si hay override de dev (session), se usa; si no, el rol real de Keycloak
+    role = request.session.get('ge_role')
+    if not role:
+        # 2. Extraer roles desde los Grupos de Django asignados por el backend
+        user_roles = list(request.user.groups.values_list('name', flat=True))
+        
+        # 3. Fallback: buscar en el payload del token OIDC en sesión
+        if not user_roles:
+            oidc_payload = request.session.get('oidc_access_token_payload', {})
+            user_roles = oidc_payload.get('realm_access', {}).get('roles', [])
+
+        role = resolve_keycloak_role(user_roles)
+    return role
+
 def get_menu_sections(role, active_client, is_authenticated=False):
     """Genera las secciones del menú lateral según autenticación, rol y cliente activo"""
 
@@ -98,7 +127,7 @@ def get_menu_sections(role, active_client, is_authenticated=False):
         "items": [
             {"name": "Mis Clientes", "url": reverse("mis_clientes"), "icon": "ti-address-book"},
             {"name": "Operar / Cambiar Divisas", "url": "/operar/", "icon": "ti-arrows-exchange"},
-            {"name": "Historial de Operaciones", "url": "/historial/", "icon": "ti-history"},
+            {"name": "Historial de Transacciones", "url": reverse("historial_transacciones"), "icon": "ti-history"},
             {"name": "Facturas DNIT", "url": "/facturas/", "icon": "ti-receipt"},
         ]
     })
@@ -161,22 +190,7 @@ def dashboard(request):
         HttpResponse: Plantilla `dashboard.html` con tarjetas, menú y clientes.
     """
     is_auth = request.user.is_authenticated
-
-    if is_auth:
-        # Prioridad: si hay override de dev (session), se usa; si no, el rol real de Keycloak
-        role = request.session.get('ge_role')
-        if not role:
-            # 2. Extraer roles desde los Grupos de Django asignados por el backend
-            user_roles = list(request.user.groups.values_list('name', flat=True))
-            
-            # 3. Fallback: buscar en el payload del token OIDC en sesión
-            if not user_roles:
-                oidc_payload = request.session.get('oidc_access_token_payload', {})
-                user_roles = oidc_payload.get('realm_access', {}).get('roles', [])
-
-            role = resolve_keycloak_role(user_roles)
-    else:
-        role = None
+    role = resolve_user_role(request)
 
     associated_clients = []
     if is_auth:

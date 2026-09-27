@@ -84,6 +84,81 @@
                 </ul>
 
             </li>
+            <li>
+                    <a class="class" href="#FiltroHistorialForm">FiltroHistorialForm</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#FiltroHistorialForm.__init__">FiltroHistorialForm</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.SI_NO_CHOICES">SI_NO_CHOICES</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.fecha_desde">fecha_desde</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.fecha_hasta">fecha_hasta</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.hora_desde">hora_desde</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.hora_hasta">hora_hasta</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.tipo">tipo</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.moneda">moneda</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.medio_pago">medio_pago</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.monto_pagado_min">monto_pagado_min</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.monto_pagado_max">monto_pagado_max</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.monto_recibido_min">monto_recibido_min</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.monto_recibido_max">monto_recibido_max</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.facturada">facturada</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.dispositivo">dispositivo</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.cajero">cajero</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.estado">estado</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.RANGOS">RANGOS</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#FiltroHistorialForm.clean">clean</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#FiltroHistorialForm.filtrar">filtrar</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.media">media</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.declared_fields">declared_fields</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroHistorialForm.base_fields">base_fields</a>
+                        </li>
+                </ul>
+
+            </li>
     </ul>
 
 
@@ -108,27 +183,150 @@
 
                         <label class="view-source-button" for="mod-forms-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">"""Formularios de la aplicación operaciones."""</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django</span><span class="w"> </span><span class="kn">import</span> <span class="n">forms</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Moneda</span><span class="p">,</span> <span class="n">TasaDeCambio</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="k">class</span><span class="w"> </span><span class="nc">MonedaForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="w">    </span><span class="sd">"""Formulario de alta y edición de monedas."""</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="w">        </span><span class="sd">"""Campos: código ISO 4217, nombre y si está habilitada."""</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">Moneda</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'codigo'</span><span class="p">,</span> <span class="s1">'nombre'</span><span class="p">,</span> <span class="s1">'habilitada'</span><span class="p">]</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="k">class</span><span class="w"> </span><span class="nc">TasaDeCambioForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="w">    </span><span class="sd">"""Formulario para registrar una nueva tasa de cambio de una moneda."""</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="w">        </span><span class="sd">"""Campos: moneda, tasa base, margen de compra y margen de venta."""</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">TasaDeCambio</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'moneda'</span><span class="p">,</span> <span class="s1">'tasa_base'</span><span class="p">,</span> <span class="s1">'margen_compra'</span><span class="p">,</span> <span class="s1">'margen_venta'</span><span class="p">]</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="sd">"""Formularios de la aplicación operaciones."""</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django</span><span class="w"> </span><span class="kn">import</span> <span class="n">forms</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_user_model</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">mpagos.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MedioPago</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Moneda</span><span class="p">,</span> <span class="n">TasaDeCambio</span><span class="p">,</span> <span class="n">Transaccion</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="k">class</span><span class="w"> </span><span class="nc">MonedaForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="w">    </span><span class="sd">"""Formulario de alta y edición de monedas."""</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="w">        </span><span class="sd">"""Campos: código ISO 4217, nombre y si está habilitada."""</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">Moneda</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'codigo'</span><span class="p">,</span> <span class="s1">'nombre'</span><span class="p">,</span> <span class="s1">'habilitada'</span><span class="p">]</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="k">class</span><span class="w"> </span><span class="nc">TasaDeCambioForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="w">    </span><span class="sd">"""Formulario para registrar una nueva tasa de cambio de una moneda."""</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="w">        </span><span class="sd">"""Campos: moneda, tasa base, margen de compra y margen de venta."""</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">TasaDeCambio</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'moneda'</span><span class="p">,</span> <span class="s1">'tasa_base'</span><span class="p">,</span> <span class="s1">'margen_compra'</span><span class="p">,</span> <span class="s1">'margen_venta'</span><span class="p">]</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="k">class</span><span class="w"> </span><span class="nc">_MedioPagoChoiceField</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelChoiceField</span><span class="p">):</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a><span class="w">    </span><span class="sd">"""Muestra el medio de pago con su número enmascarado (ej. `Tarjeta **** 1234`)."""</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">label_from_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a><span class="w">        </span><span class="sd">"""Devuelve `tipo número_enmascarado`."""</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">get_tipo_display</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">numero_enmascarado</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="k">class</span><span class="w"> </span><span class="nc">_CajeroChoiceField</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelChoiceField</span><span class="p">):</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a><span class="w">    </span><span class="sd">"""Muestra al cajero por su nombre completo o, si no lo tiene, por su usuario."""</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">label_from_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="w">        </span><span class="sd">"""Devuelve el nombre completo del cajero o su `username`."""</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_full_name</span><span class="p">()</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">username</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="k">class</span><span class="w"> </span><span class="nc">FiltroHistorialForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="w">    </span><span class="sd">"""Filtros del historial de transacciones del cliente (solo lectura, vía GET).</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">    Las opciones de moneda, medio de pago y cajero se construyen a partir de</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">    las transacciones que el usuario ya puede ver, de modo que un</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="sd">    identificador ajeno enviado en la URL no es una opción válida.</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">    Todos los campos son opcionales; los que no se completan no filtran.</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="sd">    """</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>    <span class="n">SI_NO_CHOICES</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todas'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'si'</span><span class="p">,</span> <span class="s1">'Sí'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'no'</span><span class="p">,</span> <span class="s1">'No'</span><span class="p">)]</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>    <span class="n">fecha_desde</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">DateInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'date'</span><span class="p">}))</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>    <span class="n">fecha_hasta</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">DateInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'date'</span><span class="p">}))</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="n">hora_desde</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">TimeField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">TimeInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'time'</span><span class="p">}))</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>    <span class="n">hora_hasta</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">TimeField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">TimeInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'time'</span><span class="p">}))</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="n">tipo</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todos'</span><span class="p">)]</span> <span class="o">+</span> <span class="n">Transaccion</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="n">moneda</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ModelChoiceField</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">Moneda</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">none</span><span class="p">(),</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">empty_label</span><span class="o">=</span><span class="s1">'Todas'</span><span class="p">)</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>    <span class="n">medio_pago</span> <span class="o">=</span> <span class="n">_MedioPagoChoiceField</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">MedioPago</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">none</span><span class="p">(),</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">empty_label</span><span class="o">=</span><span class="s1">'Todos'</span><span class="p">)</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>    <span class="n">monto_pagado_min</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>    <span class="n">monto_pagado_max</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>    <span class="n">monto_recibido_min</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="n">monto_recibido_max</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>    <span class="n">facturada</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">SI_NO_CHOICES</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="n">dispositivo</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todos'</span><span class="p">)]</span> <span class="o">+</span> <span class="n">Transaccion</span><span class="o">.</span><span class="n">Dispositivo</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="n">cajero</span> <span class="o">=</span> <span class="n">_CajeroChoiceField</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">get_user_model</span><span class="p">()</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">none</span><span class="p">(),</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">empty_label</span><span class="o">=</span><span class="s1">'Todos'</span><span class="p">)</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="n">estado</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todos'</span><span class="p">)]</span> <span class="o">+</span> <span class="n">Transaccion</span><span class="o">.</span><span class="n">Estado</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>    <span class="c1"># (campo "desde", campo "hasta") que deben formar un rango válido</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>    <span class="n">RANGOS</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>        <span class="p">(</span><span class="s1">'fecha_desde'</span><span class="p">,</span> <span class="s1">'fecha_hasta'</span><span class="p">),</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>        <span class="p">(</span><span class="s1">'hora_desde'</span><span class="p">,</span> <span class="s1">'hora_hasta'</span><span class="p">),</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>        <span class="p">(</span><span class="s1">'monto_pagado_min'</span><span class="p">,</span> <span class="s1">'monto_pagado_max'</span><span class="p">),</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>        <span class="p">(</span><span class="s1">'monto_recibido_min'</span><span class="p">,</span> <span class="s1">'monto_recibido_max'</span><span class="p">),</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="p">]</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">transacciones</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="w">        </span><span class="sd">"""Limita las opciones del formulario a los datos del usuario.</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">        Args:</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">            transacciones: QuerySet de `Transaccion` visibles para el usuario.</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">        """</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'moneda'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">Moneda</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">transacciones__in</span><span class="o">=</span><span class="n">transacciones</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'medio_pago'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">MedioPago</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">transacciones__in</span><span class="o">=</span><span class="n">transacciones</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'cajero'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">get_user_model</span><span class="p">()</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>            <span class="n">transacciones_atendidas__in</span><span class="o">=</span><span class="n">transacciones</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="w">        </span><span class="sd">"""Valida que en cada rango el valor "desde" no supere al "hasta".</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="sd">        Si un rango es inválido se descartan ambos extremos, para que ese</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="sd">        rango no filtre de forma parcial.</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">        Returns:</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">            dict: Datos limpios del formulario.</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="sd">        """</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>        <span class="n">cleaned_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>        <span class="k">for</span> <span class="n">campo_desde</span><span class="p">,</span> <span class="n">campo_hasta</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">RANGOS</span><span class="p">:</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>            <span class="n">desde</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">campo_desde</span><span class="p">)</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>            <span class="n">hasta</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">campo_hasta</span><span class="p">)</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>            <span class="k">if</span> <span class="n">desde</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">hasta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">desde</span> <span class="o">&gt;</span> <span class="n">hasta</span><span class="p">:</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span><span class="n">campo_hasta</span><span class="p">,</span> <span class="s1">'Debe ser mayor o igual que el valor inicial.'</span><span class="p">)</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>                <span class="n">cleaned_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">campo_desde</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>        <span class="k">return</span> <span class="n">cleaned_data</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">filtrar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transacciones</span><span class="p">):</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="w">        </span><span class="sd">"""Aplica al QuerySet los filtros que tengan un valor válido.</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">        Se usa `cleaned_data`, por lo que un campo con error se ignora y no</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">        amplía ni altera el conjunto de transacciones del usuario.</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">        Args:</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a><span class="sd">            transacciones: QuerySet de `Transaccion` visibles para el usuario.</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">        Returns:</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a><span class="sd">            QuerySet: Transacciones filtradas.</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="sd">        """</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="n">datos</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'cleaned_data'</span><span class="p">,</span> <span class="p">{})</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>        <span class="c1"># campo del formulario -&gt; lookup del ORM</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="n">lookups</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>            <span class="s1">'fecha_desde'</span><span class="p">:</span> <span class="s1">'fecha__date__gte'</span><span class="p">,</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>            <span class="s1">'fecha_hasta'</span><span class="p">:</span> <span class="s1">'fecha__date__lte'</span><span class="p">,</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>            <span class="s1">'hora_desde'</span><span class="p">:</span> <span class="s1">'fecha__time__gte'</span><span class="p">,</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>            <span class="s1">'hora_hasta'</span><span class="p">:</span> <span class="s1">'fecha__time__lte'</span><span class="p">,</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>            <span class="s1">'tipo'</span><span class="p">:</span> <span class="s1">'tipo'</span><span class="p">,</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>            <span class="s1">'moneda'</span><span class="p">:</span> <span class="s1">'moneda'</span><span class="p">,</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>            <span class="s1">'medio_pago'</span><span class="p">:</span> <span class="s1">'medio_pago'</span><span class="p">,</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>            <span class="s1">'monto_pagado_min'</span><span class="p">:</span> <span class="s1">'monto_pagado__gte'</span><span class="p">,</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>            <span class="s1">'monto_pagado_max'</span><span class="p">:</span> <span class="s1">'monto_pagado__lte'</span><span class="p">,</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>            <span class="s1">'monto_recibido_min'</span><span class="p">:</span> <span class="s1">'monto_recibido__gte'</span><span class="p">,</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>            <span class="s1">'monto_recibido_max'</span><span class="p">:</span> <span class="s1">'monto_recibido__lte'</span><span class="p">,</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>            <span class="s1">'dispositivo'</span><span class="p">:</span> <span class="s1">'dispositivo'</span><span class="p">,</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>            <span class="s1">'cajero'</span><span class="p">:</span> <span class="s1">'cajero'</span><span class="p">,</span>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>            <span class="s1">'estado'</span><span class="p">:</span> <span class="s1">'estado'</span><span class="p">,</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>        <span class="p">}</span>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>        <span class="n">filtros</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>            <span class="n">lookup</span><span class="p">:</span> <span class="n">datos</span><span class="p">[</span><span class="n">campo</span><span class="p">]</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>            <span class="k">for</span> <span class="n">campo</span><span class="p">,</span> <span class="n">lookup</span> <span class="ow">in</span> <span class="n">lookups</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>            <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">campo</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>        <span class="p">}</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'facturada'</span><span class="p">):</span>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>            <span class="n">filtros</span><span class="p">[</span><span class="s1">'facturada'</span><span class="p">]</span> <span class="o">=</span> <span class="n">datos</span><span class="p">[</span><span class="s1">'facturada'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'si'</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>        <span class="k">return</span> <span class="n">transacciones</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="n">filtros</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -144,12 +342,12 @@
 
     </div>
     <a class="headerlink" href="#MonedaForm"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="MonedaForm-8"><a href="#MonedaForm-8"><span class="linenos"> 8</span></a><span class="k">class</span><span class="w"> </span><span class="nc">MonedaForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
-</span><span id="MonedaForm-9"><a href="#MonedaForm-9"><span class="linenos"> 9</span></a><span class="w">    </span><span class="sd">"""Formulario de alta y edición de monedas."""</span>
-</span><span id="MonedaForm-10"><a href="#MonedaForm-10"><span class="linenos">10</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="MonedaForm-11"><a href="#MonedaForm-11"><span class="linenos">11</span></a><span class="w">        </span><span class="sd">"""Campos: código ISO 4217, nombre y si está habilitada."""</span>
-</span><span id="MonedaForm-12"><a href="#MonedaForm-12"><span class="linenos">12</span></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">Moneda</span>
-</span><span id="MonedaForm-13"><a href="#MonedaForm-13"><span class="linenos">13</span></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'codigo'</span><span class="p">,</span> <span class="s1">'nombre'</span><span class="p">,</span> <span class="s1">'habilitada'</span><span class="p">]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="MonedaForm-11"><a href="#MonedaForm-11"><span class="linenos">11</span></a><span class="k">class</span><span class="w"> </span><span class="nc">MonedaForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+</span><span id="MonedaForm-12"><a href="#MonedaForm-12"><span class="linenos">12</span></a><span class="w">    </span><span class="sd">"""Formulario de alta y edición de monedas."""</span>
+</span><span id="MonedaForm-13"><a href="#MonedaForm-13"><span class="linenos">13</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="MonedaForm-14"><a href="#MonedaForm-14"><span class="linenos">14</span></a><span class="w">        </span><span class="sd">"""Campos: código ISO 4217, nombre y si está habilitada."""</span>
+</span><span id="MonedaForm-15"><a href="#MonedaForm-15"><span class="linenos">15</span></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">Moneda</span>
+</span><span id="MonedaForm-16"><a href="#MonedaForm-16"><span class="linenos">16</span></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'codigo'</span><span class="p">,</span> <span class="s1">'nombre'</span><span class="p">,</span> <span class="s1">'habilitada'</span><span class="p">]</span>
 </span></pre></div>
 
 
@@ -233,10 +431,10 @@
 
     </div>
     <a class="headerlink" href="#MonedaForm.Meta"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="MonedaForm.Meta-10"><a href="#MonedaForm.Meta-10"><span class="linenos">10</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="MonedaForm.Meta-11"><a href="#MonedaForm.Meta-11"><span class="linenos">11</span></a><span class="w">        </span><span class="sd">"""Campos: código ISO 4217, nombre y si está habilitada."""</span>
-</span><span id="MonedaForm.Meta-12"><a href="#MonedaForm.Meta-12"><span class="linenos">12</span></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">Moneda</span>
-</span><span id="MonedaForm.Meta-13"><a href="#MonedaForm.Meta-13"><span class="linenos">13</span></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'codigo'</span><span class="p">,</span> <span class="s1">'nombre'</span><span class="p">,</span> <span class="s1">'habilitada'</span><span class="p">]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="MonedaForm.Meta-13"><a href="#MonedaForm.Meta-13"><span class="linenos">13</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="MonedaForm.Meta-14"><a href="#MonedaForm.Meta-14"><span class="linenos">14</span></a><span class="w">        </span><span class="sd">"""Campos: código ISO 4217, nombre y si está habilitada."""</span>
+</span><span id="MonedaForm.Meta-15"><a href="#MonedaForm.Meta-15"><span class="linenos">15</span></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">Moneda</span>
+</span><span id="MonedaForm.Meta-16"><a href="#MonedaForm.Meta-16"><span class="linenos">16</span></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'codigo'</span><span class="p">,</span> <span class="s1">'nombre'</span><span class="p">,</span> <span class="s1">'habilitada'</span><span class="p">]</span>
 </span></pre></div>
 
 
@@ -280,12 +478,12 @@
 
     </div>
     <a class="headerlink" href="#TasaDeCambioForm"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="TasaDeCambioForm-17"><a href="#TasaDeCambioForm-17"><span class="linenos">17</span></a><span class="k">class</span><span class="w"> </span><span class="nc">TasaDeCambioForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
-</span><span id="TasaDeCambioForm-18"><a href="#TasaDeCambioForm-18"><span class="linenos">18</span></a><span class="w">    </span><span class="sd">"""Formulario para registrar una nueva tasa de cambio de una moneda."""</span>
-</span><span id="TasaDeCambioForm-19"><a href="#TasaDeCambioForm-19"><span class="linenos">19</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="TasaDeCambioForm-20"><a href="#TasaDeCambioForm-20"><span class="linenos">20</span></a><span class="w">        </span><span class="sd">"""Campos: moneda, tasa base, margen de compra y margen de venta."""</span>
-</span><span id="TasaDeCambioForm-21"><a href="#TasaDeCambioForm-21"><span class="linenos">21</span></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">TasaDeCambio</span>
-</span><span id="TasaDeCambioForm-22"><a href="#TasaDeCambioForm-22"><span class="linenos">22</span></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'moneda'</span><span class="p">,</span> <span class="s1">'tasa_base'</span><span class="p">,</span> <span class="s1">'margen_compra'</span><span class="p">,</span> <span class="s1">'margen_venta'</span><span class="p">]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="TasaDeCambioForm-20"><a href="#TasaDeCambioForm-20"><span class="linenos">20</span></a><span class="k">class</span><span class="w"> </span><span class="nc">TasaDeCambioForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+</span><span id="TasaDeCambioForm-21"><a href="#TasaDeCambioForm-21"><span class="linenos">21</span></a><span class="w">    </span><span class="sd">"""Formulario para registrar una nueva tasa de cambio de una moneda."""</span>
+</span><span id="TasaDeCambioForm-22"><a href="#TasaDeCambioForm-22"><span class="linenos">22</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="TasaDeCambioForm-23"><a href="#TasaDeCambioForm-23"><span class="linenos">23</span></a><span class="w">        </span><span class="sd">"""Campos: moneda, tasa base, margen de compra y margen de venta."""</span>
+</span><span id="TasaDeCambioForm-24"><a href="#TasaDeCambioForm-24"><span class="linenos">24</span></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">TasaDeCambio</span>
+</span><span id="TasaDeCambioForm-25"><a href="#TasaDeCambioForm-25"><span class="linenos">25</span></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'moneda'</span><span class="p">,</span> <span class="s1">'tasa_base'</span><span class="p">,</span> <span class="s1">'margen_compra'</span><span class="p">,</span> <span class="s1">'margen_venta'</span><span class="p">]</span>
 </span></pre></div>
 
 
@@ -369,10 +567,10 @@
 
     </div>
     <a class="headerlink" href="#TasaDeCambioForm.Meta"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="TasaDeCambioForm.Meta-19"><a href="#TasaDeCambioForm.Meta-19"><span class="linenos">19</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="TasaDeCambioForm.Meta-20"><a href="#TasaDeCambioForm.Meta-20"><span class="linenos">20</span></a><span class="w">        </span><span class="sd">"""Campos: moneda, tasa base, margen de compra y margen de venta."""</span>
-</span><span id="TasaDeCambioForm.Meta-21"><a href="#TasaDeCambioForm.Meta-21"><span class="linenos">21</span></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">TasaDeCambio</span>
-</span><span id="TasaDeCambioForm.Meta-22"><a href="#TasaDeCambioForm.Meta-22"><span class="linenos">22</span></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'moneda'</span><span class="p">,</span> <span class="s1">'tasa_base'</span><span class="p">,</span> <span class="s1">'margen_compra'</span><span class="p">,</span> <span class="s1">'margen_venta'</span><span class="p">]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="TasaDeCambioForm.Meta-22"><a href="#TasaDeCambioForm.Meta-22"><span class="linenos">22</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="TasaDeCambioForm.Meta-23"><a href="#TasaDeCambioForm.Meta-23"><span class="linenos">23</span></a><span class="w">        </span><span class="sd">"""Campos: moneda, tasa base, margen de compra y margen de venta."""</span>
+</span><span id="TasaDeCambioForm.Meta-24"><a href="#TasaDeCambioForm.Meta-24"><span class="linenos">24</span></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">TasaDeCambio</span>
+</span><span id="TasaDeCambioForm.Meta-25"><a href="#TasaDeCambioForm.Meta-25"><span class="linenos">25</span></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'moneda'</span><span class="p">,</span> <span class="s1">'tasa_base'</span><span class="p">,</span> <span class="s1">'margen_compra'</span><span class="p">,</span> <span class="s1">'margen_venta'</span><span class="p">]</span>
 </span></pre></div>
 
 
@@ -400,6 +598,543 @@
         
     </div>
     <a class="headerlink" href="#TasaDeCambioForm.Meta.fields"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="FiltroHistorialForm">
+                            <input id="FiltroHistorialForm-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">FiltroHistorialForm</span><wbr>(<span class="base">django.forms.forms.Form</span>):
+
+                <label class="view-source-button" for="FiltroHistorialForm-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FiltroHistorialForm-42"><a href="#FiltroHistorialForm-42"><span class="linenos"> 42</span></a><span class="k">class</span><span class="w"> </span><span class="nc">FiltroHistorialForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+</span><span id="FiltroHistorialForm-43"><a href="#FiltroHistorialForm-43"><span class="linenos"> 43</span></a><span class="w">    </span><span class="sd">"""Filtros del historial de transacciones del cliente (solo lectura, vía GET).</span>
+</span><span id="FiltroHistorialForm-44"><a href="#FiltroHistorialForm-44"><span class="linenos"> 44</span></a>
+</span><span id="FiltroHistorialForm-45"><a href="#FiltroHistorialForm-45"><span class="linenos"> 45</span></a><span class="sd">    Las opciones de moneda, medio de pago y cajero se construyen a partir de</span>
+</span><span id="FiltroHistorialForm-46"><a href="#FiltroHistorialForm-46"><span class="linenos"> 46</span></a><span class="sd">    las transacciones que el usuario ya puede ver, de modo que un</span>
+</span><span id="FiltroHistorialForm-47"><a href="#FiltroHistorialForm-47"><span class="linenos"> 47</span></a><span class="sd">    identificador ajeno enviado en la URL no es una opción válida.</span>
+</span><span id="FiltroHistorialForm-48"><a href="#FiltroHistorialForm-48"><span class="linenos"> 48</span></a>
+</span><span id="FiltroHistorialForm-49"><a href="#FiltroHistorialForm-49"><span class="linenos"> 49</span></a><span class="sd">    Todos los campos son opcionales; los que no se completan no filtran.</span>
+</span><span id="FiltroHistorialForm-50"><a href="#FiltroHistorialForm-50"><span class="linenos"> 50</span></a><span class="sd">    """</span>
+</span><span id="FiltroHistorialForm-51"><a href="#FiltroHistorialForm-51"><span class="linenos"> 51</span></a>    <span class="n">SI_NO_CHOICES</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todas'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'si'</span><span class="p">,</span> <span class="s1">'Sí'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'no'</span><span class="p">,</span> <span class="s1">'No'</span><span class="p">)]</span>
+</span><span id="FiltroHistorialForm-52"><a href="#FiltroHistorialForm-52"><span class="linenos"> 52</span></a>
+</span><span id="FiltroHistorialForm-53"><a href="#FiltroHistorialForm-53"><span class="linenos"> 53</span></a>    <span class="n">fecha_desde</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">DateInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'date'</span><span class="p">}))</span>
+</span><span id="FiltroHistorialForm-54"><a href="#FiltroHistorialForm-54"><span class="linenos"> 54</span></a>    <span class="n">fecha_hasta</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">DateInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'date'</span><span class="p">}))</span>
+</span><span id="FiltroHistorialForm-55"><a href="#FiltroHistorialForm-55"><span class="linenos"> 55</span></a>    <span class="n">hora_desde</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">TimeField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">TimeInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'time'</span><span class="p">}))</span>
+</span><span id="FiltroHistorialForm-56"><a href="#FiltroHistorialForm-56"><span class="linenos"> 56</span></a>    <span class="n">hora_hasta</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">TimeField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">TimeInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'time'</span><span class="p">}))</span>
+</span><span id="FiltroHistorialForm-57"><a href="#FiltroHistorialForm-57"><span class="linenos"> 57</span></a>    <span class="n">tipo</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todos'</span><span class="p">)]</span> <span class="o">+</span> <span class="n">Transaccion</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-58"><a href="#FiltroHistorialForm-58"><span class="linenos"> 58</span></a>    <span class="n">moneda</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ModelChoiceField</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">Moneda</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">none</span><span class="p">(),</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">empty_label</span><span class="o">=</span><span class="s1">'Todas'</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-59"><a href="#FiltroHistorialForm-59"><span class="linenos"> 59</span></a>    <span class="n">medio_pago</span> <span class="o">=</span> <span class="n">_MedioPagoChoiceField</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">MedioPago</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">none</span><span class="p">(),</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">empty_label</span><span class="o">=</span><span class="s1">'Todos'</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-60"><a href="#FiltroHistorialForm-60"><span class="linenos"> 60</span></a>    <span class="n">monto_pagado_min</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-61"><a href="#FiltroHistorialForm-61"><span class="linenos"> 61</span></a>    <span class="n">monto_pagado_max</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-62"><a href="#FiltroHistorialForm-62"><span class="linenos"> 62</span></a>    <span class="n">monto_recibido_min</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-63"><a href="#FiltroHistorialForm-63"><span class="linenos"> 63</span></a>    <span class="n">monto_recibido_max</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-64"><a href="#FiltroHistorialForm-64"><span class="linenos"> 64</span></a>    <span class="n">facturada</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">SI_NO_CHOICES</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-65"><a href="#FiltroHistorialForm-65"><span class="linenos"> 65</span></a>    <span class="n">dispositivo</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todos'</span><span class="p">)]</span> <span class="o">+</span> <span class="n">Transaccion</span><span class="o">.</span><span class="n">Dispositivo</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-66"><a href="#FiltroHistorialForm-66"><span class="linenos"> 66</span></a>    <span class="n">cajero</span> <span class="o">=</span> <span class="n">_CajeroChoiceField</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">get_user_model</span><span class="p">()</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">none</span><span class="p">(),</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">empty_label</span><span class="o">=</span><span class="s1">'Todos'</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-67"><a href="#FiltroHistorialForm-67"><span class="linenos"> 67</span></a>    <span class="n">estado</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todos'</span><span class="p">)]</span> <span class="o">+</span> <span class="n">Transaccion</span><span class="o">.</span><span class="n">Estado</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-68"><a href="#FiltroHistorialForm-68"><span class="linenos"> 68</span></a>
+</span><span id="FiltroHistorialForm-69"><a href="#FiltroHistorialForm-69"><span class="linenos"> 69</span></a>    <span class="c1"># (campo "desde", campo "hasta") que deben formar un rango válido</span>
+</span><span id="FiltroHistorialForm-70"><a href="#FiltroHistorialForm-70"><span class="linenos"> 70</span></a>    <span class="n">RANGOS</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="FiltroHistorialForm-71"><a href="#FiltroHistorialForm-71"><span class="linenos"> 71</span></a>        <span class="p">(</span><span class="s1">'fecha_desde'</span><span class="p">,</span> <span class="s1">'fecha_hasta'</span><span class="p">),</span>
+</span><span id="FiltroHistorialForm-72"><a href="#FiltroHistorialForm-72"><span class="linenos"> 72</span></a>        <span class="p">(</span><span class="s1">'hora_desde'</span><span class="p">,</span> <span class="s1">'hora_hasta'</span><span class="p">),</span>
+</span><span id="FiltroHistorialForm-73"><a href="#FiltroHistorialForm-73"><span class="linenos"> 73</span></a>        <span class="p">(</span><span class="s1">'monto_pagado_min'</span><span class="p">,</span> <span class="s1">'monto_pagado_max'</span><span class="p">),</span>
+</span><span id="FiltroHistorialForm-74"><a href="#FiltroHistorialForm-74"><span class="linenos"> 74</span></a>        <span class="p">(</span><span class="s1">'monto_recibido_min'</span><span class="p">,</span> <span class="s1">'monto_recibido_max'</span><span class="p">),</span>
+</span><span id="FiltroHistorialForm-75"><a href="#FiltroHistorialForm-75"><span class="linenos"> 75</span></a>    <span class="p">]</span>
+</span><span id="FiltroHistorialForm-76"><a href="#FiltroHistorialForm-76"><span class="linenos"> 76</span></a>
+</span><span id="FiltroHistorialForm-77"><a href="#FiltroHistorialForm-77"><span class="linenos"> 77</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">transacciones</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="FiltroHistorialForm-78"><a href="#FiltroHistorialForm-78"><span class="linenos"> 78</span></a><span class="w">        </span><span class="sd">"""Limita las opciones del formulario a los datos del usuario.</span>
+</span><span id="FiltroHistorialForm-79"><a href="#FiltroHistorialForm-79"><span class="linenos"> 79</span></a>
+</span><span id="FiltroHistorialForm-80"><a href="#FiltroHistorialForm-80"><span class="linenos"> 80</span></a><span class="sd">        Args:</span>
+</span><span id="FiltroHistorialForm-81"><a href="#FiltroHistorialForm-81"><span class="linenos"> 81</span></a><span class="sd">            transacciones: QuerySet de `Transaccion` visibles para el usuario.</span>
+</span><span id="FiltroHistorialForm-82"><a href="#FiltroHistorialForm-82"><span class="linenos"> 82</span></a><span class="sd">        """</span>
+</span><span id="FiltroHistorialForm-83"><a href="#FiltroHistorialForm-83"><span class="linenos"> 83</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-84"><a href="#FiltroHistorialForm-84"><span class="linenos"> 84</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'moneda'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">Moneda</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">transacciones__in</span><span class="o">=</span><span class="n">transacciones</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="FiltroHistorialForm-85"><a href="#FiltroHistorialForm-85"><span class="linenos"> 85</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'medio_pago'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">MedioPago</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">transacciones__in</span><span class="o">=</span><span class="n">transacciones</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="FiltroHistorialForm-86"><a href="#FiltroHistorialForm-86"><span class="linenos"> 86</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'cajero'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">get_user_model</span><span class="p">()</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+</span><span id="FiltroHistorialForm-87"><a href="#FiltroHistorialForm-87"><span class="linenos"> 87</span></a>            <span class="n">transacciones_atendidas__in</span><span class="o">=</span><span class="n">transacciones</span>
+</span><span id="FiltroHistorialForm-88"><a href="#FiltroHistorialForm-88"><span class="linenos"> 88</span></a>        <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="FiltroHistorialForm-89"><a href="#FiltroHistorialForm-89"><span class="linenos"> 89</span></a>
+</span><span id="FiltroHistorialForm-90"><a href="#FiltroHistorialForm-90"><span class="linenos"> 90</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="FiltroHistorialForm-91"><a href="#FiltroHistorialForm-91"><span class="linenos"> 91</span></a><span class="w">        </span><span class="sd">"""Valida que en cada rango el valor "desde" no supere al "hasta".</span>
+</span><span id="FiltroHistorialForm-92"><a href="#FiltroHistorialForm-92"><span class="linenos"> 92</span></a>
+</span><span id="FiltroHistorialForm-93"><a href="#FiltroHistorialForm-93"><span class="linenos"> 93</span></a><span class="sd">        Si un rango es inválido se descartan ambos extremos, para que ese</span>
+</span><span id="FiltroHistorialForm-94"><a href="#FiltroHistorialForm-94"><span class="linenos"> 94</span></a><span class="sd">        rango no filtre de forma parcial.</span>
+</span><span id="FiltroHistorialForm-95"><a href="#FiltroHistorialForm-95"><span class="linenos"> 95</span></a>
+</span><span id="FiltroHistorialForm-96"><a href="#FiltroHistorialForm-96"><span class="linenos"> 96</span></a><span class="sd">        Returns:</span>
+</span><span id="FiltroHistorialForm-97"><a href="#FiltroHistorialForm-97"><span class="linenos"> 97</span></a><span class="sd">            dict: Datos limpios del formulario.</span>
+</span><span id="FiltroHistorialForm-98"><a href="#FiltroHistorialForm-98"><span class="linenos"> 98</span></a><span class="sd">        """</span>
+</span><span id="FiltroHistorialForm-99"><a href="#FiltroHistorialForm-99"><span class="linenos"> 99</span></a>        <span class="n">cleaned_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+</span><span id="FiltroHistorialForm-100"><a href="#FiltroHistorialForm-100"><span class="linenos">100</span></a>        <span class="k">for</span> <span class="n">campo_desde</span><span class="p">,</span> <span class="n">campo_hasta</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">RANGOS</span><span class="p">:</span>
+</span><span id="FiltroHistorialForm-101"><a href="#FiltroHistorialForm-101"><span class="linenos">101</span></a>            <span class="n">desde</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">campo_desde</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-102"><a href="#FiltroHistorialForm-102"><span class="linenos">102</span></a>            <span class="n">hasta</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">campo_hasta</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-103"><a href="#FiltroHistorialForm-103"><span class="linenos">103</span></a>            <span class="k">if</span> <span class="n">desde</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">hasta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">desde</span> <span class="o">&gt;</span> <span class="n">hasta</span><span class="p">:</span>
+</span><span id="FiltroHistorialForm-104"><a href="#FiltroHistorialForm-104"><span class="linenos">104</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span><span class="n">campo_hasta</span><span class="p">,</span> <span class="s1">'Debe ser mayor o igual que el valor inicial.'</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-105"><a href="#FiltroHistorialForm-105"><span class="linenos">105</span></a>                <span class="n">cleaned_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">campo_desde</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-106"><a href="#FiltroHistorialForm-106"><span class="linenos">106</span></a>        <span class="k">return</span> <span class="n">cleaned_data</span>
+</span><span id="FiltroHistorialForm-107"><a href="#FiltroHistorialForm-107"><span class="linenos">107</span></a>
+</span><span id="FiltroHistorialForm-108"><a href="#FiltroHistorialForm-108"><span class="linenos">108</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">filtrar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transacciones</span><span class="p">):</span>
+</span><span id="FiltroHistorialForm-109"><a href="#FiltroHistorialForm-109"><span class="linenos">109</span></a><span class="w">        </span><span class="sd">"""Aplica al QuerySet los filtros que tengan un valor válido.</span>
+</span><span id="FiltroHistorialForm-110"><a href="#FiltroHistorialForm-110"><span class="linenos">110</span></a>
+</span><span id="FiltroHistorialForm-111"><a href="#FiltroHistorialForm-111"><span class="linenos">111</span></a><span class="sd">        Se usa `cleaned_data`, por lo que un campo con error se ignora y no</span>
+</span><span id="FiltroHistorialForm-112"><a href="#FiltroHistorialForm-112"><span class="linenos">112</span></a><span class="sd">        amplía ni altera el conjunto de transacciones del usuario.</span>
+</span><span id="FiltroHistorialForm-113"><a href="#FiltroHistorialForm-113"><span class="linenos">113</span></a>
+</span><span id="FiltroHistorialForm-114"><a href="#FiltroHistorialForm-114"><span class="linenos">114</span></a><span class="sd">        Args:</span>
+</span><span id="FiltroHistorialForm-115"><a href="#FiltroHistorialForm-115"><span class="linenos">115</span></a><span class="sd">            transacciones: QuerySet de `Transaccion` visibles para el usuario.</span>
+</span><span id="FiltroHistorialForm-116"><a href="#FiltroHistorialForm-116"><span class="linenos">116</span></a>
+</span><span id="FiltroHistorialForm-117"><a href="#FiltroHistorialForm-117"><span class="linenos">117</span></a><span class="sd">        Returns:</span>
+</span><span id="FiltroHistorialForm-118"><a href="#FiltroHistorialForm-118"><span class="linenos">118</span></a><span class="sd">            QuerySet: Transacciones filtradas.</span>
+</span><span id="FiltroHistorialForm-119"><a href="#FiltroHistorialForm-119"><span class="linenos">119</span></a><span class="sd">        """</span>
+</span><span id="FiltroHistorialForm-120"><a href="#FiltroHistorialForm-120"><span class="linenos">120</span></a>        <span class="n">datos</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'cleaned_data'</span><span class="p">,</span> <span class="p">{})</span>
+</span><span id="FiltroHistorialForm-121"><a href="#FiltroHistorialForm-121"><span class="linenos">121</span></a>        <span class="c1"># campo del formulario -&gt; lookup del ORM</span>
+</span><span id="FiltroHistorialForm-122"><a href="#FiltroHistorialForm-122"><span class="linenos">122</span></a>        <span class="n">lookups</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="FiltroHistorialForm-123"><a href="#FiltroHistorialForm-123"><span class="linenos">123</span></a>            <span class="s1">'fecha_desde'</span><span class="p">:</span> <span class="s1">'fecha__date__gte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-124"><a href="#FiltroHistorialForm-124"><span class="linenos">124</span></a>            <span class="s1">'fecha_hasta'</span><span class="p">:</span> <span class="s1">'fecha__date__lte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-125"><a href="#FiltroHistorialForm-125"><span class="linenos">125</span></a>            <span class="s1">'hora_desde'</span><span class="p">:</span> <span class="s1">'fecha__time__gte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-126"><a href="#FiltroHistorialForm-126"><span class="linenos">126</span></a>            <span class="s1">'hora_hasta'</span><span class="p">:</span> <span class="s1">'fecha__time__lte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-127"><a href="#FiltroHistorialForm-127"><span class="linenos">127</span></a>            <span class="s1">'tipo'</span><span class="p">:</span> <span class="s1">'tipo'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-128"><a href="#FiltroHistorialForm-128"><span class="linenos">128</span></a>            <span class="s1">'moneda'</span><span class="p">:</span> <span class="s1">'moneda'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-129"><a href="#FiltroHistorialForm-129"><span class="linenos">129</span></a>            <span class="s1">'medio_pago'</span><span class="p">:</span> <span class="s1">'medio_pago'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-130"><a href="#FiltroHistorialForm-130"><span class="linenos">130</span></a>            <span class="s1">'monto_pagado_min'</span><span class="p">:</span> <span class="s1">'monto_pagado__gte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-131"><a href="#FiltroHistorialForm-131"><span class="linenos">131</span></a>            <span class="s1">'monto_pagado_max'</span><span class="p">:</span> <span class="s1">'monto_pagado__lte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-132"><a href="#FiltroHistorialForm-132"><span class="linenos">132</span></a>            <span class="s1">'monto_recibido_min'</span><span class="p">:</span> <span class="s1">'monto_recibido__gte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-133"><a href="#FiltroHistorialForm-133"><span class="linenos">133</span></a>            <span class="s1">'monto_recibido_max'</span><span class="p">:</span> <span class="s1">'monto_recibido__lte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-134"><a href="#FiltroHistorialForm-134"><span class="linenos">134</span></a>            <span class="s1">'dispositivo'</span><span class="p">:</span> <span class="s1">'dispositivo'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-135"><a href="#FiltroHistorialForm-135"><span class="linenos">135</span></a>            <span class="s1">'cajero'</span><span class="p">:</span> <span class="s1">'cajero'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-136"><a href="#FiltroHistorialForm-136"><span class="linenos">136</span></a>            <span class="s1">'estado'</span><span class="p">:</span> <span class="s1">'estado'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm-137"><a href="#FiltroHistorialForm-137"><span class="linenos">137</span></a>        <span class="p">}</span>
+</span><span id="FiltroHistorialForm-138"><a href="#FiltroHistorialForm-138"><span class="linenos">138</span></a>        <span class="n">filtros</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="FiltroHistorialForm-139"><a href="#FiltroHistorialForm-139"><span class="linenos">139</span></a>            <span class="n">lookup</span><span class="p">:</span> <span class="n">datos</span><span class="p">[</span><span class="n">campo</span><span class="p">]</span>
+</span><span id="FiltroHistorialForm-140"><a href="#FiltroHistorialForm-140"><span class="linenos">140</span></a>            <span class="k">for</span> <span class="n">campo</span><span class="p">,</span> <span class="n">lookup</span> <span class="ow">in</span> <span class="n">lookups</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+</span><span id="FiltroHistorialForm-141"><a href="#FiltroHistorialForm-141"><span class="linenos">141</span></a>            <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">campo</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm-142"><a href="#FiltroHistorialForm-142"><span class="linenos">142</span></a>        <span class="p">}</span>
+</span><span id="FiltroHistorialForm-143"><a href="#FiltroHistorialForm-143"><span class="linenos">143</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'facturada'</span><span class="p">):</span>
+</span><span id="FiltroHistorialForm-144"><a href="#FiltroHistorialForm-144"><span class="linenos">144</span></a>            <span class="n">filtros</span><span class="p">[</span><span class="s1">'facturada'</span><span class="p">]</span> <span class="o">=</span> <span class="n">datos</span><span class="p">[</span><span class="s1">'facturada'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'si'</span>
+</span><span id="FiltroHistorialForm-145"><a href="#FiltroHistorialForm-145"><span class="linenos">145</span></a>        <span class="k">return</span> <span class="n">transacciones</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="n">filtros</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Filtros del historial de transacciones del cliente (solo lectura, vía GET).</p>
+
+<p>Las opciones de moneda, medio de pago y cajero se construyen a partir de
+las transacciones que el usuario ya puede ver, de modo que un
+identificador ajeno enviado en la URL no es una opción válida.</p>
+
+<p>Todos los campos son opcionales; los que no se completan no filtran.</p>
+</div>
+
+
+                            <div id="FiltroHistorialForm.__init__" class="classattr">
+                                        <input id="FiltroHistorialForm.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="name">FiltroHistorialForm</span><span class="signature pdoc-code condensed">(<span class="param"><span class="o">*</span><span class="n">args</span>, </span><span class="param"><span class="n">transacciones</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span>)</span>
+
+                <label class="view-source-button" for="FiltroHistorialForm.__init__-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.__init__"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FiltroHistorialForm.__init__-77"><a href="#FiltroHistorialForm.__init__-77"><span class="linenos">77</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">transacciones</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="FiltroHistorialForm.__init__-78"><a href="#FiltroHistorialForm.__init__-78"><span class="linenos">78</span></a><span class="w">        </span><span class="sd">"""Limita las opciones del formulario a los datos del usuario.</span>
+</span><span id="FiltroHistorialForm.__init__-79"><a href="#FiltroHistorialForm.__init__-79"><span class="linenos">79</span></a>
+</span><span id="FiltroHistorialForm.__init__-80"><a href="#FiltroHistorialForm.__init__-80"><span class="linenos">80</span></a><span class="sd">        Args:</span>
+</span><span id="FiltroHistorialForm.__init__-81"><a href="#FiltroHistorialForm.__init__-81"><span class="linenos">81</span></a><span class="sd">            transacciones: QuerySet de `Transaccion` visibles para el usuario.</span>
+</span><span id="FiltroHistorialForm.__init__-82"><a href="#FiltroHistorialForm.__init__-82"><span class="linenos">82</span></a><span class="sd">        """</span>
+</span><span id="FiltroHistorialForm.__init__-83"><a href="#FiltroHistorialForm.__init__-83"><span class="linenos">83</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm.__init__-84"><a href="#FiltroHistorialForm.__init__-84"><span class="linenos">84</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'moneda'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">Moneda</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">transacciones__in</span><span class="o">=</span><span class="n">transacciones</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="FiltroHistorialForm.__init__-85"><a href="#FiltroHistorialForm.__init__-85"><span class="linenos">85</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'medio_pago'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">MedioPago</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">transacciones__in</span><span class="o">=</span><span class="n">transacciones</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="FiltroHistorialForm.__init__-86"><a href="#FiltroHistorialForm.__init__-86"><span class="linenos">86</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'cajero'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">get_user_model</span><span class="p">()</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+</span><span id="FiltroHistorialForm.__init__-87"><a href="#FiltroHistorialForm.__init__-87"><span class="linenos">87</span></a>            <span class="n">transacciones_atendidas__in</span><span class="o">=</span><span class="n">transacciones</span>
+</span><span id="FiltroHistorialForm.__init__-88"><a href="#FiltroHistorialForm.__init__-88"><span class="linenos">88</span></a>        <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Limita las opciones del formulario a los datos del usuario.</p>
+
+<h6 id="arguments">Parámetros:</h6>
+
+<ul>
+<li><strong>transacciones:</strong>  QuerySet de <code>Transaccion</code> visibles para el usuario.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="FiltroHistorialForm.SI_NO_CHOICES" class="classattr">
+                                <div class="attr variable">
+            <span class="name">SI_NO_CHOICES</span>        =
+<span class="default_value">[(&#39;&#39;, &#39;Todas&#39;), (&#39;si&#39;, &#39;Sí&#39;), (&#39;no&#39;, &#39;No&#39;)]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.SI_NO_CHOICES"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.fecha_desde" class="classattr">
+                                <div class="attr variable">
+            <span class="name">fecha_desde</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.fecha_desde"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.fecha_hasta" class="classattr">
+                                <div class="attr variable">
+            <span class="name">fecha_hasta</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.fecha_hasta"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.hora_desde" class="classattr">
+                                <div class="attr variable">
+            <span class="name">hora_desde</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.hora_desde"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.hora_hasta" class="classattr">
+                                <div class="attr variable">
+            <span class="name">hora_hasta</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.hora_hasta"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.tipo" class="classattr">
+                                <div class="attr variable">
+            <span class="name">tipo</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.tipo"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.moneda" class="classattr">
+                                <div class="attr variable">
+            <span class="name">moneda</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.moneda"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.medio_pago" class="classattr">
+                                <div class="attr variable">
+            <span class="name">medio_pago</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.medio_pago"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.monto_pagado_min" class="classattr">
+                                <div class="attr variable">
+            <span class="name">monto_pagado_min</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.monto_pagado_min"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.monto_pagado_max" class="classattr">
+                                <div class="attr variable">
+            <span class="name">monto_pagado_max</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.monto_pagado_max"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.monto_recibido_min" class="classattr">
+                                <div class="attr variable">
+            <span class="name">monto_recibido_min</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.monto_recibido_min"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.monto_recibido_max" class="classattr">
+                                <div class="attr variable">
+            <span class="name">monto_recibido_max</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.monto_recibido_max"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.facturada" class="classattr">
+                                <div class="attr variable">
+            <span class="name">facturada</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.facturada"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.dispositivo" class="classattr">
+                                <div class="attr variable">
+            <span class="name">dispositivo</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.dispositivo"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.cajero" class="classattr">
+                                <div class="attr variable">
+            <span class="name">cajero</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.cajero"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.estado" class="classattr">
+                                <div class="attr variable">
+            <span class="name">estado</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.estado"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.RANGOS" class="classattr">
+                                <div class="attr variable">
+            <span class="name">RANGOS</span>        =
+<input id="FiltroHistorialForm.RANGOS-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="FiltroHistorialForm.RANGOS-view-value"></label><span class="default_value">[(&#39;fecha_desde&#39;, &#39;fecha_hasta&#39;), (&#39;hora_desde&#39;, &#39;hora_hasta&#39;), (&#39;monto_pagado_min&#39;, &#39;monto_pagado_max&#39;), (&#39;monto_recibido_min&#39;, &#39;monto_recibido_max&#39;)]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.RANGOS"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.clean" class="classattr">
+                                        <input id="FiltroHistorialForm.clean-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">clean</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="FiltroHistorialForm.clean-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.clean"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FiltroHistorialForm.clean-90"><a href="#FiltroHistorialForm.clean-90"><span class="linenos"> 90</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="FiltroHistorialForm.clean-91"><a href="#FiltroHistorialForm.clean-91"><span class="linenos"> 91</span></a><span class="w">        </span><span class="sd">"""Valida que en cada rango el valor "desde" no supere al "hasta".</span>
+</span><span id="FiltroHistorialForm.clean-92"><a href="#FiltroHistorialForm.clean-92"><span class="linenos"> 92</span></a>
+</span><span id="FiltroHistorialForm.clean-93"><a href="#FiltroHistorialForm.clean-93"><span class="linenos"> 93</span></a><span class="sd">        Si un rango es inválido se descartan ambos extremos, para que ese</span>
+</span><span id="FiltroHistorialForm.clean-94"><a href="#FiltroHistorialForm.clean-94"><span class="linenos"> 94</span></a><span class="sd">        rango no filtre de forma parcial.</span>
+</span><span id="FiltroHistorialForm.clean-95"><a href="#FiltroHistorialForm.clean-95"><span class="linenos"> 95</span></a>
+</span><span id="FiltroHistorialForm.clean-96"><a href="#FiltroHistorialForm.clean-96"><span class="linenos"> 96</span></a><span class="sd">        Returns:</span>
+</span><span id="FiltroHistorialForm.clean-97"><a href="#FiltroHistorialForm.clean-97"><span class="linenos"> 97</span></a><span class="sd">            dict: Datos limpios del formulario.</span>
+</span><span id="FiltroHistorialForm.clean-98"><a href="#FiltroHistorialForm.clean-98"><span class="linenos"> 98</span></a><span class="sd">        """</span>
+</span><span id="FiltroHistorialForm.clean-99"><a href="#FiltroHistorialForm.clean-99"><span class="linenos"> 99</span></a>        <span class="n">cleaned_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+</span><span id="FiltroHistorialForm.clean-100"><a href="#FiltroHistorialForm.clean-100"><span class="linenos">100</span></a>        <span class="k">for</span> <span class="n">campo_desde</span><span class="p">,</span> <span class="n">campo_hasta</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">RANGOS</span><span class="p">:</span>
+</span><span id="FiltroHistorialForm.clean-101"><a href="#FiltroHistorialForm.clean-101"><span class="linenos">101</span></a>            <span class="n">desde</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">campo_desde</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm.clean-102"><a href="#FiltroHistorialForm.clean-102"><span class="linenos">102</span></a>            <span class="n">hasta</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">campo_hasta</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm.clean-103"><a href="#FiltroHistorialForm.clean-103"><span class="linenos">103</span></a>            <span class="k">if</span> <span class="n">desde</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">hasta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">desde</span> <span class="o">&gt;</span> <span class="n">hasta</span><span class="p">:</span>
+</span><span id="FiltroHistorialForm.clean-104"><a href="#FiltroHistorialForm.clean-104"><span class="linenos">104</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span><span class="n">campo_hasta</span><span class="p">,</span> <span class="s1">'Debe ser mayor o igual que el valor inicial.'</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm.clean-105"><a href="#FiltroHistorialForm.clean-105"><span class="linenos">105</span></a>                <span class="n">cleaned_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">campo_desde</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm.clean-106"><a href="#FiltroHistorialForm.clean-106"><span class="linenos">106</span></a>        <span class="k">return</span> <span class="n">cleaned_data</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Valida que en cada rango el valor "desde" no supere al "hasta".</p>
+
+<p>Si un rango es inválido se descartan ambos extremos, para que ese
+rango no filtre de forma parcial.</p>
+
+<h6 id="returns">Retorna:</h6>
+
+<blockquote>
+  <p>dict: Datos limpios del formulario.</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="FiltroHistorialForm.filtrar" class="classattr">
+                                        <input id="FiltroHistorialForm.filtrar-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">filtrar</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">transacciones</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="FiltroHistorialForm.filtrar-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.filtrar"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FiltroHistorialForm.filtrar-108"><a href="#FiltroHistorialForm.filtrar-108"><span class="linenos">108</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">filtrar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transacciones</span><span class="p">):</span>
+</span><span id="FiltroHistorialForm.filtrar-109"><a href="#FiltroHistorialForm.filtrar-109"><span class="linenos">109</span></a><span class="w">        </span><span class="sd">"""Aplica al QuerySet los filtros que tengan un valor válido.</span>
+</span><span id="FiltroHistorialForm.filtrar-110"><a href="#FiltroHistorialForm.filtrar-110"><span class="linenos">110</span></a>
+</span><span id="FiltroHistorialForm.filtrar-111"><a href="#FiltroHistorialForm.filtrar-111"><span class="linenos">111</span></a><span class="sd">        Se usa `cleaned_data`, por lo que un campo con error se ignora y no</span>
+</span><span id="FiltroHistorialForm.filtrar-112"><a href="#FiltroHistorialForm.filtrar-112"><span class="linenos">112</span></a><span class="sd">        amplía ni altera el conjunto de transacciones del usuario.</span>
+</span><span id="FiltroHistorialForm.filtrar-113"><a href="#FiltroHistorialForm.filtrar-113"><span class="linenos">113</span></a>
+</span><span id="FiltroHistorialForm.filtrar-114"><a href="#FiltroHistorialForm.filtrar-114"><span class="linenos">114</span></a><span class="sd">        Args:</span>
+</span><span id="FiltroHistorialForm.filtrar-115"><a href="#FiltroHistorialForm.filtrar-115"><span class="linenos">115</span></a><span class="sd">            transacciones: QuerySet de `Transaccion` visibles para el usuario.</span>
+</span><span id="FiltroHistorialForm.filtrar-116"><a href="#FiltroHistorialForm.filtrar-116"><span class="linenos">116</span></a>
+</span><span id="FiltroHistorialForm.filtrar-117"><a href="#FiltroHistorialForm.filtrar-117"><span class="linenos">117</span></a><span class="sd">        Returns:</span>
+</span><span id="FiltroHistorialForm.filtrar-118"><a href="#FiltroHistorialForm.filtrar-118"><span class="linenos">118</span></a><span class="sd">            QuerySet: Transacciones filtradas.</span>
+</span><span id="FiltroHistorialForm.filtrar-119"><a href="#FiltroHistorialForm.filtrar-119"><span class="linenos">119</span></a><span class="sd">        """</span>
+</span><span id="FiltroHistorialForm.filtrar-120"><a href="#FiltroHistorialForm.filtrar-120"><span class="linenos">120</span></a>        <span class="n">datos</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'cleaned_data'</span><span class="p">,</span> <span class="p">{})</span>
+</span><span id="FiltroHistorialForm.filtrar-121"><a href="#FiltroHistorialForm.filtrar-121"><span class="linenos">121</span></a>        <span class="c1"># campo del formulario -&gt; lookup del ORM</span>
+</span><span id="FiltroHistorialForm.filtrar-122"><a href="#FiltroHistorialForm.filtrar-122"><span class="linenos">122</span></a>        <span class="n">lookups</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="FiltroHistorialForm.filtrar-123"><a href="#FiltroHistorialForm.filtrar-123"><span class="linenos">123</span></a>            <span class="s1">'fecha_desde'</span><span class="p">:</span> <span class="s1">'fecha__date__gte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-124"><a href="#FiltroHistorialForm.filtrar-124"><span class="linenos">124</span></a>            <span class="s1">'fecha_hasta'</span><span class="p">:</span> <span class="s1">'fecha__date__lte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-125"><a href="#FiltroHistorialForm.filtrar-125"><span class="linenos">125</span></a>            <span class="s1">'hora_desde'</span><span class="p">:</span> <span class="s1">'fecha__time__gte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-126"><a href="#FiltroHistorialForm.filtrar-126"><span class="linenos">126</span></a>            <span class="s1">'hora_hasta'</span><span class="p">:</span> <span class="s1">'fecha__time__lte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-127"><a href="#FiltroHistorialForm.filtrar-127"><span class="linenos">127</span></a>            <span class="s1">'tipo'</span><span class="p">:</span> <span class="s1">'tipo'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-128"><a href="#FiltroHistorialForm.filtrar-128"><span class="linenos">128</span></a>            <span class="s1">'moneda'</span><span class="p">:</span> <span class="s1">'moneda'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-129"><a href="#FiltroHistorialForm.filtrar-129"><span class="linenos">129</span></a>            <span class="s1">'medio_pago'</span><span class="p">:</span> <span class="s1">'medio_pago'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-130"><a href="#FiltroHistorialForm.filtrar-130"><span class="linenos">130</span></a>            <span class="s1">'monto_pagado_min'</span><span class="p">:</span> <span class="s1">'monto_pagado__gte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-131"><a href="#FiltroHistorialForm.filtrar-131"><span class="linenos">131</span></a>            <span class="s1">'monto_pagado_max'</span><span class="p">:</span> <span class="s1">'monto_pagado__lte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-132"><a href="#FiltroHistorialForm.filtrar-132"><span class="linenos">132</span></a>            <span class="s1">'monto_recibido_min'</span><span class="p">:</span> <span class="s1">'monto_recibido__gte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-133"><a href="#FiltroHistorialForm.filtrar-133"><span class="linenos">133</span></a>            <span class="s1">'monto_recibido_max'</span><span class="p">:</span> <span class="s1">'monto_recibido__lte'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-134"><a href="#FiltroHistorialForm.filtrar-134"><span class="linenos">134</span></a>            <span class="s1">'dispositivo'</span><span class="p">:</span> <span class="s1">'dispositivo'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-135"><a href="#FiltroHistorialForm.filtrar-135"><span class="linenos">135</span></a>            <span class="s1">'cajero'</span><span class="p">:</span> <span class="s1">'cajero'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-136"><a href="#FiltroHistorialForm.filtrar-136"><span class="linenos">136</span></a>            <span class="s1">'estado'</span><span class="p">:</span> <span class="s1">'estado'</span><span class="p">,</span>
+</span><span id="FiltroHistorialForm.filtrar-137"><a href="#FiltroHistorialForm.filtrar-137"><span class="linenos">137</span></a>        <span class="p">}</span>
+</span><span id="FiltroHistorialForm.filtrar-138"><a href="#FiltroHistorialForm.filtrar-138"><span class="linenos">138</span></a>        <span class="n">filtros</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="FiltroHistorialForm.filtrar-139"><a href="#FiltroHistorialForm.filtrar-139"><span class="linenos">139</span></a>            <span class="n">lookup</span><span class="p">:</span> <span class="n">datos</span><span class="p">[</span><span class="n">campo</span><span class="p">]</span>
+</span><span id="FiltroHistorialForm.filtrar-140"><a href="#FiltroHistorialForm.filtrar-140"><span class="linenos">140</span></a>            <span class="k">for</span> <span class="n">campo</span><span class="p">,</span> <span class="n">lookup</span> <span class="ow">in</span> <span class="n">lookups</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+</span><span id="FiltroHistorialForm.filtrar-141"><a href="#FiltroHistorialForm.filtrar-141"><span class="linenos">141</span></a>            <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">campo</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm.filtrar-142"><a href="#FiltroHistorialForm.filtrar-142"><span class="linenos">142</span></a>        <span class="p">}</span>
+</span><span id="FiltroHistorialForm.filtrar-143"><a href="#FiltroHistorialForm.filtrar-143"><span class="linenos">143</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'facturada'</span><span class="p">):</span>
+</span><span id="FiltroHistorialForm.filtrar-144"><a href="#FiltroHistorialForm.filtrar-144"><span class="linenos">144</span></a>            <span class="n">filtros</span><span class="p">[</span><span class="s1">'facturada'</span><span class="p">]</span> <span class="o">=</span> <span class="n">datos</span><span class="p">[</span><span class="s1">'facturada'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'si'</span>
+</span><span id="FiltroHistorialForm.filtrar-145"><a href="#FiltroHistorialForm.filtrar-145"><span class="linenos">145</span></a>        <span class="k">return</span> <span class="n">transacciones</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="n">filtros</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Aplica al QuerySet los filtros que tengan un valor válido.</p>
+
+<p>Se usa <code>cleaned_data</code>, por lo que un campo con error se ignora y no
+amplía ni altera el conjunto de transacciones del usuario.</p>
+
+<h6 id="arguments">Parámetros:</h6>
+
+<ul>
+<li><strong>transacciones:</strong>  QuerySet de <code>Transaccion</code> visibles para el usuario.</li>
+</ul>
+
+<h6 id="returns">Retorna:</h6>
+
+<blockquote>
+  <p>QuerySet: Transacciones filtradas.</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="FiltroHistorialForm.media" class="classattr">
+                                        <input id="FiltroHistorialForm.media-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
+            <span class="name">media</span>
+
+                <label class="view-source-button" for="FiltroHistorialForm.media-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.media"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FiltroHistorialForm.media-281"><a href="#FiltroHistorialForm.media-281"><span class="linenos">281</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_media</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="FiltroHistorialForm.media-282"><a href="#FiltroHistorialForm.media-282"><span class="linenos">282</span></a>        <span class="c1"># Get the media property of the superclass, if it exists</span>
+</span><span id="FiltroHistorialForm.media-283"><a href="#FiltroHistorialForm.media-283"><span class="linenos">283</span></a>        <span class="n">sup_cls</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm.media-284"><a href="#FiltroHistorialForm.media-284"><span class="linenos">284</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="FiltroHistorialForm.media-285"><a href="#FiltroHistorialForm.media-285"><span class="linenos">285</span></a>            <span class="n">base</span> <span class="o">=</span> <span class="n">sup_cls</span><span class="o">.</span><span class="n">media</span>
+</span><span id="FiltroHistorialForm.media-286"><a href="#FiltroHistorialForm.media-286"><span class="linenos">286</span></a>        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+</span><span id="FiltroHistorialForm.media-287"><a href="#FiltroHistorialForm.media-287"><span class="linenos">287</span></a>            <span class="n">base</span> <span class="o">=</span> <span class="n">Media</span><span class="p">()</span>
+</span><span id="FiltroHistorialForm.media-288"><a href="#FiltroHistorialForm.media-288"><span class="linenos">288</span></a>
+</span><span id="FiltroHistorialForm.media-289"><a href="#FiltroHistorialForm.media-289"><span class="linenos">289</span></a>        <span class="c1"># Get the media definition for this class</span>
+</span><span id="FiltroHistorialForm.media-290"><a href="#FiltroHistorialForm.media-290"><span class="linenos">290</span></a>        <span class="n">definition</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">"Media"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm.media-291"><a href="#FiltroHistorialForm.media-291"><span class="linenos">291</span></a>        <span class="k">if</span> <span class="n">definition</span><span class="p">:</span>
+</span><span id="FiltroHistorialForm.media-292"><a href="#FiltroHistorialForm.media-292"><span class="linenos">292</span></a>            <span class="n">extend</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">definition</span><span class="p">,</span> <span class="s2">"extend"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm.media-293"><a href="#FiltroHistorialForm.media-293"><span class="linenos">293</span></a>            <span class="k">if</span> <span class="n">extend</span><span class="p">:</span>
+</span><span id="FiltroHistorialForm.media-294"><a href="#FiltroHistorialForm.media-294"><span class="linenos">294</span></a>                <span class="k">if</span> <span class="n">extend</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+</span><span id="FiltroHistorialForm.media-295"><a href="#FiltroHistorialForm.media-295"><span class="linenos">295</span></a>                    <span class="n">m</span> <span class="o">=</span> <span class="n">base</span>
+</span><span id="FiltroHistorialForm.media-296"><a href="#FiltroHistorialForm.media-296"><span class="linenos">296</span></a>                <span class="k">else</span><span class="p">:</span>
+</span><span id="FiltroHistorialForm.media-297"><a href="#FiltroHistorialForm.media-297"><span class="linenos">297</span></a>                    <span class="n">m</span> <span class="o">=</span> <span class="n">Media</span><span class="p">()</span>
+</span><span id="FiltroHistorialForm.media-298"><a href="#FiltroHistorialForm.media-298"><span class="linenos">298</span></a>                    <span class="k">for</span> <span class="n">medium</span> <span class="ow">in</span> <span class="n">extend</span><span class="p">:</span>
+</span><span id="FiltroHistorialForm.media-299"><a href="#FiltroHistorialForm.media-299"><span class="linenos">299</span></a>                        <span class="n">m</span> <span class="o">+=</span> <span class="n">base</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span>
+</span><span id="FiltroHistorialForm.media-300"><a href="#FiltroHistorialForm.media-300"><span class="linenos">300</span></a>                <span class="k">return</span> <span class="n">m</span> <span class="o">+</span> <span class="n">Media</span><span class="p">(</span><span class="n">definition</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm.media-301"><a href="#FiltroHistorialForm.media-301"><span class="linenos">301</span></a>            <span class="k">return</span> <span class="n">Media</span><span class="p">(</span><span class="n">definition</span><span class="p">)</span>
+</span><span id="FiltroHistorialForm.media-302"><a href="#FiltroHistorialForm.media-302"><span class="linenos">302</span></a>        <span class="k">return</span> <span class="n">base</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Return all media required to render the widgets on this form.</p>
+</div>
+
+
+                            </div>
+                            <div id="FiltroHistorialForm.declared_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">declared_fields</span>        =
+<input id="FiltroHistorialForm.declared_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="FiltroHistorialForm.declared_fields-view-value"></label><span class="default_value">{&#39;fecha_desde&#39;: &lt;django.forms.fields.DateField object&gt;, &#39;fecha_hasta&#39;: &lt;django.forms.fields.DateField object&gt;, &#39;hora_desde&#39;: &lt;django.forms.fields.TimeField object&gt;, &#39;hora_hasta&#39;: &lt;django.forms.fields.TimeField object&gt;, &#39;tipo&#39;: &lt;django.forms.fields.ChoiceField object&gt;, &#39;moneda&#39;: &lt;django.forms.models.ModelChoiceField object&gt;, &#39;medio_pago&#39;: &lt;operaciones.forms._MedioPagoChoiceField object&gt;, &#39;monto_pagado_min&#39;: &lt;django.forms.fields.DecimalField object&gt;, &#39;monto_pagado_max&#39;: &lt;django.forms.fields.DecimalField object&gt;, &#39;monto_recibido_min&#39;: &lt;django.forms.fields.DecimalField object&gt;, &#39;monto_recibido_max&#39;: &lt;django.forms.fields.DecimalField object&gt;, &#39;facturada&#39;: &lt;django.forms.fields.ChoiceField object&gt;, &#39;dispositivo&#39;: &lt;django.forms.fields.ChoiceField object&gt;, &#39;cajero&#39;: &lt;operaciones.forms._CajeroChoiceField object&gt;, &#39;estado&#39;: &lt;django.forms.fields.ChoiceField object&gt;}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.declared_fields"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroHistorialForm.base_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">base_fields</span>        =
+<input id="FiltroHistorialForm.base_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="FiltroHistorialForm.base_fields-view-value"></label><span class="default_value">{&#39;fecha_desde&#39;: &lt;django.forms.fields.DateField object&gt;, &#39;fecha_hasta&#39;: &lt;django.forms.fields.DateField object&gt;, &#39;hora_desde&#39;: &lt;django.forms.fields.TimeField object&gt;, &#39;hora_hasta&#39;: &lt;django.forms.fields.TimeField object&gt;, &#39;tipo&#39;: &lt;django.forms.fields.ChoiceField object&gt;, &#39;moneda&#39;: &lt;django.forms.models.ModelChoiceField object&gt;, &#39;medio_pago&#39;: &lt;operaciones.forms._MedioPagoChoiceField object&gt;, &#39;monto_pagado_min&#39;: &lt;django.forms.fields.DecimalField object&gt;, &#39;monto_pagado_max&#39;: &lt;django.forms.fields.DecimalField object&gt;, &#39;monto_recibido_min&#39;: &lt;django.forms.fields.DecimalField object&gt;, &#39;monto_recibido_max&#39;: &lt;django.forms.fields.DecimalField object&gt;, &#39;facturada&#39;: &lt;django.forms.fields.ChoiceField object&gt;, &#39;dispositivo&#39;: &lt;django.forms.fields.ChoiceField object&gt;, &#39;cajero&#39;: &lt;operaciones.forms._CajeroChoiceField object&gt;, &#39;estado&#39;: &lt;django.forms.fields.ChoiceField object&gt;}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroHistorialForm.base_fields"></a>
     
     
 

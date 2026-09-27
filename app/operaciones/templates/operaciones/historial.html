@@ -1,0 +1,444 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Historial de Transacciones - Global Exchange{% endblock %}
+{% block page_title %}Historial de Transacciones{% endblock %}
+
+{% block extra_css %}
+<style>
+  .ht-wrap { max-width: 1280px; margin: 0 auto; }
+
+  .ht-header {
+    background: linear-gradient(135deg, #0F2744 0%, #16345C 100%);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+  .ht-header-eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    background: rgba(255,255,255,0.08);
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .ht-header h1 { font-size: 21px; font-weight: 700; color: #fff; margin-bottom: 4px; letter-spacing: -0.2px; }
+  .ht-header p { font-size: 13px; color: rgba(255,255,255,0.60); max-width: 560px; }
+
+  .ht-card {
+    background: #fff;
+    border: 1px solid var(--topbar-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  /* ── Filtros ── */
+  .ht-filters summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 14px 20px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--topbar-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ht-filters summary::-webkit-details-marker { display: none; }
+  .ht-filters[open] summary { border-bottom: 1px solid var(--topbar-border); }
+  .ht-filters-body { padding: 18px 20px; }
+  .ht-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .ht-group {
+    border: 1px solid var(--topbar-border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin: 0;
+  }
+  .ht-group legend {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--topbar-muted);
+    padding: 0 6px;
+  }
+  .ht-group-wide { grid-column: 1 / -1; }
+  .ht-subgroups { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .ht-subgroup-title { font-size: 12px; font-weight: 600; color: var(--topbar-text); margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+  .ht-pair { display: flex; gap: 8px; }
+  .ht-pair > div { flex: 1; }
+  .ht-field label { display: block; font-size: 11.5px; color: var(--topbar-muted); margin-bottom: 4px; }
+  .ht-field input, .ht-field select {
+    width: 100%;
+    font: inherit;
+    font-size: 13px;
+    padding: 7px 10px;
+    border: 1px solid var(--topbar-border);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--topbar-text);
+  }
+  .ht-error { color: #DC2626; font-size: 11.5px; margin-top: 4px; }
+  .ht-filter-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+  .ht-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--radius);
+    padding: 9px 16px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-decoration: none;
+    transition: background var(--transition);
+  }
+  .ht-btn-primary { background: #2563EB; color: #fff; }
+  .ht-btn-primary:hover { background: #1D4ED8; }
+  .ht-btn-light { background: #fff; color: var(--topbar-text); border-color: var(--topbar-border); }
+  .ht-btn-light:hover { background: #F4F6FB; }
+
+  /* ── Tabla ── */
+  .ht-summary { padding: 12px 20px; font-size: 12.5px; color: var(--topbar-muted); border-bottom: 1px solid var(--topbar-border); }
+  .ht-table-wrap { overflow-x: auto; }
+  .ht-table { width: 100%; border-collapse: collapse; }
+  .ht-table thead th {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--topbar-muted);
+    background: #F4F6FB;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--topbar-border);
+    white-space: nowrap;
+  }
+  .ht-table tbody tr { border-bottom: 1px solid var(--topbar-border); }
+  .ht-table tbody tr:last-child { border-bottom: none; }
+  .ht-table tbody tr:hover { background: #FAFBFD; }
+  .ht-table td { padding: 12px 14px; font-size: 13px; color: var(--topbar-text); vertical-align: middle; white-space: nowrap; text-align: center; }
+  .ht-num { font-variant-numeric: tabular-nums; }
+  .ht-medio-tipo { display: block; margin-top: 10px; }
+  .ht-muted { color: var(--topbar-muted); font-size: 12px; }
+  .ht-code {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    background: #F4F6FB;
+    border: 1px solid var(--topbar-border);
+    border-radius: 6px;
+    padding: 3px 8px;
+  }
+
+  .ht-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+  .ht-badge-compra { background: #DBEAFE; color: #1E40AF; }
+  .ht-badge-venta { background: #FEF3C7; color: #92400E; }
+  .ht-badge-confirmada { background: #D1FAE5; color: #065F46; }
+  .ht-badge-pendiente { background: #FEF3C7; color: #92400E; }
+  .ht-badge-cancelada { background: #FEE2E2; color: #991B1B; }
+  .ht-badge-neutral { background: #F4F6FB; color: var(--topbar-muted); border: 1px solid var(--topbar-border); }
+
+  .ht-empty { text-align: center; padding: 56px 24px; }
+  .ht-empty-icon {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: #F4F6FB;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    color: var(--topbar-muted);
+    margin: 0 auto 16px;
+  }
+  .ht-empty h4 { font-size: 15px; font-weight: 700; color: var(--topbar-text); margin-bottom: 4px; }
+  .ht-empty p { font-size: 13px; color: var(--topbar-muted); max-width: 360px; margin: 0 auto; }
+
+  /* ── Paginación ── */
+  .ht-pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; border-top: 1px solid var(--topbar-border); font-size: 12.5px; color: var(--topbar-muted); flex-wrap: wrap; }
+  .ht-pages { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .ht-page {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--topbar-text);
+    background: #fff;
+    border: 1px solid var(--topbar-border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: background var(--transition), border-color var(--transition);
+  }
+  a.ht-page:hover { background: #F4F6FB; border-color: #C9D2E3; }
+  .ht-page-actual { background: #2563EB; border-color: #2563EB; color: #fff; }
+  .ht-page-disabled { color: #C3CAD8; background: #FAFBFD; cursor: not-allowed; }
+  .ht-page-elipsis { min-width: 20px; text-align: center; color: var(--topbar-muted); }
+
+  @media (max-width: 640px) {
+    .ht-header { padding: 22px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ht-wrap">
+
+  <div class="ht-header">
+    <span class="ht-header-eyebrow">Mi cuenta</span>
+    <h1>Historial de Transacciones</h1>
+    <p>Consultá tus compras y ventas de divisas, de la más reciente a la más antigua. Esta sección es solo de consulta.</p>
+  </div>
+
+  {# ── Filtros (GET: no modifican datos) ── #}
+  <div class="ht-card">
+    <details class="ht-filters" {% if hay_filtros %}open{% endif %}>
+      <summary><i class="ti ti-filter"></i> Filtros de búsqueda</summary>
+      <form method="get" class="ht-filters-body">
+        <div class="ht-grid">
+
+          <fieldset class="ht-group ht-group-wide">
+            <legend>Fecha y hora</legend>
+            <div class="ht-subgroups">
+              <div>
+                <div class="ht-subgroup-title"><i class="ti ti-calendar"></i> Fecha</div>
+                <div class="ht-pair">
+                  <div class="ht-field">
+                    <label for="{{ form.fecha_desde.id_for_label }}">Desde</label>
+                    {{ form.fecha_desde }}
+                    {% for e in form.fecha_desde.errors %}<div class="ht-error">{{ e }}</div>{% endfor %}
+                  </div>
+                  <div class="ht-field">
+                    <label for="{{ form.fecha_hasta.id_for_label }}">Hasta</label>
+                    {{ form.fecha_hasta }}
+                    {% for e in form.fecha_hasta.errors %}<div class="ht-error">{{ e }}</div>{% endfor %}
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="ht-subgroup-title"><i class="ti ti-clock"></i> Hora</div>
+                <div class="ht-pair">
+                  <div class="ht-field">
+                    <label for="{{ form.hora_desde.id_for_label }}">Desde</label>
+                    {{ form.hora_desde }}
+                    {% for e in form.hora_desde.errors %}<div class="ht-error">{{ e }}</div>{% endfor %}
+                  </div>
+                  <div class="ht-field">
+                    <label for="{{ form.hora_hasta.id_for_label }}">Hasta</label>
+                    {{ form.hora_hasta }}
+                    {% for e in form.hora_hasta.errors %}<div class="ht-error">{{ e }}</div>{% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="ht-group">
+            <legend>Operación</legend>
+            <div class="ht-pair">
+              <div class="ht-field">
+                <label for="{{ form.tipo.id_for_label }}">Tipo</label>
+                {{ form.tipo }}
+              </div>
+              <div class="ht-field">
+                <label for="{{ form.moneda.id_for_label }}">Moneda</label>
+                {{ form.moneda }}
+                {% for e in form.moneda.errors %}<div class="ht-error">{{ e }}</div>{% endfor %}
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="ht-group">
+            <legend>Medio de pago</legend>
+            <div class="ht-field">
+              {{ form.medio_pago }}
+              {% for e in form.medio_pago.errors %}<div class="ht-error">{{ e }}</div>{% endfor %}
+            </div>
+          </fieldset>
+
+          <fieldset class="ht-group">
+            <legend>Monto pagado</legend>
+            <div class="ht-pair">
+              <div class="ht-field">
+                <label for="{{ form.monto_pagado_min.id_for_label }}">Mínimo</label>
+                {{ form.monto_pagado_min }}
+                {% for e in form.monto_pagado_min.errors %}<div class="ht-error">{{ e }}</div>{% endfor %}
+              </div>
+              <div class="ht-field">
+                <label for="{{ form.monto_pagado_max.id_for_label }}">Máximo</label>
+                {{ form.monto_pagado_max }}
+                {% for e in form.monto_pagado_max.errors %}<div class="ht-error">{{ e }}</div>{% endfor %}
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="ht-group">
+            <legend>Monto recibido</legend>
+            <div class="ht-pair">
+              <div class="ht-field">
+                <label for="{{ form.monto_recibido_min.id_for_label }}">Mínimo</label>
+                {{ form.monto_recibido_min }}
+                {% for e in form.monto_recibido_min.errors %}<div class="ht-error">{{ e }}</div>{% endfor %}
+              </div>
+              <div class="ht-field">
+                <label for="{{ form.monto_recibido_max.id_for_label }}">Máximo</label>
+                {{ form.monto_recibido_max }}
+                {% for e in form.monto_recibido_max.errors %}<div class="ht-error">{{ e }}</div>{% endfor %}
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="ht-group">
+            <legend>Atención</legend>
+            <div class="ht-pair">
+              <div class="ht-field">
+                <label for="{{ form.cajero.id_for_label }}">Cajero</label>
+                {{ form.cajero }}
+                {% for e in form.cajero.errors %}<div class="ht-error">{{ e }}</div>{% endfor %}
+              </div>
+              <div class="ht-field">
+                <label for="{{ form.estado.id_for_label }}">Estado</label>
+                {{ form.estado }}
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="ht-group">
+            <legend>Otros</legend>
+            <div class="ht-pair">
+              <div class="ht-field">
+                <label for="{{ form.facturada.id_for_label }}">Factura</label>
+                {{ form.facturada }}
+              </div>
+              <div class="ht-field">
+                <label for="{{ form.dispositivo.id_for_label }}">Dispositivo</label>
+                {{ form.dispositivo }}
+              </div>
+            </div>
+          </fieldset>
+
+        </div>
+        <div class="ht-filter-actions">
+          <a href="{% url 'historial_transacciones' %}" class="ht-btn ht-btn-light"><i class="ti ti-x"></i> Limpiar</a>
+          <button type="submit" class="ht-btn ht-btn-primary"><i class="ti ti-search"></i> Buscar</button>
+        </div>
+      </form>
+    </details>
+  </div>
+
+  {# ── Listado (solo lectura: sin acciones de edición ni eliminación) ── #}
+  <div class="ht-card">
+    {% if page_obj.object_list %}
+      <div class="ht-summary">{{ total }} {% if total == 1 %}transacción encontrada{% else %}transacciones encontradas{% endif %}</div>
+      <div class="ht-table-wrap">
+        <table class="ht-table">
+          <thead>
+            <tr>
+              <th>Fecha y hora</th>
+              <th>Tipo</th>
+              <th>Medio de pago</th>
+              <th class="ht-num">Monto pagado</th>
+              <th class="ht-num">Monto recibido</th>
+              <th>Cajero</th>
+              <th>Estado</th>
+              <th>Factura</th>
+              <th>Dispositivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in page_obj %}
+            <tr>
+              <td>
+                {{ t.fecha|date:"d/m/Y" }}<br>
+                <span class="ht-muted">{{ t.fecha|date:"H:i" }}</span>
+              </td>
+              <td>
+                <span class="ht-badge {% if t.tipo == 'COMPRA' %}ht-badge-compra{% else %}ht-badge-venta{% endif %}">
+                  {{ t.get_tipo_display }} {{ t.moneda.codigo }}
+                </span>
+              </td>
+              <td>
+                <span class="ht-code">{{ t.medio_pago.numero_enmascarado }}</span>
+                <span class="ht-muted ht-medio-tipo">{{ t.medio_pago.get_tipo_display }}</span>
+              </td>
+              <td class="ht-num">{{ t.monto_pagado|floatformat:"2g" }} <span class="ht-muted">{{ t.moneda_pagada }}</span></td>
+              <td class="ht-num">{{ t.monto_recibido|floatformat:"2g" }} <span class="ht-muted">{{ t.moneda_recibida }}</span></td>
+              <td>
+                {% if t.cajero %}{{ t.cajero.get_full_name|default:t.cajero.username }}{% else %}<span class="ht-muted">—</span>{% endif %}
+              </td>
+              <td>
+                <span class="ht-badge ht-badge-{{ t.estado|lower }}">{{ t.get_estado_display }}</span>
+              </td>
+              <td>
+                {% if t.facturada %}
+                  <span class="ht-badge ht-badge-confirmada"><i class="ti ti-receipt"></i> Sí</span>
+                {% else %}
+                  <span class="ht-badge ht-badge-neutral">No</span>
+                {% endif %}
+              </td>
+              <td>{{ t.get_dispositivo_display }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if page_obj.paginator.num_pages > 1 %}
+      <div class="ht-pagination">
+        <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        <nav class="ht-pages" aria-label="Paginación">
+          {% if page_obj.has_previous %}
+            <a class="ht-page" href="{% querystring page=1 %}" title="Primera página"><i class="ti ti-chevrons-left"></i></a>
+            <a class="ht-page" href="{% querystring page=page_obj.previous_page_number %}" title="Página anterior"><i class="ti ti-chevron-left"></i></a>
+          {% else %}
+            <span class="ht-page ht-page-disabled"><i class="ti ti-chevrons-left"></i></span>
+            <span class="ht-page ht-page-disabled"><i class="ti ti-chevron-left"></i></span>
+          {% endif %}
+
+          {% for numero in rango_paginas %}
+            {% if numero == page_obj.number %}
+              <span class="ht-page ht-page-actual" aria-current="page">{{ numero }}</span>
+            {% elif numero == page_obj.paginator.ELLIPSIS %}
+              <span class="ht-page-elipsis">{{ numero }}</span>
+            {% else %}
+              <a class="ht-page" href="{% querystring page=numero %}">{{ numero }}</a>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+            <a class="ht-page" href="{% querystring page=page_obj.next_page_number %}" title="Página siguiente"><i class="ti ti-chevron-right"></i></a>
+            <a class="ht-page" href="{% querystring page=page_obj.paginator.num_pages %}" title="Última página"><i class="ti ti-chevrons-right"></i></a>
+          {% else %}
+            <span class="ht-page ht-page-disabled"><i class="ti ti-chevron-right"></i></span>
+            <span class="ht-page ht-page-disabled"><i class="ti ti-chevrons-right"></i></span>
+          {% endif %}
+        </nav>
+      </div>
+      {% endif %}
+
+    {% else %}
+      <div class="ht-empty">
+        <div class="ht-empty-icon"><i class="ti ti-history-off"></i></div>
+        {% if hay_filtros %}
+          <h4>No hay transacciones que coincidan con los filtros</h4>
+          <p>Probá ampliar el rango de fechas o quitar algún filtro.</p>
+        {% else %}
+          <h4>Todavía no realizaste transacciones</h4>
+          <p>Cuando compres o vendas divisas, tus operaciones aparecerán aquí.</p>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
