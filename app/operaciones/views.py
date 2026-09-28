@@ -193,19 +193,44 @@ PAGINAS_A_CADA_LADO = 2
 PAGINAS_EN_EXTREMOS = 1
 
 
+def _cliente_activo(request):
+    """Devuelve el cliente activo del usuario, con la misma regla que el dashboard.
+
+    Usa el cliente guardado en la sesión (`ge_active_client`) solo si está
+    asociado al usuario; si no, toma el primero de sus clientes y lo guarda
+    como activo. El cliente activo se elige/cambia desde el selector del
+    dashboard (fuera del alcance del historial).
+
+    Args:
+        request: Petición HTTP de un usuario autenticado.
+
+    Returns:
+        Cliente | None: El cliente activo, o `None` si el usuario no tiene
+        clientes asociados.
+    """
+    clientes = list(Cliente.objects.filter(usuarios_asociados__usuario=request.user))
+    if not clientes:
+        return None
+    id_en_sesion = request.session.get('ge_active_client')
+    activo = next((c for c in clientes if str(c.id) == id_en_sesion), clientes[0])
+    request.session['ge_active_client'] = str(activo.id)
+    return activo
+
+
 @login_required
 @require_GET
 def historial_transacciones(request):
-    """Lista, en modo solo lectura, las transacciones del usuario autenticado.
+    """Lista, en modo solo lectura, las transacciones del cliente activo.
 
-    Acceso: usuario autenticado registrado como cliente (con un `Cliente`
-    asociado). Si no lo está, se lo redirige a `convertirse_en_cliente`.
-    Un usuario anónimo es redirigido al login.
+    Acceso: usuario autenticado con al menos un `Cliente` asociado. Si no lo
+    tiene, se lo redirige a `convertirse_en_cliente`. Un usuario anónimo es
+    redirigido al login.
 
-    El cliente es el propio usuario, por lo que solo se muestran las
-    transacciones cuyo `usuario` es el usuario autenticado; nunca se exponen
-    operaciones de otros usuarios. La vista solo acepta GET: no crea,
-    modifica ni elimina transacciones.
+    Se muestran todas las transacciones realizadas en nombre del cliente
+    activo (ver `_cliente_activo`), incluidas las de otros usuarios asociados
+    a ese cliente, indicando quién operó cada una. Nunca se exponen
+    operaciones de clientes que no estén asociados al usuario. La vista solo
+    acepta GET: no crea, modifica ni elimina transacciones.
 
     Los filtros llegan por query string (ver `FiltroHistorialForm`) y el
     resultado se pagina de a `TRANSACCIONES_POR_PAGINA`, de la más reciente
@@ -219,13 +244,13 @@ def historial_transacciones(request):
         HttpResponse: Plantilla `operaciones/historial.html`, o redirección a
         `convertirse_en_cliente`.
     """
-    # Se revisará cuando se configuren las categorías de cliente (Minorista, Mayorista, VIP, Corporativo)
-    if not Cliente.objects.filter(usuarios_asociados__usuario=request.user).exists():
+    cliente = _cliente_activo(request)
+    if cliente is None:
         return redirect('convertirse_en_cliente')
 
-    # Límite de seguridad: solo transacciones del usuario autenticado
-    transacciones = Transaccion.objects.filter(usuario=request.user).select_related(
-        'moneda', 'medio_pago', 'cajero'
+    # Límite de seguridad: solo transacciones del cliente activo (asociado al usuario)
+    transacciones = Transaccion.objects.filter(cliente=cliente).select_related(
+        'usuario', 'moneda', 'medio_pago', 'cajero'
     )
 
     form = FiltroHistorialForm(request.GET or None, transacciones=transacciones)
@@ -236,6 +261,7 @@ def historial_transacciones(request):
     page_obj = Paginator(filtradas, TRANSACCIONES_POR_PAGINA).get_page(request.GET.get('page'))
 
     context = {
+        'cliente': cliente,
         'form': form,
         'page_obj': page_obj,
         'rango_paginas': list(page_obj.paginator.get_elided_page_range(
@@ -243,6 +269,6 @@ def historial_transacciones(request):
         )),
         'total': page_obj.paginator.count,
         'hay_filtros': any(v for k, v in request.GET.items() if k != 'page'),
-        'menu_sections': get_menu_sections(resolve_user_role(request), None, is_authenticated=True),
+        'menu_sections': get_menu_sections(resolve_user_role(request), cliente, is_authenticated=True),
     }
     return render(request, 'operaciones/historial.html', context)

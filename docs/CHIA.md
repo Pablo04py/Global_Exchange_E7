@@ -128,16 +128,21 @@
   2. **Modelo de transacciones (opción A):**
      > *"Ok me parece bien la opción A."*
      >
-     > **Decisión**: Se creó `Transaccion` en la app `operaciones` como contrato para la historia de compra/venta: dueño = `usuario` (el cliente es el propio usuario registrado), FKs `PROTECT` (registro de auditoría), tipo desde el punto de vista del cliente (compra = paga PYG y recibe divisa), `cajero` opcional mientras la operación esté pendiente y `estado` simple (`PENDIENTE`/`CONFIRMADA`/`CANCELADA`), cuya lógica de transición queda para la historia "Estado de transacción".
+     > **Decisión**: Se creó `Transaccion` en la app `operaciones` como contrato para la historia de compra/venta: `cliente` (a nombre de quién se opera) y `usuario` (quién operó), FKs `PROTECT` (registro de auditoría), tipo desde el punto de vista del cliente (compra = paga PYG y recibe divisa), `cajero` opcional mientras la operación esté pendiente y `estado` simple (`PENDIENTE`/`CONFIRMADA`/`CANCELADA`), cuya lógica de transición queda para la historia "Estado de transacción".
 
   3. **Filtros, dispositivo y datos de prueba:**
      > *"Quiero que fecha y hora estén en la misma sección pero que se pueda configurar por separado [...] Si me gustaría generar transacciones de prueba."*
      >
-     > **Decisión**: `FiltroHistorialForm` (GET) con filtros por fecha, hora, tipo, moneda, medio de pago, montos, factura, dispositivo, cajero y estado; sus opciones se construyen solo con datos del usuario para impedir consultar datos ajenos por URL. Paginación de 20 con `Paginator`. `operaciones.utils.detectar_dispositivo` (User-Agent, sin librerías nuevas) para uso de compra/venta. Comando `generar_transacciones_prueba` (solo con `DEBUG=True`) para datos visibles, diferenciado de los tests, que usan una base temporal.
+     > **Decisión**: `FiltroHistorialForm` (GET) con filtros por fecha, hora, tipo, moneda, medio de pago, montos, factura, dispositivo, cajero, operado por y estado; sus opciones se construyen solo con datos del usuario para impedir consultar datos ajenos por URL. Paginación de 20 con `Paginator`. `operaciones.utils.detectar_dispositivo` (User-Agent, sin librerías nuevas) para uso de compra/venta. Comando `generar_transacciones_prueba` (solo con `DEBUG=True`) para datos visibles, diferenciado de los tests, que usan una base temporal.
 
   4. **Un cliente por usuario:**
      > *"Solo se puede tener un cliente por usuario, osea el termino cliente muere, ya que el usuario registrado solo puede ser minorista, mayorista, vip o corporativo"*
      >
      > **Decisión**: Se eliminó el campo `cliente` de `Transaccion` (reescribiendo la migración `0003`, aún no compartida) y el filtro/columna "Cliente" del historial; el aislamiento se hace con `usuario=request.user`. La regla de acceso (tener un `Cliente` asociado) no se modificó y se revisará cuando otra historia configure las categorías de cliente en Keycloak. En `main/views.py` solo se mantuvo la corrección del enlace del menú y la extracción de `resolve_user_role()`, sin agregar enlaces nuevos al menú "Sin Rol".
 
-* **Resultado / Decisión**: 61 pruebas nuevas en `app/tests/operaciones/` (modelo, dispositivo, acceso/seguridad, solo lectura, filtros, paginación y comando), todas en verde. Las 8 fallas preexistentes de `tests/main` y `tests/operaciones/test_views.py` no se modificaron por estar fuera del alcance de SCRUM-19. Documentación regenerada con `generar_docs.py`.
+  5. **Vuelta al modelo del enunciado (varios usuarios por cliente):**
+     > *"Un cliente puede tener uno o más usuarios asociados que pueden operar en su nombre [...] Crees que [...] muestre el historial y arriba haya un indicador de que cliente pertenece ese historial"*
+     >
+     > **Decisión**: Prevalece el enunciado sobre la regla del punto 4: se restauró `Transaccion.cliente` (reescribiendo la `0003`, aún no mergeada). El historial muestra todas las operaciones del **cliente activo** de la sesión (`ge_active_client`, el mismo que elige el selector del dashboard, RF9), incluidas las de otros usuarios del cliente, con columna y filtro "Operado por" e indicador "Historial de: <cliente>". Sin cliente activo válido se usa la misma regla del dashboard (primer cliente asociado). No se agregó una pantalla intermedia de selección porque la elección del cliente activo pertenece a otra historia.
+
+* **Resultado / Decisión**: 72 pruebas nuevas en `app/tests/operaciones/` (modelo, dispositivo, acceso/seguridad, solo lectura, filtros, paginación y comando), todas en verde. Las 8 fallas preexistentes de `tests/main` y `tests/operaciones/test_views.py` no se modificaron por estar fuera del alcance de SCRUM-19. Documentación regenerada con `generar_docs.py`.

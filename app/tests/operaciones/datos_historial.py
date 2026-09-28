@@ -19,11 +19,11 @@ def fecha_local(anio, mes, dia, hora=10, minuto=0):
 
 
 class HistorialDatosMixin:
-    """Crea dos usuarios registrados como clientes, monedas, medios de pago y un cajero.
+    """Crea dos usuarios con su cliente, monedas, medios de pago y un cajero.
 
-    - `usuario_a`, registrado como cliente mediante `cliente_a` (minorista).
-    - `usuario_b`, registrado como cliente mediante `cliente_b` (VIP); sus
-      transacciones no deben verse desde `usuario_a`.
+    - `usuario_a` opera para `cliente_a` (minorista).
+    - `usuario_b` opera para `cliente_b` (VIP); sus transacciones no deben
+      verse desde `usuario_a` mientras no esté asociado a `cliente_b`.
     """
 
     def setUp(self):
@@ -58,19 +58,22 @@ class HistorialDatosMixin:
             usuario=self.usuario_b, tipo='TARJETA', nombre_titular='Empresa B', numero_enmascarado='**** 9999'
         )
 
-    def crear_transaccion(self, usuario=None, **campos):
-        """Crea una transacción; por defecto una compra confirmada de 100 USD de `usuario_a`.
+    def crear_transaccion(self, cliente=None, usuario=None, **campos):
+        """Crea una transacción; por defecto una compra confirmada de 100 USD de `cliente_a`.
 
         Args:
-            usuario: Usuario (cliente) dueño de la transacción (por defecto `usuario_a`).
+            cliente: Cliente de la transacción (por defecto `cliente_a`).
+            usuario: Usuario que operó (por defecto, el usuario asociado a ese cliente).
             **campos: Campos de `Transaccion` que reemplazan a los valores por defecto.
 
         Returns:
             Transaccion: La transacción creada.
         """
-        usuario = usuario or self.usuario_a
+        cliente = cliente or self.cliente_a
+        usuario = usuario or (self.usuario_a if cliente == self.cliente_a else self.usuario_b)
         es_a = usuario == self.usuario_a
         valores = {
+            'cliente': cliente,
             'usuario': usuario,
             'cajero': self.cajero,
             'tipo': Transaccion.Tipo.COMPRA,

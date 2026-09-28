@@ -22,7 +22,7 @@ class HistorialFiltrosTestCase(HistorialDatosMixin, TestCase):
     """Pruebas de cada filtro del historial."""
 
     def setUp(self):
-        """Crea dos transacciones del usuario A que difieren en todos los campos filtrables."""
+        """Crea dos transacciones del cliente A que difieren en todos los campos filtrables."""
         super().setUp()
         self.cajero2 = Usuario.objects.create_user(username='cajero2', first_name='Carlos', last_name='Benítez')
         self.t1 = self.crear_transaccion(
@@ -44,8 +44,8 @@ class HistorialFiltrosTestCase(HistorialDatosMixin, TestCase):
         return list(self.client.get(URL, filtros).context['page_obj'])
 
     def test_sin_filtros_muestra_todas(self):
-        """Sin filtros se listan todas las transacciones del usuario (y ninguna de otro)."""
-        self.crear_transaccion(usuario=self.usuario_b)
+        """Sin filtros se listan todas las transacciones del cliente activo (y ninguna de otro cliente)."""
+        self.crear_transaccion(cliente=self.cliente_b)
         self.assertEqual(self._resultado(), [self.t2, self.t1])
 
     def test_filtro_fecha_desde_y_hasta(self):
@@ -139,7 +139,7 @@ class HistorialPaginacionTestCase(HistorialDatosMixin, TestCase):
     """Pruebas de la paginación del historial."""
 
     def setUp(self):
-        """Crea 25 transacciones del usuario A (5 de ellas ventas)."""
+        """Crea 25 transacciones del cliente A (5 de ellas ventas)."""
         super().setUp()
         for dia in range(1, 26):
             tipo = Transaccion.Tipo.VENTA if dia <= 5 else Transaccion.Tipo.COMPRA
@@ -185,7 +185,7 @@ class HistorialPaginacionTestCase(HistorialDatosMixin, TestCase):
         base = Transaccion.objects.first()
         Transaccion.objects.bulk_create([  # 25 + 375 = 400 transacciones -> 20 páginas
             Transaccion(
-                usuario=self.usuario_a, cajero=self.cajero, tipo=base.tipo, moneda=self.usd,
+                cliente=self.cliente_a, usuario=self.usuario_a, cajero=self.cajero, tipo=base.tipo, moneda=self.usd,
                 medio_pago=self.tarjeta_a, monto_pagado=base.monto_pagado, monto_recibido=base.monto_recibido,
                 tasa_aplicada=base.tasa_aplicada, fecha=fecha_local(2026, 1, 1 + i % 28),
             )

@@ -4,9 +4,10 @@ Uso (desde la raíz del repositorio):
     docker compose exec web python manage.py generar_transacciones_prueba <username>
     docker compose exec web python manage.py generar_transacciones_prueba <username> --cantidad 50 --semilla 1
 
-El usuario debe estar registrado como cliente (por ejemplo, mediante
-"Convertirse en cliente" o "Asignar cliente"). Si faltan monedas, medios de
-pago del usuario o cajeros, se crean datos de prueba.
+El usuario debe tener al menos un `Cliente` asociado (por ejemplo, mediante
+"Convertirse en cliente" o "Asignar cliente"); las transacciones se reparten
+entre sus clientes y quedan registradas como operadas por ese usuario. Si
+faltan monedas, medios de pago del usuario o cajeros, se crean datos de prueba.
 """
 
 import random
@@ -46,7 +47,7 @@ PESOS_ESTADO = {
 
 
 class Command(BaseCommand):
-    """Genera transacciones aleatorias para un usuario registrado como cliente."""
+    """Genera transacciones aleatorias operadas por un usuario en nombre de sus clientes."""
 
     help = "Genera transacciones de prueba para el historial de un usuario (solo con DEBUG=True)."
 
@@ -56,7 +57,7 @@ class Command(BaseCommand):
         Args:
             parser: Parser de argumentos de Django.
         """
-        parser.add_argument('username', help="Usuario (cliente) que recibirá las transacciones.")
+        parser.add_argument('username', help="Usuario que opera; las transacciones se reparten entre sus clientes.")
         parser.add_argument('--cantidad', type=int, default=30, help="Cantidad de transacciones (por defecto 30).")
         parser.add_argument('--semilla', type=int, default=None, help="Semilla aleatoria para resultados repetibles.")
 
@@ -65,7 +66,7 @@ class Command(BaseCommand):
 
         Raises:
             CommandError: Si `DEBUG` está desactivado, el usuario no existe,
-                no está registrado como cliente o la cantidad no es positiva.
+                no tiene clientes asociados o la cantidad no es positiva.
         """
         if not settings.DEBUG:
             raise CommandError("Este comando solo puede ejecutarse con DEBUG=True.")
@@ -78,10 +79,11 @@ class Command(BaseCommand):
         except Usuario.DoesNotExist:
             raise CommandError(f"No existe el usuario '{options['username']}'.")
 
-        if not Cliente.objects.filter(usuarios_asociados__usuario=usuario).exists():
+        clientes = list(Cliente.objects.filter(usuarios_asociados__usuario=usuario))
+        if not clientes:
             raise CommandError(
-                f"El usuario '{usuario.username}' no está registrado como cliente. "
-                "Regístrelo con 'Convertirse en cliente' o 'Asignar cliente'."
+                f"El usuario '{usuario.username}' no tiene clientes asociados. "
+                "Asocie uno con 'Convertirse en cliente' o 'Asignar cliente'."
             )
 
         rng = random.Random(options['semilla'])
@@ -109,6 +111,7 @@ class Command(BaseCommand):
             )
 
             Transaccion.objects.create(
+                cliente=rng.choice(clientes),
                 usuario=usuario,
                 cajero=None if estado == Transaccion.Estado.PENDIENTE else rng.choice(cajeros),
                 tipo=tipo,
@@ -176,7 +179,9 @@ class Command(BaseCommand):
         """Calcula el precio en PYG aplicado a la operación.
 
         Cuando el cliente compra, la casa vende (precio de venta); cuando el
-        cliente vende, la casa compra (precio de compra).
+        cliente vende, la casa compra (precio de compra). Si la tasa cargada
+        da un precio no positivo (margen mayor que la base), se usa el valor
+        de prueba para no generar montos negativos.
 
         Args:
             moneda: Moneda operada.
@@ -187,7 +192,9 @@ class Command(BaseCommand):
         """
         tasa = TasaDeCambio.objects.filter(moneda=moneda).first()
         if tasa:
-            return tasa.calcular_precio_venta() if tipo == Transaccion.Tipo.COMPRA else tasa.calcular_precio_compra()
+            precio = tasa.calcular_precio_venta() if tipo == Transaccion.Tipo.COMPRA else tasa.calcular_precio_compra()
+            if precio > 0:
+                return precio
         base = MONEDAS_PRUEBA.get(moneda.codigo, ('', Decimal('1000')))[1]
         factor = 1 + MARGEN_POR_DEFECTO if tipo == Transaccion.Tipo.COMPRA else 1 - MARGEN_POR_DEFECTO
         return (base * factor).quantize(Decimal('0.0001'))

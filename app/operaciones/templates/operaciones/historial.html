@@ -5,7 +5,8 @@
 
 {% block extra_css %}
 <style>
-  .ht-wrap { max-width: 1280px; margin: 0 auto; }
+  /* Ocupa todo el ancho disponible: encabezado, filtros y tabla crecen juntos */
+  .ht-wrap { width: 100%; }
 
   .ht-header {
     background: linear-gradient(135deg, #0F2744 0%, #16345C 100%);
@@ -27,6 +28,18 @@
   }
   .ht-header h1 { font-size: 21px; font-weight: 700; color: #fff; margin-bottom: 4px; letter-spacing: -0.2px; }
   .ht-header p { font-size: 13px; color: rgba(255,255,255,0.60); max-width: 560px; }
+  .ht-cliente {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.10);
+    color: #fff;
+    font-size: 13px;
+  }
+  .ht-cliente span { color: rgba(255,255,255,0.60); }
 
   .ht-card {
     background: #fff;
@@ -119,14 +132,15 @@
     letter-spacing: 0.05em;
     color: var(--topbar-muted);
     background: #F4F6FB;
-    padding: 12px 14px;
+    padding: 12px 8px;
     border-bottom: 1px solid var(--topbar-border);
-    white-space: nowrap;
   }
   .ht-table tbody tr { border-bottom: 1px solid var(--topbar-border); }
   .ht-table tbody tr:last-child { border-bottom: none; }
   .ht-table tbody tr:hover { background: #FAFBFD; }
-  .ht-table td { padding: 12px 14px; font-size: 13px; color: var(--topbar-text); vertical-align: middle; white-space: nowrap; text-align: center; }
+  .ht-table td { padding: 12px 8px; font-size: 13px; color: var(--topbar-text); vertical-align: middle; text-align: center; }
+  /* Fechas, montos, etiquetas y números de tarjeta no se parten; los nombres sí */
+  .ht-table td.ht-num, .ht-table td:first-child, .ht-badge, .ht-code { white-space: nowrap; }
   .ht-num { font-variant-numeric: tabular-nums; }
   .ht-medio-tipo { display: block; margin-top: 10px; }
   .ht-muted { color: var(--topbar-muted); font-size: 12px; }
@@ -197,7 +211,8 @@
   <div class="ht-header">
     <span class="ht-header-eyebrow">Mi cuenta</span>
     <h1>Historial de Transacciones</h1>
-    <p>Consultá tus compras y ventas de divisas, de la más reciente a la más antigua. Esta sección es solo de consulta.</p>
+    <p>Consultá las compras y ventas de divisas del cliente, de la más reciente a la más antigua. Esta sección es solo de consulta.</p>
+    <div class="ht-cliente"><i class="ti ti-building-bank"></i><span>Historial de:</span> <strong>{{ cliente.nombre_o_denominacion }}</strong></div>
   </div>
 
   {# ── Filtros (GET: no modifican datos) ── #}
@@ -314,6 +329,14 @@
           </fieldset>
 
           <fieldset class="ht-group">
+            <legend>Operado por</legend>
+            <div class="ht-field">
+              {{ form.operado_por }}
+              {% for e in form.operado_por.errors %}<div class="ht-error">{{ e }}</div>{% endfor %}
+            </div>
+          </fieldset>
+
+          <fieldset class="ht-group">
             <legend>Otros</legend>
             <div class="ht-pair">
               <div class="ht-field">
@@ -349,6 +372,7 @@
               <th>Medio de pago</th>
               <th class="ht-num">Monto pagado</th>
               <th class="ht-num">Monto recibido</th>
+              <th>Operado por</th>
               <th>Cajero</th>
               <th>Estado</th>
               <th>Factura</th>
@@ -373,6 +397,7 @@
               </td>
               <td class="ht-num">{{ t.monto_pagado|floatformat:"2g" }} <span class="ht-muted">{{ t.moneda_pagada }}</span></td>
               <td class="ht-num">{{ t.monto_recibido|floatformat:"2g" }} <span class="ht-muted">{{ t.moneda_recibida }}</span></td>
+              <td>{{ t.usuario.get_full_name|default:t.usuario.username }}</td>
               <td>
                 {% if t.cajero %}{{ t.cajero.get_full_name|default:t.cajero.username }}{% else %}<span class="ht-muted">—</span>{% endif %}
               </td>
@@ -433,8 +458,8 @@
           <h4>No hay transacciones que coincidan con los filtros</h4>
           <p>Probá ampliar el rango de fechas o quitar algún filtro.</p>
         {% else %}
-          <h4>Todavía no realizaste transacciones</h4>
-          <p>Cuando compres o vendas divisas, tus operaciones aparecerán aquí.</p>
+          <h4>Este cliente todavía no tiene transacciones</h4>
+          <p>Cuando se compren o vendan divisas en su nombre, las operaciones aparecerán aquí.</p>
         {% endif %}
       </div>
     {% endif %}

@@ -14,9 +14,12 @@ class TransaccionAdmin(admin.ModelAdmin):
     Permite dar de alta transacciones de prueba, pero no editarlas ni
     eliminarlas, ya que son registros de auditoría.
     """
-    list_display = ('fecha', 'usuario', 'tipo', 'moneda', 'monto_pagado', 'monto_recibido', 'estado', 'cajero')
+    list_display = ('fecha', 'cliente', 'usuario', 'tipo', 'moneda', 'monto_pagado', 'monto_recibido', 'estado', 'cajero')
     list_filter = ('tipo', 'estado', 'moneda', 'facturada', 'dispositivo')
-    search_fields = ('usuario__username', 'usuario__first_name', 'usuario__last_name', 'cajero__username')
+    search_fields = (
+        'cliente__nombre_o_denominacion', 'cliente__documento',
+        'usuario__username', 'usuario__first_name', 'usuario__last_name', 'cajero__username',
+    )
     date_hierarchy = 'fecha'
 
     def has_change_permission(self, request, obj=None):

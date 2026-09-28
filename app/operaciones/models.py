@@ -82,10 +82,11 @@ class TasaDeCambio(models.Model):
 
 
 class Transaccion(models.Model):
-    """Operación de compra o venta de divisas realizada por un cliente.
+    """Operación de compra o venta de divisas realizada en nombre de un cliente.
 
-    El cliente es el propio usuario registrado que realiza la operación
-    (`usuario`); la transacción no referencia a un cliente separado.
+    Un cliente puede tener varios usuarios asociados que operan en su nombre
+    y un usuario puede operar para varios clientes: `cliente` indica a nombre
+    de quién se hizo la operación y `usuario`, quién la realizó.
 
     El tipo se interpreta desde el punto de vista del cliente:
 
@@ -93,12 +94,13 @@ class Transaccion(models.Model):
     - `VENTA`: el cliente paga la divisa y recibe guaraníes (PYG).
 
     Los registros son de auditoría: las claves foráneas usan `PROTECT` para
-    que el historial no se pierda si se intenta borrar el usuario, una moneda
-    o un medio de pago.
+    que el historial no se pierda si se intenta borrar el cliente, el usuario,
+    una moneda o un medio de pago.
 
     Attributes:
         id: Identificador UUID, no editable.
-        usuario: Usuario registrado (cliente) que realizó la operación.
+        cliente: Cliente en nombre del cual se realizó la operación.
+        usuario: Usuario asociado al cliente que realizó la operación.
         cajero: Usuario (rol `Cajero`) que confirmó la operación. Vacío
             mientras la transacción esté `PENDIENTE`.
         tipo: `COMPRA` o `VENTA`.
@@ -138,6 +140,7 @@ class Transaccion(models.Model):
     MONEDA_LOCAL = 'PYG'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    cliente = models.ForeignKey('clientes.Cliente', on_delete=models.PROTECT, related_name='transacciones')
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='transacciones_realizadas'
     )
@@ -158,15 +161,15 @@ class Transaccion(models.Model):
     fecha = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        """Nombres legibles, orden de más reciente a más antigua e índice por usuario."""
+        """Nombres legibles, orden de más reciente a más antigua e índice por cliente."""
         verbose_name = "Transacción"
         verbose_name_plural = "Transacciones"
         ordering = ['-fecha']
-        indexes = [models.Index(fields=['usuario', '-fecha'])]
+        indexes = [models.Index(fields=['cliente', '-fecha'])]
 
     def __str__(self):
-        """Devuelve `TIPO MONEDA - usuario (dd/mm/aaaa hh:mm)`."""
-        return f"{self.get_tipo_display()} {self.moneda.codigo} - {self.usuario} ({self.fecha:%d/%m/%Y %H:%M})"
+        """Devuelve `TIPO MONEDA - cliente (dd/mm/aaaa hh:mm)`."""
+        return f"{self.get_tipo_display()} {self.moneda.codigo} - {self.cliente} ({self.fecha:%d/%m/%Y %H:%M})"
 
     @property
     def moneda_pagada(self):

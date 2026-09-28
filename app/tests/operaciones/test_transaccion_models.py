@@ -15,10 +15,10 @@ from .datos_historial import HistorialDatosMixin, fecha_local
 class TransaccionModelTestCase(HistorialDatosMixin, TestCase):
     """Pruebas del modelo Transaccion."""
 
-    def test_str_incluye_tipo_moneda_usuario_y_fecha(self):
-        """Verifica el formato `TIPO MONEDA - usuario (dd/mm/aaaa hh:mm)`."""
+    def test_str_incluye_tipo_moneda_cliente_y_fecha(self):
+        """Verifica el formato `TIPO MONEDA - cliente (dd/mm/aaaa hh:mm)`."""
         t = self.crear_transaccion(fecha=fecha_local(2026, 9, 15, 14, 30))
-        self.assertEqual(str(t), "Compra USD - cliente_a (15/09/2026 14:30)")
+        self.assertEqual(str(t), "Compra USD - Ana Pérez (15/09/2026 14:30)")
 
     def test_ordering_mas_reciente_primero(self):
         """Verifica que por defecto se ordene de la más reciente a la más antigua."""
@@ -41,7 +41,7 @@ class TransaccionModelTestCase(HistorialDatosMixin, TestCase):
     def test_valores_por_defecto(self):
         """Verifica los valores por defecto de estado, dispositivo y facturación."""
         t = Transaccion.objects.create(
-            usuario=self.usuario_a, tipo=Transaccion.Tipo.VENTA,
+            cliente=self.cliente_a, usuario=self.usuario_a, tipo=Transaccion.Tipo.VENTA,
             moneda=self.usd, medio_pago=self.tarjeta_a,
             monto_pagado=10, monto_recibido=74000, tasa_aplicada=7400,
         )
@@ -51,8 +51,14 @@ class TransaccionModelTestCase(HistorialDatosMixin, TestCase):
         self.assertIsNone(t.cajero)
         self.assertIsNotNone(t.fecha)
 
-    def test_no_se_puede_borrar_usuario_con_transacciones(self):
-        """Verifica que PROTECT impida perder el historial al borrar el usuario (cliente)."""
+    def test_no_se_puede_borrar_cliente_con_transacciones(self):
+        """Verifica que PROTECT impida perder el historial al borrar el cliente."""
+        self.crear_transaccion()
+        with self.assertRaises(ProtectedError):
+            self.cliente_a.delete()
+
+    def test_no_se_puede_borrar_usuario_que_opero(self):
+        """Verifica que PROTECT impida perder el registro de quién operó al borrar el usuario."""
         self.crear_transaccion()
         with self.assertRaises(ProtectedError):
             self.usuario_a.delete()
