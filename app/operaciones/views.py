@@ -1,9 +1,14 @@
-"""Vistas de la aplicación operaciones (monedas, tasas de cambio y simulador)."""
+"""Vistas de la aplicación operaciones (monedas, tasas de cambio, simulador e historial de transacciones)."""
 
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_GET
+from clientes.models import Cliente
+from main.views import get_menu_sections, resolve_user_role
 from usuarios.decorators import requiere_rol
-from .models import Moneda, TasaDeCambio
-from .forms import MonedaForm, TasaDeCambioForm
+from .models import Moneda, TasaDeCambio, Transaccion
+from .forms import FiltroHistorialForm, MonedaForm, TasaDeCambioForm
 from decimal import Decimal, InvalidOperation
 from .models import TasaDeCambio
 
@@ -182,3 +187,88 @@ def simular(request):
     return render(request, 'operaciones/simulador.html', context)
 
 
+TRANSACCIONES_POR_PAGINA = 20
+# Páginas visibles alrededor de la actual y en cada extremo; el resto se abrevia con "…"
+PAGINAS_A_CADA_LADO = 2
+PAGINAS_EN_EXTREMOS = 1
+
+
+def _cliente_activo(request):
+    """Devuelve el cliente activo del usuario, con la misma regla que el dashboard.
+
+    Usa el cliente guardado en la sesión (`ge_active_client`) solo si está
+    asociado al usuario; si no, toma el primero de sus clientes y lo guarda
+    como activo. El cliente activo se elige/cambia desde el selector del
+    dashboard (fuera del alcance del historial).
+
+    Args:
+        request: Petición HTTP de un usuario autenticado.
+
+    Returns:
+        Cliente | None: El cliente activo, o `None` si el usuario no tiene
+        clientes asociados.
+    """
+    clientes = list(Cliente.objects.filter(usuarios_asociados__usuario=request.user))
+    if not clientes:
+        return None
+    id_en_sesion = request.session.get('ge_active_client')
+    activo = next((c for c in clientes if str(c.id) == id_en_sesion), clientes[0])
+    request.session['ge_active_client'] = str(activo.id)
+    return activo
+
+
+@login_required
+@require_GET
+def historial_transacciones(request):
+    """Lista, en modo solo lectura, las transacciones del cliente activo.
+
+    Acceso: usuario autenticado con al menos un `Cliente` asociado. Si no lo
+    tiene, se lo redirige a `convertirse_en_cliente`. Un usuario anónimo es
+    redirigido al login.
+
+    Se muestran todas las transacciones realizadas en nombre del cliente
+    activo (ver `_cliente_activo`), incluidas las de otros usuarios asociados
+    a ese cliente, indicando quién operó cada una. Nunca se exponen
+    operaciones de clientes que no estén asociados al usuario. La vista solo
+    acepta GET: no crea, modifica ni elimina transacciones.
+
+    Los filtros llegan por query string (ver `FiltroHistorialForm`) y el
+    resultado se pagina de a `TRANSACCIONES_POR_PAGINA`, de la más reciente
+    a la más antigua. `rango_paginas` contiene los números de página a
+    mostrar, abreviados con `Paginator.ELLIPSIS` cuando hay muchas.
+
+    Args:
+        request: Petición HTTP (GET con filtros opcionales y `page`).
+
+    Returns:
+        HttpResponse: Plantilla `operaciones/historial.html`, o redirección a
+        `convertirse_en_cliente`.
+    """
+    cliente = _cliente_activo(request)
+    if cliente is None:
+        return redirect('convertirse_en_cliente')
+
+    # Límite de seguridad: solo transacciones del cliente activo (asociado al usuario)
+    transacciones = Transaccion.objects.filter(cliente=cliente).select_related(
+        'usuario', 'moneda', 'medio_pago', 'cajero'
+    )
+
+    form = FiltroHistorialForm(request.GET or None, transacciones=transacciones)
+    if form.is_bound:
+        form.is_valid()  # completa cleaned_data; los campos con error se ignoran al filtrar
+    filtradas = form.filtrar(transacciones).order_by('-fecha')
+
+    page_obj = Paginator(filtradas, TRANSACCIONES_POR_PAGINA).get_page(request.GET.get('page'))
+
+    context = {
+        'cliente': cliente,
+        'form': form,
+        'page_obj': page_obj,
+        'rango_paginas': list(page_obj.paginator.get_elided_page_range(
+            page_obj.number, on_each_side=PAGINAS_A_CADA_LADO, on_ends=PAGINAS_EN_EXTREMOS
+        )),
+        'total': page_obj.paginator.count,
+        'hay_filtros': any(v for k, v in request.GET.items() if k != 'page'),
+        'menu_sections': get_menu_sections(resolve_user_role(request), cliente, is_authenticated=True),
+    }
+    return render(request, 'operaciones/historial.html', context)

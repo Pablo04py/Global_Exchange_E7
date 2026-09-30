@@ -1,4 +1,4 @@
-"""Rutas de la aplicación operaciones (monedas, tasas y simulador)."""
+"""Rutas de la aplicación operaciones (monedas, tasas, simulador e historial)."""
 
 from django.urls import path
 from . import views
@@ -11,4 +11,5 @@ urlpatterns = [
     path('tasas/crear/', views.crear_tasa, name='crear_tasa'),
     path('tasas/crear/<uuid:moneda_id>/', views.crear_tasa, name='crear_tasa_con_moneda'),
     path('simulador/', views.simular, name='simulador'),
+    path('historial/', views.historial_transacciones, name='historial_transacciones'),
 ]
