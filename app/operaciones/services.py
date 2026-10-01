@@ -64,7 +64,7 @@ def calcular_operacion(tipo_operacion, monto, tasa, porcentaje_comision):
 
     factor_comision = porcentaje_comision / Decimal('100')
 
-    if tipo_operacion == Transaccion.TipoOperacion.COMPRA:
+    if tipo_operacion == Transaccion.Tipo.COMPRA:
 
         # El cliente compra divisa.
         # Global Exchange vende la divisa.
@@ -82,7 +82,7 @@ def calcular_operacion(tipo_operacion, monto, tasa, porcentaje_comision):
 
         moneda_comision = tasa.moneda.codigo
 
-    elif tipo_operacion == Transaccion.TipoOperacion.VENTA:
+    elif tipo_operacion == Transaccion.Tipo.VENTA:
 
         # El cliente vende divisa.
         # Global Exchange compra la divisa.
@@ -213,10 +213,10 @@ def crear_transaccion(
         usuario=usuario,
         cliente=cliente,
         moneda=moneda,
-        tipo_operacion=tipo_operacion,
+        tipo=tipo_operacion,
 
-        monto_origen=resultado['monto_origen'],
-        monto_destino=resultado['monto_destino'],
+        monto_pagado = resultado['monto_origen'],
+        monto_recibido = resultado['monto_destino'],
 
         tasa_referencia=tasa_actual,
         tasa_aplicada=resultado['tasa_aplicada'],

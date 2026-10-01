@@ -81,6 +81,17 @@ class TasaDeCambio(models.Model):
         """
         return self.tasa_base + self.margen_venta
 
+class ConfiguracionComision(models.Model):
+    """Comision vigente segun la categoria del cliente"""
+
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    categoria = models.CharField(max_length=20, choices=Cliente.Categoria.choices, unique=True)
+    porcentaje = models.DecimalField(max_digits=5,decimal_places=2,validators=[MinValueValidator(0),MaxValueValidator(100)])
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.get_categoria_display()} - {self.porcentaje}%"
+
 
 class Transaccion(models.Model):
     """Operación de compra o venta de divisas realizada en nombre de un cliente.
@@ -141,7 +152,7 @@ class Transaccion(models.Model):
     MONEDA_LOCAL = 'PYG'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    cliente = models.ForeignKey('clientes.Cliente', on_delete=models.PROTECT, related_name='transacciones')
+    cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, related_name='transacciones')
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='transacciones_realizadas'
     )
@@ -154,10 +165,15 @@ class Transaccion(models.Model):
     medio_pago = models.ForeignKey('mpagos.MedioPago', on_delete=models.PROTECT, related_name='transacciones')
     monto_pagado = models.DecimalField(max_digits=18, decimal_places=2)
     monto_recibido = models.DecimalField(max_digits=18, decimal_places=2)
-    tasa_aplicada = models.DecimalField(max_digits=12, decimal_places=4)
+    tasa_referencia = models.ForeignKey(TasaDeCambio, on_delete=models.PROTECT, related_name='transacciones')
+    tasa_aplicada = models.DecimalField(max_digits=18, decimal_places=4)
+    categoria_cliente_aplicada = models.CharField(max_length=20, choices=Cliente.Categoria.choices)
+    porcentaje_comision = models.DecimalField(max_digits=5, decimal_places=2)
+    monto_comision = models.DecimalField(max_digits=18, decimal_places=4)
+    moneda_comision = models.CharField(max_length=3)    
     facturada = models.BooleanField(default=False)
     dispositivo = models.CharField(max_length=10, choices=Dispositivo.choices, default=Dispositivo.OTRO)
-    estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
+    estado = models.CharField(max_length=20, choices=Estado.choices, default=Estado.PENDIENTE)
     # default en lugar de auto_now_add para poder registrar operaciones con fecha pasada
     fecha = models.DateTimeField(default=timezone.now)
 
@@ -189,132 +205,3 @@ class Transaccion(models.Model):
             str: El código de la divisa en una compra; `PYG` en una venta.
         """
         return self.moneda.codigo if self.tipo == self.Tipo.COMPRA else self.MONEDA_LOCAL
-class ConfiguracionComision(models.Model):
-    """
-    Comision vigente segun la categoria del cliente
-    """
-
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
-    
-    categoria = models.CharField(
-        max_length=20,
-        choices=Cliente.Categoria.choices,
-        unique=True
-    )
-
-    porcentaje = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-    )
-
-    actualizado_en = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.get_categoria_display()} - {self.porcentaje}%"
-
-class Transaccion(models.Model):
-
-    class TipoOperacion(models.TextChoices):
-        COMPRA = 'COMPRA', 'Compra de divisa'
-        VENTA = 'VENTA', 'Venta de divisa'
-
-    class Estado(models.TextChoices):
-        PENDIENTE = 'PENDIENTE', 'Pendiente'
-        PAGADA = 'PAGADA', 'Pagada'
-        CANCELADA = 'CANCELADA', 'Cancelada'
-
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
-
-    usuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name='transacciones'
-    )
-
-    cliente = models.ForeignKey(
-        Cliente,
-        on_delete=models.PROTECT,
-        related_name='transacciones'
-    )
-
-    moneda = models.ForeignKey(
-        Moneda,
-        on_delete=models.PROTECT,
-        related_name='transacciones'
-    )
-
-    tipo_operacion = models.CharField(
-        max_length=10,
-        choices=TipoOperacion.choices
-    )
-
-    monto_origen = models.DecimalField(
-        max_digits=18,
-        decimal_places=4
-    )
-
-    monto_destino = models.DecimalField(
-        max_digits=18,
-        decimal_places=4
-    )
-
-    tasa_referencia = models.ForeignKey(
-        TasaDeCambio,
-        on_delete=models.PROTECT,
-        related_name='transacciones'
-    )
-
-    tasa_aplicada = models.DecimalField(
-        max_digits=18,
-        decimal_places=4
-    )
-
-    categoria_cliente_aplicada = models.CharField(
-        max_length=20,
-        choices=Cliente.Categoria.choices
-    )
-
-    porcentaje_comision = models.DecimalField(
-        max_digits=5,
-        decimal_places=2
-    )
-
-    monto_comision = models.DecimalField(
-        max_digits=18,
-        decimal_places=4
-    )
-
-    moneda_comision = models.CharField(
-        max_length=3
-    )
-
-    medio_pago = models.ForeignKey(
-        'mpagos.MedioPago',
-        on_delete=models.PROTECT,
-        related_name='transacciones'
-    )
-
-    estado = models.CharField(
-        max_length=20,
-        choices=Estado.choices,
-        default=Estado.PENDIENTE
-    )
-
-    fecha_hora = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return (
-            f"{self.get_tipo_operacion_display()} "
-            f"{self.moneda.codigo} - {self.cliente}"
-        )
-
-    class Meta:
-        ordering = ['-fecha_hora']

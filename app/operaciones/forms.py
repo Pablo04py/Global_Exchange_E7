@@ -2,12 +2,8 @@
 
 from django import forms
 from django.contrib.auth import get_user_model
-
 from mpagos.models import MedioPago
 from .models import Moneda, TasaDeCambio, Transaccion
-
-from .models import Moneda, TasaDeCambio, Transaccion, ConfiguracionComision
-from mpagos.models import MedioPago
 
 class MonedaForm(forms.ModelForm):
     """Formulario de alta y edición de monedas."""
@@ -151,7 +147,7 @@ class FiltroHistorialForm(forms.Form):
 class OperacionForm(forms.Form):
 
     tipo_operacion = forms.ChoiceField(
-        choices=Transaccion.TipoOperacion.choices,
+        choices=Transaccion.Tipo.choices,
         label="Tipo de operación"
     )
 

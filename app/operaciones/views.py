@@ -1,21 +1,21 @@
 """Vistas de la aplicación operaciones (monedas, tasas de cambio, simulador e historial de transacciones)."""
 
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.http import require_GET
-from clientes.models import Cliente
-from main.views import get_menu_sections, resolve_user_role
-from usuarios.decorators import requiere_rol
-from .models import Moneda, TasaDeCambio, Transaccion
-from .forms import FiltroHistorialForm, MonedaForm, TasaDeCambioForm
-from .forms import MonedaForm, TasaDeCambioForm, OperacionForm
+
 from decimal import Decimal, InvalidOperation
-from .models import TasaDeCambio
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_GET
+
 from clientes.models import Cliente
+from main.views import get_menu_sections, resolve_user_role
+from usuarios.decorators import requiere_rol
+
+from .models import Moneda, TasaDeCambio, Transaccion
+from .forms import FiltroHistorialForm, MonedaForm, TasaDeCambioForm, OperacionForm
 from .services import (
     simular_operacion,
     crear_transaccion,
@@ -166,7 +166,7 @@ def simular(request):
     if monto_ingresado and tasa_id:
         try:
             monto = Decimal(monto_ingresado)
-            tasa = TasaDeCambiotasa = TasaDeCambio.objects.get(id=tasa_id)
+            tasa = TasaDeCambio.objects.get(id=tasa_id)
             
             # Ejecución de los métodos definidos en la entidad TasaDeCambio
             if tipo_op == 'compra':
@@ -201,36 +201,33 @@ def obtener_cliente_activo(request):
     Devuelve el cliente activo solo si pertenece
     realmente al usuario autenticado.
     """
+    clientes = list(
+        Cliente.objects.filter(
+            usuarios_asociados__usuario=request.user
+        )
+    )
+
+    if not clientes:
+        return None
+
+    cliente_id = request.session.get(
+        'ge_active_client'
+    )
+
+    cliente = next(
+        (
+            c for c in clientes
+            if str(c.id) == str(cliente_id)
+        ),
+        clientes[0])
+    request.session['ge_active_client'] = str(cliente.id)
+
+    return cliente
 
 TRANSACCIONES_POR_PAGINA = 20
 # Páginas visibles alrededor de la actual y en cada extremo; el resto se abrevia con "…"
 PAGINAS_A_CADA_LADO = 2
 PAGINAS_EN_EXTREMOS = 1
-
-
-def _cliente_activo(request):
-    """Devuelve el cliente activo del usuario, con la misma regla que el dashboard.
-
-    Usa el cliente guardado en la sesión (`ge_active_client`) solo si está
-    asociado al usuario; si no, toma el primero de sus clientes y lo guarda
-    como activo. El cliente activo se elige/cambia desde el selector del
-    dashboard (fuera del alcance del historial).
-
-    Args:
-        request: Petición HTTP de un usuario autenticado.
-
-    Returns:
-        Cliente | None: El cliente activo, o `None` si el usuario no tiene
-        clientes asociados.
-    """
-    clientes = list(Cliente.objects.filter(usuarios_asociados__usuario=request.user))
-    if not clientes:
-        return None
-    id_en_sesion = request.session.get('ge_active_client')
-    activo = next((c for c in clientes if str(c.id) == id_en_sesion), clientes[0])
-    request.session['ge_active_client'] = str(activo.id)
-    return activo
-
 
 @login_required
 @require_GET
@@ -259,7 +256,7 @@ def historial_transacciones(request):
         HttpResponse: Plantilla `operaciones/historial.html`, o redirección a
         `convertirse_en_cliente`.
     """
-    cliente = _cliente_activo(request)
+    cliente = obtener_cliente_activo(request)
     if cliente is None:
         return redirect('convertirse_en_cliente')
 
@@ -287,22 +284,6 @@ def historial_transacciones(request):
         'menu_sections': get_menu_sections(resolve_user_role(request), cliente, is_authenticated=True),
     }
     return render(request, 'operaciones/historial.html', context)
-    cliente_id = request.session.get(
-        'ge_active_client'
-    )
-
-    if not cliente_id:
-        return None
-
-    return (
-        Cliente.objects
-        .filter(
-            id=cliente_id,
-            usuarios_asociados__usuario=request.user
-        )
-        .first()
-    )
-
 
 @login_required
 def operar(request):
