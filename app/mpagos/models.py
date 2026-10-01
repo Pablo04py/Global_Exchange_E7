@@ -7,6 +7,7 @@ los métodos de acreditación/cobro de los clientes de la casa de cambio.
 
 from django.db import models
 from django.conf import settings
+from clientes.models import Cliente
 
 
 class MedioPago(models.Model):
@@ -30,6 +31,16 @@ class MedioPago(models.Model):
         on_delete=models.CASCADE,
         related_name='medios_pago',
         help_text="Usuario propietario de este medio de pago."
+    )
+
+    # Cliente al que pertenece el medio de pago
+    cliente = models.ForeignKey(
+        Cliente,
+        on_delete=models.CASCADE,
+        related_name='medios_pago',
+        null=True,
+        blank=True,
+        help_text="Cliente al que pertenece este medio de pago."
     )
 
     # Identificación básica del medio de pago

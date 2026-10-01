@@ -93,15 +93,16 @@ def get_menu_sections(role, active_client, is_authenticated=False):
 
     # RF13, RF15, RF23, RF41: Solo si el usuario tiene un cliente activo seleccionado
 
-    sections.append({
-        "label": "Operativa",
-        "items": [
-            {"name": "Mis Clientes", "url": reverse("mis_clientes"), "icon": "ti-address-book"},
-            {"name": "Operar / Cambiar Divisas", "url": "/operar/", "icon": "ti-arrows-exchange"},
-            {"name": "Historial de Operaciones", "url": "/historial/", "icon": "ti-history"},
-            {"name": "Facturas DNIT", "url": "/facturas/", "icon": "ti-receipt"},
-        ]
-    })
+    if active_client:
+        sections.append({
+            "label": "Operativa",
+            "items": [
+                {"name": "Mis Clientes", "url": reverse("mis_clientes"), "icon": "ti-address-book"},
+                {"name": "Operar / Cambiar Divisas", "url": reverse("operar"), "icon": "ti-arrows-exchange"},
+                {"name": "Historial de Operaciones", "url": "/historial/", "icon": "ti-history"},
+                {"name": "Facturas DNIT", "url": "/facturas/", "icon": "ti-receipt"},
+            ]
+        })
 
     # RF30-RF35: Funciones del Cajero
     if role == "Cajero":

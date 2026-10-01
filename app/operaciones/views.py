@@ -2,10 +2,19 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
 from usuarios.decorators import requiere_rol
-from .models import Moneda, TasaDeCambio
-from .forms import MonedaForm, TasaDeCambioForm
+from .models import Moneda, TasaDeCambio, Transaccion
+from .forms import MonedaForm, TasaDeCambioForm, OperacionForm
 from decimal import Decimal, InvalidOperation
 from .models import TasaDeCambio
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from clientes.models import Cliente
+from .services import (
+    simular_operacion,
+    crear_transaccion,
+    CotizacionDesactualizada
+)
 
 @requiere_rol('Administrador General')
 def lista_monedas(request):
@@ -181,4 +190,168 @@ def simular(request):
     }
     return render(request, 'operaciones/simulador.html', context)
 
+def obtener_cliente_activo(request):
+    """
+    Devuelve el cliente activo solo si pertenece
+    realmente al usuario autenticado.
+    """
 
+    cliente_id = request.session.get(
+        'ge_active_client'
+    )
+
+    if not cliente_id:
+        return None
+
+    return (
+        Cliente.objects
+        .filter(
+            id=cliente_id,
+            usuarios_asociados__usuario=request.user
+        )
+        .first()
+    )
+
+
+@login_required
+def operar(request):
+
+    cliente = obtener_cliente_activo(request)
+
+    if not cliente:
+        messages.warning(
+            request,
+            "Debe tener un cliente asociado y seleccionado "
+            "para realizar operaciones."
+        )
+
+        return redirect('dashboard')
+
+    simulacion = None
+
+    if request.method == 'POST':
+
+        form = OperacionForm(
+            request.POST,
+            cliente=cliente
+        )
+
+        if form.is_valid():
+
+            accion = request.POST.get('accion')
+
+            tipo_operacion = form.cleaned_data[
+                'tipo_operacion'
+            ]
+
+            moneda = form.cleaned_data['moneda']
+            monto = form.cleaned_data['monto']
+
+            medio_pago = form.cleaned_data[
+                'medio_pago'
+            ]
+
+            if accion == 'simular':
+
+                try:
+                    simulacion = simular_operacion(
+                        cliente=cliente,
+                        tipo_operacion=tipo_operacion,
+                        moneda=moneda,
+                        monto=monto,
+                    )
+
+                except ValidationError as error:
+                    form.add_error(
+                        None,
+                        error.message
+                    )
+
+            elif accion == 'confirmar':
+
+                tasa_id = form.cleaned_data.get(
+                    'tasa_id_simulada'
+                )
+
+                if not tasa_id:
+                    form.add_error(
+                        None,
+                        "Debe simular la operación antes "
+                        "de confirmarla."
+                    )
+
+                else:
+                    try:
+
+                        transaccion = crear_transaccion(
+                            usuario=request.user,
+                            cliente=cliente,
+                            tipo_operacion=tipo_operacion,
+                            moneda=moneda,
+                            monto=monto,
+                            medio_pago=medio_pago,
+                            tasa_id_simulada=tasa_id,
+                        )
+
+                        messages.success(
+                            request,
+                            "La operación fue registrada correctamente."
+                        )
+
+                        return redirect(
+                            'detalle_transaccion',
+                            transaccion_id=transaccion.id
+                        )
+
+                    except CotizacionDesactualizada as error:
+
+                        form.add_error(
+                            None,
+                            str(error)
+                        )
+
+                    except ValidationError as error:
+
+                        form.add_error(
+                            None,
+                            error.message
+                        )
+
+    else:
+
+        form = OperacionForm(
+            cliente=cliente
+        )
+
+    context = {
+        'form': form,
+        'cliente': cliente,
+        'simulacion': simulacion,
+    }
+
+    return render(
+        request,
+        'operaciones/operar.html',
+        context
+    )
+
+
+@login_required
+def detalle_transaccion(
+    request,
+    transaccion_id
+):
+
+    transaccion = get_object_or_404(
+        Transaccion,
+        id=transaccion_id,
+        usuario=request.user
+    )
+
+    return render(
+        request,
+        'operaciones/detalle_transaccion.html',
+        {
+            'transaccion': transaccion
+        }
+    )

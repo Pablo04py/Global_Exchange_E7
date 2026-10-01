@@ -11,4 +11,6 @@ urlpatterns = [
     path('tasas/crear/', views.crear_tasa, name='crear_tasa'),
     path('tasas/crear/<uuid:moneda_id>/', views.crear_tasa, name='crear_tasa_con_moneda'),
     path('simulador/', views.simular, name='simulador'),
+    path('operar/', views.operar, name='operar'),
+    path('operar/<uuid:transaccion_id>/', views.detalle_transaccion, name='detalle_transaccion'),
 ]
