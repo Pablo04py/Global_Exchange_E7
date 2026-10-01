@@ -53,9 +53,14 @@ class UsuarioCliente(models.Model):
     Un usuario puede operar en nombre de varios clientes y un cliente puede
     tener varios usuarios asociados. La pareja (usuario, cliente) es única.
     """
+    class RolCliente(models.TextChoices):
+        ADMIN = 'ADMIN', 'Administrador'
+        OPERADOR = 'OPERADOR', 'Operador'
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='clientes_asociados')
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='usuarios_asociados')
+    rol_cliente = models.CharField(max_length=20, choices=RolCliente.choices, default=RolCliente.OPERADOR)
     fecha_asociacion = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -63,5 +68,8 @@ class UsuarioCliente(models.Model):
         unique_together = ('usuario', 'cliente')  # evita duplicar la misma asociacion debe ser unica en la bd
 
     def __str__(self):
-        """Devuelve `usuario → cliente`."""
-        return f"{self.usuario.username} → {self.cliente.nombre_o_denominacion}"
+        return (
+            f"{self.usuario.username} → "
+            f"{self.cliente.nombre_o_denominacion} "
+            f"({self.get_rol_cliente_display()})"
+        )

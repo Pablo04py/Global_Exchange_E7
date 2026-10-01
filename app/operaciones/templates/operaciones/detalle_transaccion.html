@@ -1,0 +1,84 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Detalle de Operación | Global Exchange
+{% endblock %}
+
+{% block page_title %}
+Detalle de Operación
+{% endblock %}
+
+{% block content %}
+
+<div>
+
+    <h2>Operación registrada correctamente</h2>
+
+    <p>
+        <strong>ID:</strong>
+        {{ transaccion.id }}
+    </p>
+
+    <p>
+        <strong>Cliente:</strong>
+        {{ transaccion.cliente.nombre_o_denominacion }}
+    </p>
+
+    <p>
+        <strong>Usuario:</strong>
+        {{ transaccion.usuario.username }}
+    </p>
+
+    <p>
+        <strong>Tipo de operación:</strong>
+        {{ transaccion.get_tipo_operacion_display }}
+    </p>
+
+    <p>
+        <strong>Moneda:</strong>
+        {{ transaccion.moneda.codigo }}
+    </p>
+
+    <p>
+        <strong>Monto ingresado:</strong>
+        {{ transaccion.monto_origen }}
+    </p>
+
+    <p>
+        <strong>Tasa aplicada:</strong>
+        {{ transaccion.tasa_aplicada }}
+    </p>
+
+    <p>
+        <strong>Comisión:</strong>
+        {{ transaccion.porcentaje_comision }} %
+    </p>
+
+    <p>
+        <strong>Monto de comisión:</strong>
+        {{ transaccion.monto_comision }}
+        {{ transaccion.moneda_comision }}
+    </p>
+
+    <p>
+        <strong>Monto final:</strong>
+        {{ transaccion.monto_destino }}
+    </p>
+
+    <p>
+        <strong>Medio de pago:</strong>
+        {{ transaccion.medio_pago }}
+    </p>
+
+    <p>
+        <strong>Estado:</strong>
+        {{ transaccion.get_estado_display }}
+    </p>
+
+    <a href="{% url 'operar' %}">
+        Realizar otra operación
+    </a>
+
+</div>
+
+{% endblock %}

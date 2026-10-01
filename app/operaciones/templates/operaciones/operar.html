@@ -1,0 +1,118 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Operar | Global Exchange
+{% endblock %}
+
+{% block page_title %}
+Operar / Cambiar Divisas
+{% endblock %}
+
+{% block content %}
+
+<div class="operation-container">
+
+    <h2>Operar / Cambiar Divisas</h2>
+
+    <p>
+        Cliente activo:
+        <strong>{{ cliente.nombre_o_denominacion }}</strong>
+        — {{ cliente.get_categoria_display }}
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div>
+            {{ form.tipo_operacion.label_tag }}
+            {{ form.tipo_operacion }}
+            {{ form.tipo_operacion.errors }}
+        </div>
+
+        <div>
+            {{ form.moneda.label_tag }}
+            {{ form.moneda }}
+            {{ form.moneda.errors }}
+        </div>
+
+        <div>
+            {{ form.monto.label_tag }}
+            {{ form.monto }}
+            {{ form.monto.errors }}
+        </div>
+
+        <div>
+            {{ form.medio_pago.label_tag }}
+            {{ form.medio_pago }}
+            {{ form.medio_pago.errors }}
+        </div>
+
+        <button
+            type="submit"
+            name="accion"
+            value="simular"
+        >
+            Simular operación
+        </button>
+
+        {% if simulacion %}
+
+            <hr>
+
+            <h3>Resumen de la operación</h3>
+
+            <p>
+                Tipo:
+                {{ form.tipo_operacion.value }}
+            </p>
+
+            <p>
+                Tasa aplicada:
+                {{ simulacion.tasa_aplicada }}
+            </p>
+
+            <p>
+                Comisión:
+                {{ simulacion.porcentaje_comision }} %
+            </p>
+
+            <p>
+                Monto de comisión:
+                {{ simulacion.monto_comision }}
+                {{ simulacion.moneda_comision }}
+            </p>
+
+            <p>
+                Monto final:
+                <strong>
+                    {{ simulacion.monto_destino }}
+                </strong>
+            </p>
+
+            <input
+                type="hidden"
+                name="tasa_id_simulada"
+                value="{{ simulacion.tasa_id }}"
+            >
+
+            <button
+                type="submit"
+                name="accion"
+                value="confirmar"
+            >
+                Confirmar operación
+            </button>
+
+        {% endif %}
+
+    </form>
+
+</div>
+
+{% endblock %}

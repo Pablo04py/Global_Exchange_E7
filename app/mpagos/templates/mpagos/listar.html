@@ -170,9 +170,11 @@
       <h1>Mis Medios de Pago</h1>
       <p>Administrá tus tarjetas, cuentas bancarias y alias SIPAP para tus operaciones de cambio.</p>
     </div>
-    <a href="{% url 'mpagos:crear' %}" class="mp-btn mp-btn-primary">
-      <i class="ti ti-plus"></i> Agregar Nuevo Medio
-    </a>
+    {% if puede_administrar %}
+      <a href="{% url 'mpagos:crear' %}" class="mp-btn mp-btn-primary">
+        <i class="ti ti-plus"></i> Agregar Nuevo Medio
+      </a>
+    {% endif %}
   </div>
 
   {% if messages %}
@@ -193,7 +195,9 @@
             <th>Banco / Entidad</th>
             <th>Identificador / Número</th>
             <th>Estado</th>
-            <th style="text-align:right;">Acciones</th>
+            {% if puede_administrar %}
+              <th style="text-align:right;">Acciones</th>
+            {% endif %}
           </tr>
         </thead>
         <tbody>
@@ -219,28 +223,53 @@
                 <span class="mp-badge mp-badge-secondary">Secundario</span>
               {% endif %}
             </td>
-            <td>
-              <div class="mp-actions">
-                <a href="{% url 'mpagos:editar' medio.pk %}" class="mp-btn mp-btn-outline">
-                  <i class="ti ti-pencil"></i> Editar
-                </a>
-                <a href="{% url 'mpagos:eliminar' medio.pk %}" class="mp-btn mp-btn-outline-danger">
-                  <i class="ti ti-trash"></i> Eliminar
-                </a>
-              </div>
-            </td>
+            {% if puede_administrar %}
+              <td>
+                <div class="mp-actions">
+                  <a href="{% url 'mpagos:editar' medio.pk %}" class="mp-btn mp-btn-outline">
+                    <i class="ti ti-pencil"></i> Editar
+                  </a>
+                  <a href="{% url 'mpagos:eliminar' medio.pk %}" class="mp-btn mp-btn-outline-danger">
+                    <i class="ti ti-trash"></i> Eliminar
+                  </a>
+                </div>
+              </td>
+            {% endif %}
           </tr>
           {% endfor %}
         </tbody>
       </table>
     {% else %}
       <div class="mp-empty">
-        <div class="mp-empty-icon"><i class="ti ti-credit-card-off"></i></div>
-        <h4>No posees medios de pago registrados</h4>
-        <p>Agregá tu primera tarjeta o cuenta bancaria para agilizar tus compras y ventas.</p>
-        <a href="{% url 'mpagos:crear' %}" class="mp-btn mp-btn-primary">
-          <i class="ti ti-plus"></i> Registrar Medio de Pago
-        </a>
+
+        <div class="mp-empty-icon">
+          <i class="ti ti-credit-card-off"></i>
+        </div>
+
+        <h4>No hay medios de pago registrados</h4>
+
+        {% if puede_administrar %}
+
+          <p>
+            Registrá una tarjeta, cuenta bancaria u otro medio
+            para utilizarlo en las operaciones de este cliente.
+          </p>
+
+          <a href="{% url 'mpagos:crear' %}"
+            class="mp-btn mp-btn-primary">
+            <i class="ti ti-plus"></i>
+            Registrar Medio de Pago
+          </a>
+
+        {% else %}
+
+          <p>
+            Este cliente todavía no posee medios de pago habilitados.
+            Un administrador del cliente debe registrar uno antes de operar.
+          </p>
+
+        {% endif %}
+
       </div>
     {% endif %}
   </div>
