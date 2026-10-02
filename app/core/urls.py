@@ -24,8 +24,7 @@ urlpatterns = [
     #ruta app cliente
     path('clientes/', include('clientes.urls')),
     #ruta app mpagos
-    path('medios-pago/', include('mpagos.urls', namespace='mpagos')),
-    path('clientes/', include('clientes.urls')), 
+    path('medios-pago/', include('mpagos.urls', namespace='mpagos')), 
     path('cotizaciones/', include('cotizaciones.urls')),
     #ruta a operaciones
     path('operaciones/', include('operaciones.urls')),

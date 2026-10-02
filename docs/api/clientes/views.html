@@ -74,9 +74,9 @@
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="sd">"""Vistas de la aplicación clientes (CRUD, asignación y registro como cliente)."""</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">get_object_or_404</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">login_required</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">get_object_or_404</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">login_required</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">transaction</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cliente</span><span class="p">,</span> <span class="n">UsuarioCliente</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.forms</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClienteForm</span><span class="p">,</span> <span class="n">AsignacionForm</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.forms</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClienteFisicaForm</span>
@@ -191,35 +191,64 @@
 </span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>
 </span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="nd">@login_required</span>
 </span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a><span class="k">def</span><span class="w"> </span><span class="nf">convertirse_en_cliente</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="w">    </span><span class="sd">"""Permite a un usuario registrarse a sí mismo como cliente persona física.</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="sd">    Si el usuario ya tiene un cliente asociado, lo redirige a `mis_clientes`.</span>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="sd">    Al guardar, crea el `Cliente` y su asociación `UsuarioCliente`.</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">    Args:</span>
-</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">        request: Petición HTTP.</span>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>
-</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">    Returns:</span>
-</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">        HttpResponse: Formulario o redirección a `mis_clientes`.</span>
-</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="sd">    """</span>
-</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>    <span class="c1"># Si ya tiene no se permite</span>
-</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>    <span class="k">if</span> <span class="n">UsuarioCliente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">usuario</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">'mis_clientes'</span><span class="p">)</span> 
-</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>
-</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">'POST'</span><span class="p">:</span>
-</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>        <span class="n">form</span> <span class="o">=</span> <span class="n">ClienteFisicaForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
-</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
-</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>            <span class="n">cliente</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>            <span class="n">cliente</span><span class="o">.</span><span class="n">tipo_persona</span> <span class="o">=</span> <span class="n">Cliente</span><span class="o">.</span><span class="n">TipoPersona</span><span class="o">.</span><span class="n">FISICA</span>
-</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>            <span class="n">cliente</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>            <span class="n">UsuarioCliente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">usuario</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">cliente</span><span class="o">=</span><span class="n">cliente</span><span class="p">)</span>
-</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">'mis_clientes'</span><span class="p">)</span>
-</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>        <span class="n">form</span> <span class="o">=</span> <span class="n">ClienteFisicaForm</span><span class="p">(</span><span class="n">initial</span><span class="o">=</span><span class="p">{</span>
-</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>            <span class="s1">'nombre_o_denominacion'</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>        <span class="p">})</span>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>
-</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">'clientes/convertirse_en_cliente.html'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'form'</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="w">    </span><span class="sd">"""</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a><span class="sd">    Permite a un usuario autenticado registrarse como cliente particular.</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="sd">    El proceso crea un cliente de tipo Persona Física y categoría</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="sd">    Minorista. El usuario que realiza el autorregistro queda asociado</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">    automáticamente al nuevo cliente con el rol local ``ADMIN``.</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">    Una vez completado el registro, el nuevo cliente se establece como</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">    cliente activo mediante la variable de sesión ``ge_active_client``.</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="sd">    Si el usuario ya administra un cliente de tipo Persona Física,</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a><span class="sd">    se evita crear otro registro particular y se lo redirige al listado</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a><span class="sd">    de sus clientes.</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a><span class="sd">    Args:</span>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a><span class="sd">        request:</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="sd">            Solicitud HTTP de Django.</span>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="sd">    Returns:</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="sd">        HttpResponse:</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">            Formulario de autorregistro cuando la petición es GET o</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">            cuando los datos enviados no son válidos.</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a><span class="sd">        HttpResponseRedirect:</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a><span class="sd">            Redirección al dashboard después de completar correctamente</span>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a><span class="sd">            el registro, o a Mis Clientes cuando el usuario ya posee</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a><span class="sd">            un cliente particular.</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a><span class="sd">    """</span>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>    <span class="c1">#Verificar si el usuario ya tiene un cliente particular propio</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>    <span class="n">ya_tiene_cliente_particular</span> <span class="o">=</span> <span class="n">UsuarioCliente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>        <span class="n">usuario</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>        <span class="n">cliente__tipo_persona</span><span class="o">=</span><span class="n">Cliente</span><span class="o">.</span><span class="n">TipoPersona</span><span class="o">.</span><span class="n">FISICA</span><span class="p">,</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>        <span class="n">rol_cliente</span><span class="o">=</span><span class="n">UsuarioCliente</span><span class="o">.</span><span class="n">RolCliente</span><span class="o">.</span><span class="n">ADMIN</span><span class="p">,</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>    <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>    <span class="k">if</span> <span class="n">ya_tiene_cliente_particular</span><span class="p">:</span>
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">'mis_clientes'</span><span class="p">)</span>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">'POST'</span><span class="p">:</span>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>        <span class="n">form</span> <span class="o">=</span> <span class="n">ClienteFisicaForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>            <span class="k">with</span> <span class="n">transaction</span><span class="o">.</span><span class="n">atomic</span><span class="p">():</span>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>                <span class="n">cliente</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>                <span class="n">cliente</span><span class="o">.</span><span class="n">tipo_persona</span> <span class="o">=</span> <span class="n">Cliente</span><span class="o">.</span><span class="n">TipoPersona</span><span class="o">.</span><span class="n">FISICA</span>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>                <span class="n">cliente</span><span class="o">.</span><span class="n">categoria</span> <span class="o">=</span> <span class="n">Cliente</span><span class="o">.</span><span class="n">Categoria</span><span class="o">.</span><span class="n">MINORISTA</span>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>                <span class="n">cliente</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>                <span class="n">UsuarioCliente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">usuario</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">cliente</span><span class="o">=</span><span class="n">cliente</span><span class="p">,</span> <span class="n">rol_cliente</span><span class="o">=</span><span class="n">UsuarioCliente</span><span class="o">.</span><span class="n">RolCliente</span><span class="o">.</span><span class="n">ADMIN</span><span class="p">),</span>
+</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>
+</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>            <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s1">'ge_active_client'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cliente</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">'dashboard'</span><span class="p">)</span>
+</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>        <span class="n">form</span> <span class="o">=</span> <span class="n">ClienteFisicaForm</span><span class="p">(</span><span class="n">initial</span><span class="o">=</span><span class="p">{</span>
+</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>            <span class="s1">'nombre_o_denominacion'</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>        <span class="p">})</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>
+</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">'clientes/convertirse_en_cliente.html'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'form'</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span>
 </span></pre></div>
 
 
@@ -511,53 +540,97 @@ redirige al listado de clientes.</p>
     <a class="headerlink" href="#convertirse_en_cliente"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="convertirse_en_cliente-119"><a href="#convertirse_en_cliente-119"><span class="linenos">119</span></a><span class="nd">@login_required</span>
 </span><span id="convertirse_en_cliente-120"><a href="#convertirse_en_cliente-120"><span class="linenos">120</span></a><span class="k">def</span><span class="w"> </span><span class="nf">convertirse_en_cliente</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-</span><span id="convertirse_en_cliente-121"><a href="#convertirse_en_cliente-121"><span class="linenos">121</span></a><span class="w">    </span><span class="sd">"""Permite a un usuario registrarse a sí mismo como cliente persona física.</span>
-</span><span id="convertirse_en_cliente-122"><a href="#convertirse_en_cliente-122"><span class="linenos">122</span></a>
-</span><span id="convertirse_en_cliente-123"><a href="#convertirse_en_cliente-123"><span class="linenos">123</span></a><span class="sd">    Si el usuario ya tiene un cliente asociado, lo redirige a `mis_clientes`.</span>
-</span><span id="convertirse_en_cliente-124"><a href="#convertirse_en_cliente-124"><span class="linenos">124</span></a><span class="sd">    Al guardar, crea el `Cliente` y su asociación `UsuarioCliente`.</span>
-</span><span id="convertirse_en_cliente-125"><a href="#convertirse_en_cliente-125"><span class="linenos">125</span></a>
-</span><span id="convertirse_en_cliente-126"><a href="#convertirse_en_cliente-126"><span class="linenos">126</span></a><span class="sd">    Args:</span>
-</span><span id="convertirse_en_cliente-127"><a href="#convertirse_en_cliente-127"><span class="linenos">127</span></a><span class="sd">        request: Petición HTTP.</span>
-</span><span id="convertirse_en_cliente-128"><a href="#convertirse_en_cliente-128"><span class="linenos">128</span></a>
-</span><span id="convertirse_en_cliente-129"><a href="#convertirse_en_cliente-129"><span class="linenos">129</span></a><span class="sd">    Returns:</span>
-</span><span id="convertirse_en_cliente-130"><a href="#convertirse_en_cliente-130"><span class="linenos">130</span></a><span class="sd">        HttpResponse: Formulario o redirección a `mis_clientes`.</span>
-</span><span id="convertirse_en_cliente-131"><a href="#convertirse_en_cliente-131"><span class="linenos">131</span></a><span class="sd">    """</span>
-</span><span id="convertirse_en_cliente-132"><a href="#convertirse_en_cliente-132"><span class="linenos">132</span></a>    <span class="c1"># Si ya tiene no se permite</span>
-</span><span id="convertirse_en_cliente-133"><a href="#convertirse_en_cliente-133"><span class="linenos">133</span></a>    <span class="k">if</span> <span class="n">UsuarioCliente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">usuario</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-</span><span id="convertirse_en_cliente-134"><a href="#convertirse_en_cliente-134"><span class="linenos">134</span></a>        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">'mis_clientes'</span><span class="p">)</span> 
-</span><span id="convertirse_en_cliente-135"><a href="#convertirse_en_cliente-135"><span class="linenos">135</span></a>
-</span><span id="convertirse_en_cliente-136"><a href="#convertirse_en_cliente-136"><span class="linenos">136</span></a>    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">'POST'</span><span class="p">:</span>
-</span><span id="convertirse_en_cliente-137"><a href="#convertirse_en_cliente-137"><span class="linenos">137</span></a>        <span class="n">form</span> <span class="o">=</span> <span class="n">ClienteFisicaForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
-</span><span id="convertirse_en_cliente-138"><a href="#convertirse_en_cliente-138"><span class="linenos">138</span></a>        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
-</span><span id="convertirse_en_cliente-139"><a href="#convertirse_en_cliente-139"><span class="linenos">139</span></a>            <span class="n">cliente</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="convertirse_en_cliente-140"><a href="#convertirse_en_cliente-140"><span class="linenos">140</span></a>            <span class="n">cliente</span><span class="o">.</span><span class="n">tipo_persona</span> <span class="o">=</span> <span class="n">Cliente</span><span class="o">.</span><span class="n">TipoPersona</span><span class="o">.</span><span class="n">FISICA</span>
-</span><span id="convertirse_en_cliente-141"><a href="#convertirse_en_cliente-141"><span class="linenos">141</span></a>            <span class="n">cliente</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-</span><span id="convertirse_en_cliente-142"><a href="#convertirse_en_cliente-142"><span class="linenos">142</span></a>            <span class="n">UsuarioCliente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">usuario</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">cliente</span><span class="o">=</span><span class="n">cliente</span><span class="p">)</span>
-</span><span id="convertirse_en_cliente-143"><a href="#convertirse_en_cliente-143"><span class="linenos">143</span></a>            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">'mis_clientes'</span><span class="p">)</span>
-</span><span id="convertirse_en_cliente-144"><a href="#convertirse_en_cliente-144"><span class="linenos">144</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="convertirse_en_cliente-145"><a href="#convertirse_en_cliente-145"><span class="linenos">145</span></a>        <span class="n">form</span> <span class="o">=</span> <span class="n">ClienteFisicaForm</span><span class="p">(</span><span class="n">initial</span><span class="o">=</span><span class="p">{</span>
-</span><span id="convertirse_en_cliente-146"><a href="#convertirse_en_cliente-146"><span class="linenos">146</span></a>            <span class="s1">'nombre_o_denominacion'</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-</span><span id="convertirse_en_cliente-147"><a href="#convertirse_en_cliente-147"><span class="linenos">147</span></a>        <span class="p">})</span>
-</span><span id="convertirse_en_cliente-148"><a href="#convertirse_en_cliente-148"><span class="linenos">148</span></a>
-</span><span id="convertirse_en_cliente-149"><a href="#convertirse_en_cliente-149"><span class="linenos">149</span></a>    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">'clientes/convertirse_en_cliente.html'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'form'</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span>
+</span><span id="convertirse_en_cliente-121"><a href="#convertirse_en_cliente-121"><span class="linenos">121</span></a><span class="w">    </span><span class="sd">"""</span>
+</span><span id="convertirse_en_cliente-122"><a href="#convertirse_en_cliente-122"><span class="linenos">122</span></a><span class="sd">    Permite a un usuario autenticado registrarse como cliente particular.</span>
+</span><span id="convertirse_en_cliente-123"><a href="#convertirse_en_cliente-123"><span class="linenos">123</span></a>
+</span><span id="convertirse_en_cliente-124"><a href="#convertirse_en_cliente-124"><span class="linenos">124</span></a><span class="sd">    El proceso crea un cliente de tipo Persona Física y categoría</span>
+</span><span id="convertirse_en_cliente-125"><a href="#convertirse_en_cliente-125"><span class="linenos">125</span></a><span class="sd">    Minorista. El usuario que realiza el autorregistro queda asociado</span>
+</span><span id="convertirse_en_cliente-126"><a href="#convertirse_en_cliente-126"><span class="linenos">126</span></a><span class="sd">    automáticamente al nuevo cliente con el rol local ``ADMIN``.</span>
+</span><span id="convertirse_en_cliente-127"><a href="#convertirse_en_cliente-127"><span class="linenos">127</span></a>
+</span><span id="convertirse_en_cliente-128"><a href="#convertirse_en_cliente-128"><span class="linenos">128</span></a><span class="sd">    Una vez completado el registro, el nuevo cliente se establece como</span>
+</span><span id="convertirse_en_cliente-129"><a href="#convertirse_en_cliente-129"><span class="linenos">129</span></a><span class="sd">    cliente activo mediante la variable de sesión ``ge_active_client``.</span>
+</span><span id="convertirse_en_cliente-130"><a href="#convertirse_en_cliente-130"><span class="linenos">130</span></a>
+</span><span id="convertirse_en_cliente-131"><a href="#convertirse_en_cliente-131"><span class="linenos">131</span></a><span class="sd">    Si el usuario ya administra un cliente de tipo Persona Física,</span>
+</span><span id="convertirse_en_cliente-132"><a href="#convertirse_en_cliente-132"><span class="linenos">132</span></a><span class="sd">    se evita crear otro registro particular y se lo redirige al listado</span>
+</span><span id="convertirse_en_cliente-133"><a href="#convertirse_en_cliente-133"><span class="linenos">133</span></a><span class="sd">    de sus clientes.</span>
+</span><span id="convertirse_en_cliente-134"><a href="#convertirse_en_cliente-134"><span class="linenos">134</span></a>
+</span><span id="convertirse_en_cliente-135"><a href="#convertirse_en_cliente-135"><span class="linenos">135</span></a><span class="sd">    Args:</span>
+</span><span id="convertirse_en_cliente-136"><a href="#convertirse_en_cliente-136"><span class="linenos">136</span></a><span class="sd">        request:</span>
+</span><span id="convertirse_en_cliente-137"><a href="#convertirse_en_cliente-137"><span class="linenos">137</span></a><span class="sd">            Solicitud HTTP de Django.</span>
+</span><span id="convertirse_en_cliente-138"><a href="#convertirse_en_cliente-138"><span class="linenos">138</span></a>
+</span><span id="convertirse_en_cliente-139"><a href="#convertirse_en_cliente-139"><span class="linenos">139</span></a><span class="sd">    Returns:</span>
+</span><span id="convertirse_en_cliente-140"><a href="#convertirse_en_cliente-140"><span class="linenos">140</span></a><span class="sd">        HttpResponse:</span>
+</span><span id="convertirse_en_cliente-141"><a href="#convertirse_en_cliente-141"><span class="linenos">141</span></a><span class="sd">            Formulario de autorregistro cuando la petición es GET o</span>
+</span><span id="convertirse_en_cliente-142"><a href="#convertirse_en_cliente-142"><span class="linenos">142</span></a><span class="sd">            cuando los datos enviados no son válidos.</span>
+</span><span id="convertirse_en_cliente-143"><a href="#convertirse_en_cliente-143"><span class="linenos">143</span></a>
+</span><span id="convertirse_en_cliente-144"><a href="#convertirse_en_cliente-144"><span class="linenos">144</span></a><span class="sd">        HttpResponseRedirect:</span>
+</span><span id="convertirse_en_cliente-145"><a href="#convertirse_en_cliente-145"><span class="linenos">145</span></a><span class="sd">            Redirección al dashboard después de completar correctamente</span>
+</span><span id="convertirse_en_cliente-146"><a href="#convertirse_en_cliente-146"><span class="linenos">146</span></a><span class="sd">            el registro, o a Mis Clientes cuando el usuario ya posee</span>
+</span><span id="convertirse_en_cliente-147"><a href="#convertirse_en_cliente-147"><span class="linenos">147</span></a><span class="sd">            un cliente particular.</span>
+</span><span id="convertirse_en_cliente-148"><a href="#convertirse_en_cliente-148"><span class="linenos">148</span></a><span class="sd">    """</span>
+</span><span id="convertirse_en_cliente-149"><a href="#convertirse_en_cliente-149"><span class="linenos">149</span></a>
+</span><span id="convertirse_en_cliente-150"><a href="#convertirse_en_cliente-150"><span class="linenos">150</span></a>    <span class="c1">#Verificar si el usuario ya tiene un cliente particular propio</span>
+</span><span id="convertirse_en_cliente-151"><a href="#convertirse_en_cliente-151"><span class="linenos">151</span></a>    <span class="n">ya_tiene_cliente_particular</span> <span class="o">=</span> <span class="n">UsuarioCliente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+</span><span id="convertirse_en_cliente-152"><a href="#convertirse_en_cliente-152"><span class="linenos">152</span></a>        <span class="n">usuario</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+</span><span id="convertirse_en_cliente-153"><a href="#convertirse_en_cliente-153"><span class="linenos">153</span></a>        <span class="n">cliente__tipo_persona</span><span class="o">=</span><span class="n">Cliente</span><span class="o">.</span><span class="n">TipoPersona</span><span class="o">.</span><span class="n">FISICA</span><span class="p">,</span>
+</span><span id="convertirse_en_cliente-154"><a href="#convertirse_en_cliente-154"><span class="linenos">154</span></a>        <span class="n">rol_cliente</span><span class="o">=</span><span class="n">UsuarioCliente</span><span class="o">.</span><span class="n">RolCliente</span><span class="o">.</span><span class="n">ADMIN</span><span class="p">,</span>
+</span><span id="convertirse_en_cliente-155"><a href="#convertirse_en_cliente-155"><span class="linenos">155</span></a>    <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+</span><span id="convertirse_en_cliente-156"><a href="#convertirse_en_cliente-156"><span class="linenos">156</span></a>
+</span><span id="convertirse_en_cliente-157"><a href="#convertirse_en_cliente-157"><span class="linenos">157</span></a>    <span class="k">if</span> <span class="n">ya_tiene_cliente_particular</span><span class="p">:</span>
+</span><span id="convertirse_en_cliente-158"><a href="#convertirse_en_cliente-158"><span class="linenos">158</span></a>        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">'mis_clientes'</span><span class="p">)</span>
+</span><span id="convertirse_en_cliente-159"><a href="#convertirse_en_cliente-159"><span class="linenos">159</span></a>
+</span><span id="convertirse_en_cliente-160"><a href="#convertirse_en_cliente-160"><span class="linenos">160</span></a>    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">'POST'</span><span class="p">:</span>
+</span><span id="convertirse_en_cliente-161"><a href="#convertirse_en_cliente-161"><span class="linenos">161</span></a>        <span class="n">form</span> <span class="o">=</span> <span class="n">ClienteFisicaForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+</span><span id="convertirse_en_cliente-162"><a href="#convertirse_en_cliente-162"><span class="linenos">162</span></a>        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+</span><span id="convertirse_en_cliente-163"><a href="#convertirse_en_cliente-163"><span class="linenos">163</span></a>            <span class="k">with</span> <span class="n">transaction</span><span class="o">.</span><span class="n">atomic</span><span class="p">():</span>
+</span><span id="convertirse_en_cliente-164"><a href="#convertirse_en_cliente-164"><span class="linenos">164</span></a>                <span class="n">cliente</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="convertirse_en_cliente-165"><a href="#convertirse_en_cliente-165"><span class="linenos">165</span></a>                <span class="n">cliente</span><span class="o">.</span><span class="n">tipo_persona</span> <span class="o">=</span> <span class="n">Cliente</span><span class="o">.</span><span class="n">TipoPersona</span><span class="o">.</span><span class="n">FISICA</span>
+</span><span id="convertirse_en_cliente-166"><a href="#convertirse_en_cliente-166"><span class="linenos">166</span></a>                <span class="n">cliente</span><span class="o">.</span><span class="n">categoria</span> <span class="o">=</span> <span class="n">Cliente</span><span class="o">.</span><span class="n">Categoria</span><span class="o">.</span><span class="n">MINORISTA</span>
+</span><span id="convertirse_en_cliente-167"><a href="#convertirse_en_cliente-167"><span class="linenos">167</span></a>                <span class="n">cliente</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</span><span id="convertirse_en_cliente-168"><a href="#convertirse_en_cliente-168"><span class="linenos">168</span></a>
+</span><span id="convertirse_en_cliente-169"><a href="#convertirse_en_cliente-169"><span class="linenos">169</span></a>                <span class="n">UsuarioCliente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">usuario</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">cliente</span><span class="o">=</span><span class="n">cliente</span><span class="p">,</span> <span class="n">rol_cliente</span><span class="o">=</span><span class="n">UsuarioCliente</span><span class="o">.</span><span class="n">RolCliente</span><span class="o">.</span><span class="n">ADMIN</span><span class="p">),</span>
+</span><span id="convertirse_en_cliente-170"><a href="#convertirse_en_cliente-170"><span class="linenos">170</span></a>
+</span><span id="convertirse_en_cliente-171"><a href="#convertirse_en_cliente-171"><span class="linenos">171</span></a>            <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s1">'ge_active_client'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cliente</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</span><span id="convertirse_en_cliente-172"><a href="#convertirse_en_cliente-172"><span class="linenos">172</span></a>            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">'dashboard'</span><span class="p">)</span>
+</span><span id="convertirse_en_cliente-173"><a href="#convertirse_en_cliente-173"><span class="linenos">173</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="convertirse_en_cliente-174"><a href="#convertirse_en_cliente-174"><span class="linenos">174</span></a>        <span class="n">form</span> <span class="o">=</span> <span class="n">ClienteFisicaForm</span><span class="p">(</span><span class="n">initial</span><span class="o">=</span><span class="p">{</span>
+</span><span id="convertirse_en_cliente-175"><a href="#convertirse_en_cliente-175"><span class="linenos">175</span></a>            <span class="s1">'nombre_o_denominacion'</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span id="convertirse_en_cliente-176"><a href="#convertirse_en_cliente-176"><span class="linenos">176</span></a>        <span class="p">})</span>
+</span><span id="convertirse_en_cliente-177"><a href="#convertirse_en_cliente-177"><span class="linenos">177</span></a>
+</span><span id="convertirse_en_cliente-178"><a href="#convertirse_en_cliente-178"><span class="linenos">178</span></a>    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">'clientes/convertirse_en_cliente.html'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'form'</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Permite a un usuario registrarse a sí mismo como cliente persona física.</p>
+            <div class="docstring"><p>Permite a un usuario autenticado registrarse como cliente particular.</p>
 
-<p>Si el usuario ya tiene un cliente asociado, lo redirige a <code><a href="#mis_clientes">mis_clientes</a></code>.
-Al guardar, crea el <code>Cliente</code> y su asociación <code>UsuarioCliente</code>.</p>
+<p>El proceso crea un cliente de tipo Persona Física y categoría
+Minorista. El usuario que realiza el autorregistro queda asociado
+automáticamente al nuevo cliente con el rol local <code>ADMIN</code>.</p>
+
+<p>Una vez completado el registro, el nuevo cliente se establece como
+cliente activo mediante la variable de sesión <code>ge_active_client</code>.</p>
+
+<p>Si el usuario ya administra un cliente de tipo Persona Física,
+se evita crear otro registro particular y se lo redirige al listado
+de sus clientes.</p>
 
 <h6 id="arguments">Parámetros:</h6>
 
 <ul>
-<li><strong>request:</strong>  Petición HTTP.</li>
+<li><strong>request:</strong>  Solicitud HTTP de Django.</li>
 </ul>
 
 <h6 id="returns">Retorna:</h6>
 
 <blockquote>
-  <p>HttpResponse: Formulario o redirección a <code><a href="#mis_clientes">mis_clientes</a></code>.</p>
+  <p>HttpResponse:
+      Formulario de autorregistro cuando la petición es GET o
+      cuando los datos enviados no son válidos.</p>
+  
+  <p>HttpResponseRedirect:
+      Redirección al dashboard después de completar correctamente
+      el registro, o a Mis Clientes cuando el usuario ya posee
+      un cliente particular.</p>
 </blockquote>
 </div>
 

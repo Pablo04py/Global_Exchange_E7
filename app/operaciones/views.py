@@ -19,7 +19,8 @@ from .forms import FiltroHistorialForm, MonedaForm, TasaDeCambioForm, OperacionF
 from .services import (
     simular_operacion,
     crear_transaccion,
-    CotizacionDesactualizada
+    CotizacionDesactualizada,
+    registrar_transaccion_cancelada,
 )
 
 @requiere_rol('Administrador General')
@@ -340,21 +341,17 @@ def operar(request):
                     )
 
             elif accion == 'confirmar':
-
-                tasa_id = form.cleaned_data.get(
-                    'tasa_id_simulada'
-                )
+                tasa_id = request.POST.get('tasa_id_simulada')
 
                 if not tasa_id:
-                    form.add_error(
-                        None,
-                        "Debe simular la operación antes "
-                        "de confirmarla."
-                    )
-
+                    form.add_error(None, "Debe simular la operación antes de confirmarla.")
                 else:
                     try:
+                        # 1. DELAY DE 20 SEGUNDOS (Da tiempo a cambiar la tasa en la otra pestaña)
+                        import time
+                        time.sleep(10)
 
+                        # 2. INTENTA CREAR LA TRANSACCIÓN
                         transaccion = crear_transaccion(
                             usuario=request.user,
                             cliente=cliente,
@@ -365,29 +362,31 @@ def operar(request):
                             tasa_id_simulada=tasa_id,
                         )
 
-                        messages.success(
-                            request,
-                            "La operación fue registrada correctamente."
-                        )
-
-                        return redirect(
-                            'detalle_transaccion',
-                            transaccion_id=transaccion.id
-                        )
+                        messages.success(request, "La operación fue registrada correctamente.")
+                        return redirect('detalle_transaccion', transaccion_id=transaccion.id)
 
                     except CotizacionDesactualizada as error:
-
-                        form.add_error(
-                            None,
-                            str(error)
+                        # 3. SI EN LOS 20 SEGUNDOS CAMBIO LA TASA, ENTRA AQUÍ
+                        transaccion_cancelada = registrar_transaccion_cancelada(
+                            usuario=request.user,
+                            cliente=cliente,
+                            tipo_operacion=tipo_operacion,
+                            moneda=moneda,
+                            monto=monto,
+                            medio_pago=medio_pago,
                         )
+
+                        context_cancelado = {
+                            'cliente': cliente,
+                            'transaccion': transaccion_cancelada,
+                            'motivo': str(error),
+                            'moneda': moneda,
+                        }
+                        return render(request, 'operaciones/operacion_cancelada.html', context_cancelado)
 
                     except ValidationError as error:
-
-                        form.add_error(
-                            None,
-                            error.message
-                        )
+                        form.add_error(None, error.message if hasattr(error, 'message') else str(error))
+       
 
     else:
 
