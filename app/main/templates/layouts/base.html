@@ -72,6 +72,14 @@
         <i class="ti ti-menu-2"></i>
       </button>
 
+      {% if request.user.is_authenticated %}
+        <a href="{% url 'dashboard' %}"
+          class="topbar-icon-btn"
+          title="Inicio">
+          <i class="ti ti-home"></i>
+        </a>
+      {% endif %}
+
       <div class="topbar-title">
         {% block page_title %}Dashboard{% endblock %}
       </div>
