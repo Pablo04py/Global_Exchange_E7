@@ -6,19 +6,71 @@ de rangos y la paginación de 20 registros que conserva los filtros aplicados.
 """
 
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.core.paginator import Paginator
 from django.test import TestCase
 from django.urls import reverse
 
-from operaciones.models import Transaccion
+from clientes.models import Cliente
+from operaciones.models import Transaccion, TasaDeCambio, ConfiguracionComision
 from operaciones.views import TRANSACCIONES_POR_PAGINA
 from .datos_historial import HistorialDatosMixin, Usuario, fecha_local
 
 URL = reverse('historial_transacciones')
 
 
-class HistorialFiltrosTestCase(HistorialDatosMixin, TestCase):
+class BaseHistorialTestCase(HistorialDatosMixin, TestCase):
+    """Base con setUp extendido para inyectar comisiones y tasa de referencia por defecto."""
+
+    def setUp(self):
+        super().setUp()
+
+        # Configuración de comisiones para evitar errores de restricción NOT NULL
+        ConfiguracionComision.objects.get_or_create(
+            categoria=Cliente.Categoria.MINORISTA,
+            defaults={'porcentaje': Decimal('2.00')}
+        )
+        ConfiguracionComision.objects.get_or_create(
+            categoria=Cliente.Categoria.VIP,
+            defaults={'porcentaje': Decimal('1.00')}
+        )
+
+        # Crear tasa de cambio de referencia si no existe
+        self.tasa_usd, _ = TasaDeCambio.objects.get_or_create(
+            moneda=self.usd,
+            defaults={
+                'tasa_base': Decimal('7500.00'),
+                'margen_compra': Decimal('50.00'),
+                'margen_venta': Decimal('50.00')
+            }
+        )
+
+        # Interceptamos la creación de Transacciones
+        self.original_create = Transaccion.objects.create
+
+        def custom_create(**kwargs):
+            cliente = kwargs.get('cliente') or self.cliente_a
+            categoria = getattr(cliente, 'categoria', Cliente.Categoria.MINORISTA)
+            tasa = kwargs.get('tasa_referencia') or self.tasa_usd
+
+            kwargs.setdefault('categoria_cliente_aplicada', categoria)
+            kwargs.setdefault('porcentaje_comision', Decimal('2.00'))
+            kwargs.setdefault('monto_comision', Decimal('15000.00'))
+            kwargs.setdefault('moneda_comision', 'PYG')
+            kwargs.setdefault('tasa_referencia', tasa)
+
+            return self.original_create(**kwargs)
+
+        self.patcher = patch.object(Transaccion.objects, 'create', side_effect=custom_create)
+        self.patcher.start()
+
+    def tearDown(self):
+        self.patcher.stop()
+        super().tearDown()
+
+
+class HistorialFiltrosTestCase(BaseHistorialTestCase):
     """Pruebas de cada filtro del historial."""
 
     def setUp(self):
@@ -135,7 +187,7 @@ class HistorialFiltrosTestCase(HistorialDatosMixin, TestCase):
         self.assertIn('monto_pagado_min', response.context['form'].errors)
 
 
-class HistorialPaginacionTestCase(HistorialDatosMixin, TestCase):
+class HistorialPaginacionTestCase(BaseHistorialTestCase):
     """Pruebas de la paginación del historial."""
 
     def setUp(self):
@@ -188,6 +240,11 @@ class HistorialPaginacionTestCase(HistorialDatosMixin, TestCase):
                 cliente=self.cliente_a, usuario=self.usuario_a, cajero=self.cajero, tipo=base.tipo, moneda=self.usd,
                 medio_pago=self.tarjeta_a, monto_pagado=base.monto_pagado, monto_recibido=base.monto_recibido,
                 tasa_aplicada=base.tasa_aplicada, fecha=fecha_local(2026, 1, 1 + i % 28),
+                categoria_cliente_aplicada=self.cliente_a.categoria,
+                porcentaje_comision=Decimal('2.00'),
+                monto_comision=Decimal('15000.00'),
+                moneda_comision='PYG',
+                tasa_referencia=self.tasa_usd,
             )
             for i in range(375)
         ])

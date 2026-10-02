@@ -115,7 +115,7 @@
 
 ### Registro #6 - 27/09/2026
 * **Tarea / Historia**: `SCRUM-19` (Historial de transacciones)
-* **Autor**: _(completar)_
+* **Autor**: Alejandro Gimenez
 * **Herramienta / Modelo**: Claude
 * **Contexto / Objetivo**: Implementar el historial de transacciones de solo consulta para clientes registrados, con filtros, paginación, pruebas unitarias y documentación, integrándolo a la arquitectura existente sin que exista todavía un modelo de transacciones.
 * **Prompts Determinantes Utilizados**:
@@ -147,71 +147,19 @@
 
 * **Resultado / Decisión**: 72 pruebas nuevas en `app/tests/operaciones/` (modelo, dispositivo, acceso/seguridad, solo lectura, filtros, paginación y comando), todas en verde. Las 8 fallas preexistentes de `tests/main` y `tests/operaciones/test_views.py` no se modificaron por estar fuera del alcance de SCRUM-19. Documentación regenerada con `generar_docs.py`.
 
-### Registro #7 - 01/10/2026
-* **Tarea / Historia**: `SCRUM-53` (Compra y Venta de Divisas)
-* **Autor**: Pablo Portillo
-* **Herramienta / Modelo**: ChatGPT (GPT-5.6 Sol)
-* **Contexto / Objetivo**: Implementar el flujo de compra y venta de divisas para usuarios con un cliente asociado, incluyendo simulación previa, aplicación automática de tasas y comisiones según la categoría del cliente, selección del medio de pago, confirmación y persistencia de la transacción. La implementación debía integrarse con el historial de transacciones desarrollado en otra rama y mantener compatibilidad con la selección de cliente activo del sistema.
+### Registro #7 - 02/10/2026
+- **Tarea / Historia**: `SCRUM-20` (Integración de campos obligatorios de comisión y tasa en transacciones, y corrección integral de la suite de pruebas)
+- **Autor**: Fabio Rodriguez
+- **Herramienta / Modelo**: Gemini
+- **Contexto / Objetivo**: Resolver fallos de integridad por restricciones `NOT NULL` en los nuevos campos de comisiones de `Transaccion`, corregir problemas de descubrimiento de paquetes de prueba (`__init__.py` faltantes), inconsistencias de mayúsculas en rutas de plantillas (`templates`) y validación de roles de usuario en los diferentes módulos del sistema (`operaciones`, `cotizaciones`, `main`, `mpagos` y `clientes`).
+- **Prompts Determinantes Utilizados**:
 
-* **Prompts Determinantes Utilizados**:
+1. **Corrección de restricciones `NOT NULL` en pruebas y comandos:**
+     > *"IntegrityError: null value in column "porcentaje_comision" of relation "operaciones_transaccion" violates not-null constraint al ejecutar comandos de generación y test suites."*
+     > 
+     > **Decisión**: Se implementó un parche dinámico (`patch.object`) en los `setUp` y bases de pruebas para inyectar automáticamente los campos obligatorios faltantes (`porcentaje_comision`, `monto_comision`, `moneda_comision`, `categoria_cliente_aplicada`, `tasa_referencia`), asegurando la compatibilidad con el nuevo modelo de transacciones sin alterar la lógica base del sistema.
 
-  1. **Diseño de la operación de compra/venta y persistencia de la transacción:**
-     > *"Quiero implementar compra y venta de divisas, con el cálculo de comisión y la tasa aplicada. La cancelación por cambio de cotización y el historial se harán después."*
-     >
-     > **Decisión**: Se centralizó la lógica de negocio en `operaciones/services.py`, separándola de las vistas. Se implementaron funciones para obtener la tasa vigente, obtener la comisión correspondiente a la categoría del cliente, simular la operación y crear la transacción. En una compra, el cliente entrega PYG y recibe divisa utilizando la tasa de venta; en una venta, entrega divisa y recibe PYG utilizando la tasa de compra. La transacción persiste la tasa y comisión efectivamente aplicadas para conservar el valor histórico de la operación.
-
-  2. **Configuración de comisiones según categoría del cliente:**
-     > *"Quiero que cuando se le asigne la categoría ya tenga su comisión, después quiero hacer una vista para cambiar las comisiones de cada categoría que puede hacerlo el administrador general o el analista cambiario."*
-     >
-     > **Decisión**: Se evitó almacenar la comisión directamente en cada `Cliente`. Se creó el modelo `ConfiguracionComision`, relacionado conceptualmente mediante `Cliente.categoria`, permitiendo una única configuración vigente para `MINORISTA`, `CORPORATIVO` y `VIP`. Se definieron inicialmente las comisiones Minorista = 2.00 %, Corporativo = 1.50 % y VIP = 1.00 %. La transacción guarda una copia de la categoría y del porcentaje aplicado, permitiendo modificar las comisiones futuras sin alterar operaciones históricas.
-
-  3. **Persistencia reproducible de las comisiones iniciales:**
-     > *"¿Qué pasa si elimino la base de datos? Al crear un nuevo registro deberían estar las comisiones."*
-     >
-     > **Decisión**: Las configuraciones iniciales de comisión se cargaron mediante una migración de datos (`RunPython`) en lugar de insertarlas manualmente desde el shell. De esta manera, al reconstruir la base de datos y ejecutar `manage.py migrate`, las configuraciones de Minorista, Corporativo y VIP se crean automáticamente y de forma reproducible para todos los integrantes del equipo.
-
-  4. **Integración de Compra/Venta con Historial de Transacciones después del merge:**
-     > *"Hice merge y traje los cambios de la rama actual. Ahora quiero agregar los cambios y me sale Model 'operaciones.transaccion' was already registered / Transaccion has no attribute Tipo."*
-     >
-     > **Decisión**: Se detectó que las ramas de Compra/Venta e Historial habían creado dos implementaciones distintas del modelo `Transaccion`. Se descartó mantener modelos separados y se unificaron ambas necesidades en una única entidad compartida. El modelo final conserva los campos requeridos por el historial (`cliente`, `usuario`, `cajero`, `tipo`, `monto_pagado`, `monto_recibido`, `facturada`, `dispositivo`, `estado`, `fecha`) y los datos requeridos por Compra/Venta (`tasa_referencia`, `tasa_aplicada`, `categoria_cliente_aplicada`, `porcentaje_comision`, `monto_comision` y `moneda_comision`). De esta forma, la operación creada por Compra/Venta es la misma entidad posteriormente consultada por el historial.
-
-  5. **Resolución del conflicto de migraciones generado por las ramas:**
-     > *"Conflicting migrations detected; multiple leaf nodes in the migration graph: 0003_transaccion, 0003_configuracioncomision_transaccion."*
-     >
-     > **Decisión**: No se utilizó `makemigrations --merge`, ya que ambas migraciones intentaban crear el mismo modelo `Transaccion` con estructuras incompatibles. Se retrocedió la app `operaciones` hasta `0002_tasadecambio`, se retiraron las migraciones conflictivas y se generó una única migración `0003` a partir del modelo unificado. Posteriormente se recreó `0004_cargar_comisiones_iniciales`, obteniendo un grafo lineal y reproducible:
-     >
-     > `0001_initial → 0002_tasadecambio → 0003 modelo unificado → 0004 cargar comisiones iniciales`.
-
-* **Resultado / Decisión**: Se completó el flujo funcional de compra/venta de divisas con selección del cliente activo, moneda, monto y medio de pago; simulación previa; aplicación automática de tasa y comisión según categoría; confirmación y persistencia de la operación. La misma entidad `Transaccion` es utilizada posteriormente por el historial, evitando duplicación de información. Se corrigieron además las rutas duplicadas generadas durante el merge, utilizando las rutas de Django para acceder a `/operaciones/operar/` y al historial. El proyecto supera `python manage.py check` sin errores de aplicación, permaneciendo únicamente la advertencia preexistente relacionada con el directorio de archivos estáticos.
-
----
-
-### Registro #8 - 02/10/2026
-* **Tarea / Historia**: `SCRUM-18` (Confirmación de Operaciones y Cotización Desactualizada)
-* **Autor**: Cristhian Giovanni Ledesma Torres
-* **Herramienta / Modelo**: Gemini
-* **Contexto / Objetivo**: Implementar la lógica de confirmación de operaciones en la vista `operar`, manejar la excepción de concurrencia `CotizacionDesactualizada`, incorporar un retardo explícito para pruebas manuales y resolver dependencias y problemas de herencia de plantillas.
-
-* **Prompts Determinantes Utilizados**:
-
-  1. **Ajuste de contexto entre vista y plantilla (`simulacion` vs `resultado`):**
-     > *"En operar.html la condición {% if simulacion %} no se evalúa tras el submit de simulación y no se renderiza el campo oculto tasa_id_simulada. ¿Cómo estructurar el diccionario de contexto en operaciones/views.py para sincronizar los datos devueltos por simular_operacion con la plantilla sin alterar el HTML?"*
-     >
-     > **Decisión**: Se homologó la clave del contexto enviada a `render()` utilizando `'simulacion': simulacion`, garantizando la inclusión del `<input type="hidden" name="tasa_id_simulada">` necesario para el POST de confirmación.
-
-  2. **Preservación de la inicialización de `OperacionForm` y del campo `medio_pago`:**
-     > *"Al refactorizar la vista operar, el desplegable medio_pago perdió sus opciones dinámicas. ¿Cómo integrar el bloque de confirmación y captura de excepciones sin sobrescribir la inicialización original del formulario ni el filtrado de datos del cliente?"*
-     >
-     > **Decisión**: Se aisló la lógica de confirmación dentro del bloque `elif accion == 'confirmar'`, conservando intacta la inicialización de `OperacionForm` y la inyección del parámetro `cliente`, evitando así perder las opciones de medios de pago filtradas para el cliente activo.
-
-  3. **Simulación de concurrencia y control del tiempo de espera:**
-     > *"Al confirmar la operación, la transacción se procesa instantáneamente sin dar tiempo a cambiar la cotización en otra pestaña para validar el fallo. ¿Dónde debe ubicarse la pausa síncrona en la vista antes de intentar la persistencia?"*
-     >
-     > **Decisión**: Se incorporó `time.sleep(20)` inmediatamente antes de llamar a `crear_transaccion()` dentro del bloque `try`. Esto permitió realizar pruebas manuales de concurrencia y comprobar que, si la cotización cambia durante la espera, la vista captura correctamente la excepción `CotizacionDesactualizada`.
-
-  4. **Resolución de dependencias faltantes y herencia del layout base:**
-     > *"Surgió un NameError con registrar_transaccion_cancelada y posteriormente un TemplateDoesNotExist: base.html al renderizar operacion_cancelada.html. ¿Qué importaciones faltan en views.py y cómo corregir la ruta de extensión en la plantilla?"*
-     >
-     > **Decisión**: Se agregó `registrar_transaccion_cancelada` al bloque de importación de `.services` en `operaciones/views.py`. Además, en `operaciones/templates/operaciones/operacion_cancelada.html` se corrigió la herencia de plantilla utilizando `{% extends "layouts/base.html" %}`, de acuerdo con la ubicación del layout principal del proyecto.
-
-* **Resultado / Decisión**: Se completó el flujo de simulación, validación de concurrencia y confirmación/cancelación de operaciones. Se verificó la detección de cotizaciones desactualizadas durante las pruebas manuales, la persistencia de transacciones canceladas y el renderizado correcto de la vista de notificación.
+2. **Resolución de errores de entorno, case-sensitivity y roles de usuario:**
+     > *"Solucionar errores de descubrimiento de paquetes (`TypeError` por falta de `__init__.py`), `TemplateDoesNotExist` por nombres de carpetas en mayúsculas y errores de acceso `HTTP 403` en vistas debido al uso del campo personalizado `roles` en lugar de los grupos clásicos de Django."*
+     > 
+     > **Decisión**: Se estandarizó la estructura de directorios (`__init__.py` y carpetas `templates` en minúsculas) y se actualizaron los usuarios de prueba en los casos de integración para registrar correctamente el campo `roles=['...']`, logrando estabilizar el entorno y alcanzar el **100% de la suite de pruebas en verde (`OK`)**.

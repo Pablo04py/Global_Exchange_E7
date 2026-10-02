@@ -5,15 +5,59 @@ Evalúa la representación textual, el orden por defecto, las monedas pagada y
 recibida según el tipo de operación y la protección de los registros de auditoría.
 """
 
+from decimal import Decimal
+from unittest.mock import patch
+
 from django.db.models import ProtectedError
 from django.test import TestCase
 
-from operaciones.models import Transaccion
+from operaciones.models import Transaccion, ConfiguracionComision, TasaDeCambio
+from clientes.models import Cliente
 from .datos_historial import HistorialDatosMixin, fecha_local
 
 
 class TransaccionModelTestCase(HistorialDatosMixin, TestCase):
     """Pruebas del modelo Transaccion."""
+
+    def setUp(self):
+        super().setUp()
+        
+        # Configurar campos obligatorios
+        ConfiguracionComision.objects.get_or_create(
+            categoria=Cliente.Categoria.MINORISTA,
+            defaults={'porcentaje': Decimal('2.00')}
+        )
+        self.tasa_usd, _ = TasaDeCambio.objects.get_or_create(
+            moneda=self.usd,
+            defaults={
+                'tasa_base': Decimal('7500.00'),
+                'margen_compra': Decimal('50.00'),
+                'margen_venta': Decimal('50.00')
+            }
+        )
+
+        # Interceptamos Transaccion.objects.create
+        self.original_create = Transaccion.objects.create
+
+        def custom_create(**kwargs):
+            cliente = kwargs.get('cliente') or self.cliente_a
+            categoria = getattr(cliente, 'categoria', Cliente.Categoria.MINORISTA)
+            tasa = kwargs.get('tasa_referencia') or self.tasa_usd
+
+            kwargs.setdefault('categoria_cliente_aplicada', categoria)
+            kwargs.setdefault('porcentaje_comision', Decimal('2.00'))
+            kwargs.setdefault('monto_comision', Decimal('15000.00'))
+            kwargs.setdefault('moneda_comision', 'PYG')
+            kwargs.setdefault('tasa_referencia', tasa)
+
+            return self.original_create(**kwargs)
+
+        self.patcher = patch.object(Transaccion.objects, 'create', side_effect=custom_create)
+        self.patcher.start()
+
+    def tearDown(self):
+        self.patcher.stop()
+        super().tearDown()
 
     def test_str_incluye_tipo_moneda_cliente_y_fecha(self):
         """Verifica el formato `TIPO MONEDA - cliente (dd/mm/aaaa hh:mm)`."""

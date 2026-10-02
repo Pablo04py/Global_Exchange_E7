@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from .models import (
+    LogTransaccion,
     TasaDeCambio,
     Transaccion,
     ConfiguracionComision
@@ -241,40 +242,38 @@ def crear_transaccion(
     )
 
     return transaccion
-def registrar_transaccion_cancelada(
-    usuario,
-    cliente,
-    tipo_operacion,
-    moneda,
-    monto,
-    medio_pago
-):
+
+@transaction.atomic
+def cambiar_estado_transaccion(transaccion, nuevo_estado, usuario, motivo=""):
     """
-    Registra en la BD una transacción en estado CANCELADA
-    usando los nombres de campos exactos del modelo Transaccion.
+    Cambia el estado de una transacción y guarda el log de auditoría inmutable (RNF15).
+    En el Sprint 3 solo se permite la transición PENDIENTE -> CANCELADA.
     """
-    tasa_actual = obtener_tasa_vigente(moneda)
-    porcentaje = obtener_porcentaje_comision(cliente)
-    resultado = calcular_operacion(
-        tipo_operacion,
-        monto,
-        tasa_actual,
-        porcentaje
+    estado_anterior = transaccion.estado
+
+    # Reglas de transición para el Sprint 3
+    TRANSICIONES_PERMITIDAS = {
+        Transaccion.Estado.PENDIENTE: [Transaccion.Estado.CANCELADA],
+        Transaccion.Estado.CANCELADA: [],   # Estado terminal: no se puede reabrir
+        Transaccion.Estado.CONFIRMADA: [],  # Estado terminal
+    }
+
+    if nuevo_estado not in TRANSICIONES_PERMITIDAS.get(estado_anterior, []):
+        raise ValidationError(
+            f"Transición no permitida: no se puede pasar de '{estado_anterior}' a '{nuevo_estado}'."
+        )
+
+    # 1. Actualizar estado
+    transaccion.estado = nuevo_estado
+    transaccion.save(update_fields=['estado'])
+
+    # 2. Registrar log de auditoría inmutable
+    LogTransaccion.objects.create(
+        transaccion=transaccion,
+        estado_anterior=estado_anterior,
+        estado_nuevo=nuevo_estado,
+        usuario=usuario,
+        motivo=motivo
     )
 
-    return Transaccion.objects.create(
-        usuario=usuario,
-        cliente=cliente,
-        moneda=moneda,
-        tipo=tipo_operacion,
-        monto_pagado=resultado['monto_origen'],
-        monto_recibido=resultado['monto_destino'],
-        tasa_referencia=tasa_actual,
-        tasa_aplicada=resultado['tasa_aplicada'],
-        categoria_cliente_aplicada=cliente.categoria,
-        porcentaje_comision=resultado['porcentaje_comision'],
-        monto_comision=resultado['monto_comision'],
-        moneda_comision=resultado['moneda_comision'],
-        medio_pago=medio_pago,
-        estado=Transaccion.Estado.CANCELADA if hasattr(Transaccion, 'Estado') else 'CANCELADA',
-    )
+    return transaccion

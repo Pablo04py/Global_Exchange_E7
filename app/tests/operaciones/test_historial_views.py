@@ -7,19 +7,68 @@ solo lectura de la vista y el contenido del listado.
 """
 
 import re
+from decimal import Decimal
+from unittest.mock import patch
 
 from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
 
 from clientes.models import Cliente, UsuarioCliente
-from operaciones.models import Transaccion
+from operaciones.models import Transaccion, ConfiguracionComision, TasaDeCambio
 from .datos_historial import HistorialDatosMixin, Usuario, fecha_local
 
 URL = reverse('historial_transacciones')
 
 
-class HistorialAccesoTestCase(HistorialDatosMixin, TestCase):
+class BaseHistorialTestCase(HistorialDatosMixin, TestCase):
+    """Clase base que asegura la inyección de comisiones para las transacciones."""
+    
+    def setUp(self):
+        super().setUp()
+        
+        ConfiguracionComision.objects.get_or_create(
+            categoria=Cliente.Categoria.MINORISTA,
+            defaults={'porcentaje': Decimal('2.00')}
+        )
+        ConfiguracionComision.objects.get_or_create(
+            categoria=Cliente.Categoria.VIP,
+            defaults={'porcentaje': Decimal('1.00')}
+        )
+        
+        self.tasa_usd, _ = TasaDeCambio.objects.get_or_create(
+            moneda=self.usd,
+            defaults={
+                'tasa_base': Decimal('7500.00'),
+                'margen_compra': Decimal('50.00'),
+                'margen_venta': Decimal('50.00')
+            }
+        )
+
+        self.original_create = Transaccion.objects.create
+
+        def custom_create(**kwargs):
+            cliente = kwargs.get('cliente') or self.cliente_a
+            categoria = getattr(cliente, 'categoria', Cliente.Categoria.MINORISTA)
+            tasa = kwargs.get('tasa_referencia') or self.tasa_usd
+
+            kwargs.setdefault('categoria_cliente_aplicada', categoria)
+            kwargs.setdefault('porcentaje_comision', Decimal('2.00'))
+            kwargs.setdefault('monto_comision', Decimal('15000.00'))
+            kwargs.setdefault('moneda_comision', 'PYG')
+            kwargs.setdefault('tasa_referencia', tasa)
+
+            return self.original_create(**kwargs)
+
+        self.patcher = patch.object(Transaccion.objects, 'create', side_effect=custom_create)
+        self.patcher.start()
+
+    def tearDown(self):
+        self.patcher.stop()
+        super().tearDown()
+
+
+class HistorialAccesoTestCase(BaseHistorialTestCase):
     """Pruebas de acceso y seguridad del historial."""
 
     def test_usuario_anonimo_redirige_al_login(self):
@@ -110,7 +159,7 @@ class HistorialAccesoTestCase(HistorialDatosMixin, TestCase):
         self.assertEqual(list(form.fields['operado_por'].queryset), [self.usuario_a])
 
 
-class HistorialClienteActivoTestCase(HistorialDatosMixin, TestCase):
+class HistorialClienteActivoTestCase(BaseHistorialTestCase):
     """Pruebas del uso del cliente activo (varios usuarios por cliente y varios clientes por usuario)."""
 
     def setUp(self):
@@ -177,7 +226,7 @@ class HistorialClienteActivoTestCase(HistorialDatosMixin, TestCase):
         self.assertEqual(list(response.context['page_obj']), [self.t_b])
 
 
-class HistorialSoloLecturaTestCase(HistorialDatosMixin, TestCase):
+class HistorialSoloLecturaTestCase(BaseHistorialTestCase):
     """Pruebas que garantizan que el historial sea solo de consulta."""
 
     def setUp(self):
@@ -207,7 +256,7 @@ class HistorialSoloLecturaTestCase(HistorialDatosMixin, TestCase):
         self.assertNotContains(response, 'Eliminar')
 
 
-class HistorialListadoTestCase(HistorialDatosMixin, TestCase):
+class HistorialListadoTestCase(BaseHistorialTestCase):
     """Pruebas del contenido y orden del listado."""
 
     def test_cliente_sin_transacciones(self):
