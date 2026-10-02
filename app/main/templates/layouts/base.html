@@ -133,12 +133,18 @@
             </div>
 
             <div class="user-dropdown" id="userDropdown">
-              <a href="/cuenta/perfil/" class="dropdown-item">
+              <a href="{% url 'perfil' %}" class="dropdown-item">
                 <i class="ti ti-user-circle"></i> Mi perfil
               </a>
-              {% if user_role == 'Sin Rol' %}
-                <a href="/cuenta/verificacion/" class="dropdown-item">
-                  <i class="ti ti-id-badge-2"></i> Estado de verificación
+              {% if user_role == 'Sin Rol' and not active_client %}
+                <a href="{% url 'convertirse_en_cliente' %}" class="dropdown-item">
+                  <i class="ti ti-user-plus"></i>
+                  Registrarme como particular
+                </a>
+              {% elif active_client %}
+                <a href="{% url 'mis_clientes' %}" class="dropdown-item">
+                  <i class="ti ti-address-book"></i>
+                  Mis clientes
                 </a>
               {% endif %}
               <div class="dropdown-divider"></div>

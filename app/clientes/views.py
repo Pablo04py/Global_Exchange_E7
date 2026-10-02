@@ -1,8 +1,8 @@
 """Vistas de la aplicación clientes (CRUD, asignación y registro como cliente)."""
 
-from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from .models import Cliente, UsuarioCliente
 from .forms import ClienteForm, AsignacionForm
 from .forms import ClienteFisicaForm
@@ -117,29 +117,58 @@ def asignar_cliente(request):
 
 @login_required
 def convertirse_en_cliente(request):
-    """Permite a un usuario registrarse a sí mismo como cliente persona física.
+    """
+    Permite a un usuario autenticado registrarse como cliente particular.
 
-    Si el usuario ya tiene un cliente asociado, lo redirige a `mis_clientes`.
-    Al guardar, crea el `Cliente` y su asociación `UsuarioCliente`.
+    El proceso crea un cliente de tipo Persona Física y categoría
+    Minorista. El usuario que realiza el autorregistro queda asociado
+    automáticamente al nuevo cliente con el rol local ``ADMIN``.
+
+    Una vez completado el registro, el nuevo cliente se establece como
+    cliente activo mediante la variable de sesión ``ge_active_client``.
+
+    Si el usuario ya administra un cliente de tipo Persona Física,
+    se evita crear otro registro particular y se lo redirige al listado
+    de sus clientes.
 
     Args:
-        request: Petición HTTP.
+        request:
+            Solicitud HTTP de Django.
 
     Returns:
-        HttpResponse: Formulario o redirección a `mis_clientes`.
+        HttpResponse:
+            Formulario de autorregistro cuando la petición es GET o
+            cuando los datos enviados no son válidos.
+
+        HttpResponseRedirect:
+            Redirección al dashboard después de completar correctamente
+            el registro, o a Mis Clientes cuando el usuario ya posee
+            un cliente particular.
     """
-    # Si ya tiene no se permite
-    if UsuarioCliente.objects.filter(usuario=request.user).exists():
-        return redirect('mis_clientes') 
+
+    #Verificar si el usuario ya tiene un cliente particular propio
+    ya_tiene_cliente_particular = UsuarioCliente.objects.filter(
+        usuario=request.user,
+        cliente__tipo_persona=Cliente.TipoPersona.FISICA,
+        rol_cliente=UsuarioCliente.RolCliente.ADMIN,
+    ).exists()
+
+    if ya_tiene_cliente_particular:
+        return redirect('mis_clientes')
 
     if request.method == 'POST':
         form = ClienteFisicaForm(request.POST)
         if form.is_valid():
-            cliente = form.save(commit=False)
-            cliente.tipo_persona = Cliente.TipoPersona.FISICA
-            cliente.save()
-            UsuarioCliente.objects.create(usuario=request.user, cliente=cliente)
-            return redirect('mis_clientes')
+            with transaction.atomic():
+                cliente = form.save(commit=False)
+                cliente.tipo_persona = Cliente.TipoPersona.FISICA
+                cliente.categoria = Cliente.Categoria.MINORISTA
+                cliente.save()
+
+                UsuarioCliente.objects.create(usuario=request.user, cliente=cliente, rol_cliente=UsuarioCliente.RolCliente.ADMIN),
+
+            request.session['ge_active_client'] = str(cliente.id)
+            return redirect('dashboard')
     else:
         form = ClienteFisicaForm(initial={
             'nombre_o_denominacion': f"{request.user.first_name} {request.user.last_name}".strip()
