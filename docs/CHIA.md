@@ -92,6 +92,7 @@
      > *"Quiero que la estética de los formularios tenga la misma que el dashboard herede de base.html."*
      > 
      > **Decisión**: Se refactorizaron los archivos de plantilla (`form_moneda.html`, `form_tasa.html`, `lista_monedas.html`, `lista_tasas.html` y `simulador.html`) extendiendo de `layouts/base.html`, integrando la iconografía de Tabler e Inter font. Se estructuró la suite de pruebas en `cotizaciones/tests.py` validando la precisión decimal de las conversiones.
+
 ### Registro #5 - 24/09/2026
 * **Tarea / Historia**: `SCRUM-47` (Documentación automática del código)
 * **Autor**: Alejandro Giménez
@@ -163,3 +164,49 @@
      > *"Solucionar errores de descubrimiento de paquetes (`TypeError` por falta de `__init__.py`), `TemplateDoesNotExist` por nombres de carpetas en mayúsculas y errores de acceso `HTTP 403` en vistas debido al uso del campo personalizado `roles` en lugar de los grupos clásicos de Django."*
      > 
      > **Decisión**: Se estandarizó la estructura de directorios (`__init__.py` y carpetas `templates` en minúsculas) y se actualizaron los usuarios de prueba en los casos de integración para registrar correctamente el campo `roles=['...']`, logrando estabilizar el entorno y alcanzar el **100% de la suite de pruebas en verde (`OK`)**.
+
+---
+
+### Registro #8 - 02/10/2026
+
+* **Tarea / Historia**: Configuración de entorno de producción local y mejora de navegación
+* **Herramienta de IA utilizada**: ChatGPT
+* **Objetivo**: Preparar una configuración de producción local para Global Exchange utilizando Docker, Gunicorn y Nginx, manteniendo separado el entorno de desarrollo. Además, incorporar una forma directa de regresar al Dashboard desde cualquier pantalla.
+
+#### 1. Configuración de producción local
+
+> Se solicitó analizar cómo configurar el proyecto para ejecutarse en un entorno similar a producción, sin necesidad de desplegarlo en un dominio o VPS.
+
+**Decisión:** Mantener `docker-compose.yml` para desarrollo y crear una configuración independiente mediante `docker-compose.prod.yml`.
+
+La arquitectura propuesta fue:
+
+Navegador → Nginx → Gunicorn → Django → PostgreSQL
+
+Keycloak se mantuvo inicialmente ejecutándose de forma independiente en el puerto `8080`.
+
+#### 2. Incorporación de Gunicorn
+
+> Se solicitó reemplazar el servidor de desarrollo de Django por un servidor adecuado para producción.
+
+**Decisión:** Agregar `gunicorn` a `requirements.txt` y ejecutar Django mediante:
+
+```bash
+gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3
+
+
+### Registro #9 - 02/10/2026
+
+* **Tarea / Historia**: Corrección posterior a merge e integración de cambios en operaciones
+* **Herramienta de IA utilizada**: ChatGPT
+* **Objetivo**: Diagnosticar y reparar errores producidos luego de integrar cambios de distintas ramas en `develop`, verificar el funcionamiento de Django y revisar las migraciones pendientes de la aplicación `operaciones`.
+
+#### 1. Error detectado luego del merge
+
+Luego del merge, el contenedor de Django no podía iniciar correctamente.
+
+El log mostraba:
+
+```text
+ImportError: cannot import name 'registrar_transaccion_cancelada'
+from 'operaciones.services'

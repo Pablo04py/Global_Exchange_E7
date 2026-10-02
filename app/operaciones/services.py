@@ -243,6 +243,48 @@ def crear_transaccion(
 
     return transaccion
 
+def registrar_transaccion_cancelada(
+    usuario,
+    cliente,
+    tipo_operacion,
+    moneda,
+    monto,
+    medio_pago
+):
+    """
+    Registra en la base de datos una transacción en estado CANCELADA.
+    """
+    tasa_actual = obtener_tasa_vigente(moneda)
+    porcentaje = obtener_porcentaje_comision(cliente)
+
+    resultado = calcular_operacion(
+        tipo_operacion,
+        monto,
+        tasa_actual,
+        porcentaje
+    )
+
+    return Transaccion.objects.create(
+        usuario=usuario,
+        cliente=cliente,
+        moneda=moneda,
+        tipo=tipo_operacion,
+        monto_pagado=resultado['monto_origen'],
+        monto_recibido=resultado['monto_destino'],
+        tasa_referencia=tasa_actual,
+        tasa_aplicada=resultado['tasa_aplicada'],
+        categoria_cliente_aplicada=cliente.categoria,
+        porcentaje_comision=resultado['porcentaje_comision'],
+        monto_comision=resultado['monto_comision'],
+        moneda_comision=resultado['moneda_comision'],
+        medio_pago=medio_pago,
+        estado=(
+            Transaccion.Estado.CANCELADA
+            if hasattr(Transaccion, 'Estado')
+            else 'CANCELADA'
+        ),
+    )
+
 @transaction.atomic
 def cambiar_estado_transaccion(transaccion, nuevo_estado, usuario, motivo=""):
     """
