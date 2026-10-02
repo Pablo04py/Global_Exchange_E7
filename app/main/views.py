@@ -7,7 +7,7 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.conf import settings as django_settings
 from django.urls import reverse 
 
-from clientes.models import Cliente
+from clientes.models import Cliente, UsuarioCliente
 
 # Mapeo slug de URL -> etiqueta interna de rol
 ROLE_SLUGS = {
@@ -60,7 +60,31 @@ def resolve_user_role(request):
     return role
 
 def get_menu_sections(role, active_client, is_authenticated=False):
-    """Genera las secciones del menú lateral según autenticación, rol y cliente activo"""
+    """
+    Construye las secciones del menú lateral según el contexto del usuario.
+
+    El menú considera tanto el rol global obtenido desde Keycloak como
+    la existencia de un cliente activo.
+
+    Los usuarios autenticados sin rol global pueden registrarse como
+    clientes particulares. Cuando poseen un cliente activo, acceden
+    también a las opciones de gestión y operativa correspondientes.
+
+    Args:
+        role:
+            Rol global funcional del usuario.
+
+        active_client:
+            Cliente actualmente seleccionado, o ``None`` cuando no
+            existe un cliente activo.
+
+        is_authenticated:
+            Indica si existe un usuario autenticado.
+
+    Returns:
+        list:
+            Lista de secciones e ítems que deben mostrarse en el menú.
+    """
 
     # 1. Menú para Visitantes Públicos (Sin autenticar)
     if not is_authenticated:
@@ -83,61 +107,41 @@ def get_menu_sections(role, active_client, is_authenticated=False):
             }
         ]
 
-    # 2. Menú para Usuarios Registrados pero "Sin Rol" (En Verificación)
-    if role == "Sin Rol":
-        return [
-            {
-                "label": "General",
-                "items": [
-                    {"name": "Inicio", "url": "/dashboard/", "icon": "ti-layout-dashboard"},
-                    {"name": "Cotizaciones", "url": "/cotizaciones/", "icon": "ti-trending-up"},
-                    {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
-                ]
-            },
-            {
-                "label": "Mi Cuenta",
-                "items": [
-                    {"name": "Estado de Verificación", "url": "/cuenta/verificacion/", "icon": "ti-id-badge-2", "badge": "Pendiente"},
-                    {"name": "Mi Perfil", "url": "/cuenta/perfil/", "icon": "ti-user-circle"},
-                ]
-            }
-        ]
-
-    # 3. Menú base para Usuarios con Rol Operativo
+    # 2. Menú base para Usuarios con Rol Operativo
     sections = [
         {
             "label": "General",
             "items": [
-                {"name": "Dashboard", "url": "/dashboard/", "icon": "ti-layout-dashboard"},
-                {"name": "Cotizaciones y Gráficos", "url": "/cotizaciones/", "icon": "ti-trending-up"},
-            ]
-        },
-        {
-            "label": "Mi Gestión",
-            "items": [
-                {"name": "Mis Clientes", "url": reverse("mis_clientes"), "icon": "ti-address-book"},
+                {"name": "Inicio", "url": "/dashboard/", "icon": "ti-layout-dashboard"},
+                {"name": "Cotizaciones", "url": "/cotizaciones/", "icon": "ti-trending-up"},
+                {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar",},
             ]
         }
     ]
 
-    # RF13, RF15, RF23, RF41: Solo si el usuario tiene un cliente activo seleccionado
-    """
-    sections.append({
-            "label": "Operativa",
+    #Usuario autenticado sin cliente activo puede registrarse como cliente particular
+    if not active_client:
+        sections.append({
+            "label": "Mi Cuenta",
             "items": [
-                {"name": "Mis Clientes", "url": reverse("mis_clientes"), "icon": "ti-address-book"},
-                {"name": "Operar / Cambiar Divisas", "url": "/operar/", "icon": "ti-arrows-exchange"},
-                {"name": "Historial de Transacciones", "url": reverse("historial_transacciones"), "icon": "ti-history"},
-                {"name": "Facturas DNIT", "url": "/facturas/", "icon": "ti-receipt"},
+                {"name": "Registrarme como particular", "url": reverse("convertirse_en_cliente"), "icon": "ti-usar-plus"},
+                {"name": "Mi Perfil", "url": reverse("perfil"), "icon": "ti-user-circle"},
             ]
         })
-    """
+
+    if active_client:
+        sections.append({
+            "label": "Mi Gestion",
+            "items": [
+                {"name": "Mis Clientes", "url": reverse("mis_clientes"), "icon": "ti-address-book"},
+                {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-credit-card"},
+            ]
+        })
     
     if active_client:
         sections.append({
             "label": "Operativa",
             "items": [
-                {"name": "Mis Clientes", "url": reverse("mis_clientes"), "icon": "ti-address-book"},
                 {"name": "Operar / Cambiar Divisas", "url": reverse("operar"), "icon": "ti-arrows-exchange"},
                 {"name": "Historial de Operaciones", "url": reverse("historial_transacciones"), "icon": "ti-history"},
                 {"name": "Facturas DNIT", "url": "/facturas/", "icon": "ti-receipt"},
@@ -152,7 +156,7 @@ def get_menu_sections(role, active_client, is_authenticated=False):
                 {"name": "Apertura / Cierre", "url": "/caja/gestion/", "icon": "ti-cash-register"},
                 {"name": "Movimientos de Efectivo", "url": "/caja/movimientos/", "icon": "ti-file-spreadsheet"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
-                {"name": "Medios de Pago", "url": "/medios-pago", "icon": "ti-currency-dollar"},
+                {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-currency-dollar"},
             ]
         })
 
@@ -161,10 +165,10 @@ def get_menu_sections(role, active_client, is_authenticated=False):
         sections.append({
             "label": "Análisis Cambiario",
             "items": [
-                {"name": "Ajuste de Tasas", "url": "/tasas/ajuste/", "icon": "ti-currency-dollar"},
+                {"name": "Ajuste de Tasas", "url": "/operaciones/tasas/", "icon": "ti-currency-dollar"},
                 {"name": "Monitoreo de Ganancias", "url": "/ganancias/", "icon": "ti-chart-bar"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
-                {"name": "Medios de Pago", "url": "/medios-pago", "icon": "ti-currency-dollar"},
+                {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-currency-dollar"},
             ]
         })
 
@@ -176,9 +180,10 @@ def get_menu_sections(role, active_client, is_authenticated=False):
                 {"name": "Clientes", "url": reverse("lista_clientes"), "icon": "ti-users"},
                 {"name": "Nuevo Cliente", "url": reverse("crear_cliente"), "icon": "ti-user-plus"},
                 {"name": "Asignar Cliente", "url": reverse("asignar_cliente"), "icon": "ti-link"},
-                {"name": "Operaciones con Monedas", "url": reverse("crear_moneda"), "icon": "ti-coins"},
+                {"name": "Operaciones con Monedas", "url": "/operaciones/", "icon": "ti-coins"},
+                {"name": "Ajuste de Tasas", "url": "/operaciones/tasas/", "icon": "ti-currency-dollar"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
-                {"name": "Medios de Pago", "url": "/medios-pago", "icon": "ti-currency-dollar"},
+                {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-currency-dollar"},
                 {"name": "Parámetros del Sistema", "url": "/admin/parametros/", "icon": "ti-settings"},
                 {"name": "Auditoría de Logs", "url": "/admin/auditoria/", "icon": "ti-shield-check"},
             ]
@@ -205,15 +210,23 @@ def dashboard(request):
     role = resolve_user_role(request)
 
     associated_clients = []
+    
     if is_auth:
-        clientes_qs = Cliente.objects.filter(usuarios_asociados__usuario=request.user)
+        asociaciones = (
+            UsuarioCliente.objects
+            .select_related('cliente')
+            .filter(usuario=request.user)
+        )
+
         associated_clients = [
             {
-                "id": str(c.id),
-                "name": c.nombre_o_denominacion,
-                "category": c.get_categoria_display(),
+                "id": str(asociacion.cliente.id),
+                "name": asociacion.cliente.nombre_o_denominacion,
+                "category": asociacion.cliente.get_categoria_display(),
+                "role": asociacion.rol_cliente,
+                "role_label": asociacion.get_rol_cliente_display(),
             }
-            for c in clientes_qs
+            for asociacion in asociaciones
         ]
 
     active_client_id = request.session.get('ge_active_client')
@@ -225,6 +238,18 @@ def dashboard(request):
         request.session['ge_active_client'] = active_client_id
 
     active_client = next((c for c in associated_clients if c['id'] == active_client_id), None)
+
+    if not is_auth:
+        user_role_label = "Visitante"
+
+    elif role != "Sin Rol":
+        user_role_label = role
+
+    elif active_client:
+        user_role_label = f"{active_client['role_label']} de Cliente"
+
+    else:
+        user_role_label = "Cliente sin registrar"
 
     cards_by_role = {
         "Administrador General": [
@@ -254,11 +279,23 @@ def dashboard(request):
         {"label": "USD/PYG hoy",       "value": "7.620",   "sub": "Tasa de venta",         "icon": "ti-currency-dollar",   "bg": "#D1FAE5", "color": "#059669"},
     ]
 
+    if not is_auth:
+        summary_cards = []
+    elif role == "Sin Rol" and active_client:
+        # Cliente particular sin rol global de Keycloak.
+        summary_cards = default_cards
+    else:
+        summary_cards = cards_by_role.get(role, [])
+
     context = {
-        "summary_cards": cards_by_role.get(role, []) if is_auth else [],
+        "summary_cards": summary_cards,
         "user_role": role,
-        "user_role_label": role if is_auth else "Visitante",
-        "menu_sections": get_menu_sections(role, active_client, is_authenticated=is_auth),
+        "user_role_label": user_role_label,
+        "menu_sections": get_menu_sections(
+            role,
+            active_client,
+            is_authenticated=is_auth
+        ),
         "associated_clients": associated_clients,
         "active_client": active_client,
     }

@@ -32,7 +32,29 @@ def listar_medios_pago(request):
 @login_required
 def crear_medio_pago(request):
     """
-    Vista para registrar un nuevo medio de pago para el cliente activo.
+    Registra un medio de pago para el cliente activo.
+
+    La operación solo puede ser realizada por un Administrador General
+    o por un usuario con rol local ADMIN en el cliente seleccionado.
+
+    El medio queda asociado al cliente activo y se registra también
+    el usuario que realizó la creación.
+
+    Args:
+        request:
+            Solicitud HTTP de Django.
+
+    Returns:
+        HttpResponse:
+            Formulario de creación cuando la petición es GET o contiene
+            errores de validación.
+
+        HttpResponseRedirect:
+            Redirección al listado después de crear correctamente
+            el medio de pago.
+
+        HttpResponseForbidden:
+            Respuesta 403 si el usuario no puede administrar el cliente.
     """
 
     cliente = obtener_cliente_activo(request)

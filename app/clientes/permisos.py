@@ -3,8 +3,22 @@ from .models import Cliente, UsuarioCliente
 
 def obtener_cliente_activo(request):
     """
-    Obtiene el cliente activo verificando que esté
-    asociado al usuario autenticado.
+    Obtiene el cliente actualmente seleccionado por el usuario.
+
+    El identificador del cliente activo se obtiene de la sesión mediante
+    ``ge_active_client``. Además, se verifica que el cliente esté realmente
+    asociado al usuario autenticado para evitar acceso a clientes ajenos.
+
+    Args:
+        request:
+            Solicitud HTTP de Django que contiene al usuario autenticado
+            y los datos de sesión.
+
+    Returns:
+        Cliente | None:
+            Instancia del cliente activo si existe y pertenece al usuario.
+            Retorna ``None`` si el usuario no está autenticado, no existe
+            un cliente seleccionado o el cliente no pertenece al usuario.
     """
 
     if not request.user.is_authenticated:
@@ -27,8 +41,20 @@ def obtener_cliente_activo(request):
 
 def es_administrador_general(request):
     """
-    Comprueba si el usuario posee el rol global
-    Administrador General.
+    Determina si el usuario posee el rol global Administrador General.
+
+    La comprobación considera el override utilizado durante desarrollo,
+    los grupos de Django, los roles sincronizados en el usuario local y,
+    como respaldo, los roles presentes en el payload OIDC de Keycloak.
+
+    Args:
+        request:
+            Solicitud HTTP de Django.
+
+    Returns:
+        bool:
+            ``True`` si el usuario posee el rol Administrador General.
+            ``False`` en caso contrario.
     """
 
     if not request.user.is_authenticated:
@@ -67,9 +93,27 @@ def es_administrador_general(request):
 
 def puede_administrar_cliente(request, cliente):
     """
-    Un cliente puede ser administrado por:
-    - Administrador General del sistema.
-    - Usuario ADMIN de ese cliente.
+    Determina si el usuario puede administrar un cliente determinado.
+
+    La administración puede realizarse de dos maneras:
+
+    - mediante el rol global ``Administrador General``;
+    - mediante una asociación ``UsuarioCliente`` con rol local ``ADMIN``.
+
+    El rol local ADMIN pertenece únicamente al cliente asociado y no
+    equivale al rol global Administrador General.
+
+    Args:
+        request:
+            Solicitud HTTP de Django que contiene al usuario autenticado.
+
+        cliente:
+            Instancia de Cliente sobre la cual se verifican los permisos.
+
+    Returns:
+        bool:
+            ``True`` si el usuario puede administrar el cliente.
+            ``False`` si no posee los permisos necesarios.
     """
 
     if not request.user.is_authenticated or not cliente:

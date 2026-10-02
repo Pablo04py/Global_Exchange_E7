@@ -118,6 +118,9 @@
                                 <a class="variable" href="#Cliente.usuarios_asociados">usuarios_asociados</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Cliente.medios_pago">medios_pago</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Cliente.transacciones">transacciones</a>
                         </li>
                 </ul>
@@ -127,6 +130,18 @@
                     <a class="class" href="#UsuarioCliente">UsuarioCliente</a>
                             <ul class="memberlist">
                         <li>
+                                <a class="class" href="#UsuarioCliente.RolCliente">UsuarioCliente.RolCliente</a>
+                                        <ul class="memberlist">
+                                    <li>
+                                            <a class="variable" href="#UsuarioCliente.RolCliente.ADMIN">ADMIN</a>
+                                    </li>
+                                    <li>
+                                            <a class="variable" href="#UsuarioCliente.RolCliente.OPERADOR">OPERADOR</a>
+                                    </li>
+                            </ul>
+
+                        </li>
+                        <li>
                                 <a class="function" href="#UsuarioCliente.id">id</a>
                         </li>
                         <li>
@@ -134,6 +149,9 @@
                         </li>
                         <li>
                                 <a class="variable" href="#UsuarioCliente.cliente">cliente</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#UsuarioCliente.rol_cliente">rol_cliente</a>
                         </li>
                         <li>
                                 <a class="function" href="#UsuarioCliente.fecha_asociacion">fecha_asociacion</a>
@@ -161,6 +179,9 @@
                         </li>
                         <li>
                                 <a class="variable" href="#UsuarioCliente.cliente_id">cliente_id</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#UsuarioCliente.get_rol_cliente_display">get_rol_cliente_display</a>
                         </li>
                         <li>
                                 <a class="function" href="#UsuarioCliente.get_next_by_fecha_asociacion">get_next_by_fecha_asociacion</a>
@@ -253,18 +274,26 @@
 </span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="sd">    Un usuario puede operar en nombre de varios clientes y un cliente puede</span>
 </span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a><span class="sd">    tener varios usuarios asociados. La pareja (usuario, cliente) es única.</span>
 </span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="sd">    """</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Usuario</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'clientes_asociados'</span><span class="p">)</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="n">cliente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Cliente</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'usuarios_asociados'</span><span class="p">)</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="n">fecha_asociacion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="w">        </span><span class="sd">"""Garantiza que la asociación usuario-cliente no se repita."""</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'usuario'</span><span class="p">,</span> <span class="s1">'cliente'</span><span class="p">)</span>  <span class="c1"># evita duplicar la misma asociacion debe ser unica en la bd</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a><span class="w">        </span><span class="sd">"""Devuelve `usuario → cliente`."""</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">usuario</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2"> → </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cliente</span><span class="o">.</span><span class="n">nombre_o_denominacion</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">RolCliente</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">TextChoices</span><span class="p">):</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>        <span class="n">ADMIN</span> <span class="o">=</span> <span class="s1">'ADMIN'</span><span class="p">,</span> <span class="s1">'Administrador'</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>        <span class="n">OPERADOR</span> <span class="o">=</span> <span class="s1">'OPERADOR'</span><span class="p">,</span> <span class="s1">'Operador'</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Usuario</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'clientes_asociados'</span><span class="p">)</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>    <span class="n">cliente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Cliente</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'usuarios_asociados'</span><span class="p">)</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>    <span class="n">rol_cliente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">RolCliente</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">RolCliente</span><span class="o">.</span><span class="n">OPERADOR</span><span class="p">)</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>    <span class="n">fecha_asociacion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a><span class="w">        </span><span class="sd">"""Garantiza que la asociación usuario-cliente no se repita."""</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'usuario'</span><span class="p">,</span> <span class="s1">'cliente'</span><span class="p">)</span>  <span class="c1"># evita duplicar la misma asociacion debe ser unica en la bd</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>        <span class="k">return</span> <span class="p">(</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">usuario</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2"> → "</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cliente</span><span class="o">.</span><span class="n">nombre_o_denominacion</span><span class="si">}</span><span class="s2"> "</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_rol_cliente_display</span><span class="p">()</span><span class="si">}</span><span class="s2">)"</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>        <span class="p">)</span>
 </span></pre></div>
 
 
@@ -577,6 +606,31 @@ class built by <code>create_reverse_many_to_one_manager()</code> defined below.<
 
 
                             </div>
+                            <div id="Cliente.medios_pago" class="classattr">
+                                <div class="attr variable">
+            <span class="name">medios_pago</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Cliente.medios_pago"></a>
+    
+            <div class="docstring"><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+
+<p>In the example::</p>
+
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+
+<p><code>Parent.children</code> is a <code>ReverseManyToOneDescriptor</code> instance.</p>
+
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code>create_reverse_many_to_one_manager()</code> defined below.</p>
+</div>
+
+
+                            </div>
                             <div id="Cliente.transacciones" class="classattr">
                                 <div class="attr variable">
             <span class="name">transacciones</span>
@@ -772,18 +826,26 @@ class built by <code>create_reverse_many_to_one_manager()</code> defined below.<
 </span><span id="UsuarioCliente-54"><a href="#UsuarioCliente-54"><span class="linenos">54</span></a><span class="sd">    Un usuario puede operar en nombre de varios clientes y un cliente puede</span>
 </span><span id="UsuarioCliente-55"><a href="#UsuarioCliente-55"><span class="linenos">55</span></a><span class="sd">    tener varios usuarios asociados. La pareja (usuario, cliente) es única.</span>
 </span><span id="UsuarioCliente-56"><a href="#UsuarioCliente-56"><span class="linenos">56</span></a><span class="sd">    """</span>
-</span><span id="UsuarioCliente-57"><a href="#UsuarioCliente-57"><span class="linenos">57</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="UsuarioCliente-58"><a href="#UsuarioCliente-58"><span class="linenos">58</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Usuario</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'clientes_asociados'</span><span class="p">)</span>
-</span><span id="UsuarioCliente-59"><a href="#UsuarioCliente-59"><span class="linenos">59</span></a>    <span class="n">cliente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Cliente</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'usuarios_asociados'</span><span class="p">)</span>
-</span><span id="UsuarioCliente-60"><a href="#UsuarioCliente-60"><span class="linenos">60</span></a>    <span class="n">fecha_asociacion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="UsuarioCliente-61"><a href="#UsuarioCliente-61"><span class="linenos">61</span></a>
-</span><span id="UsuarioCliente-62"><a href="#UsuarioCliente-62"><span class="linenos">62</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="UsuarioCliente-63"><a href="#UsuarioCliente-63"><span class="linenos">63</span></a><span class="w">        </span><span class="sd">"""Garantiza que la asociación usuario-cliente no se repita."""</span>
-</span><span id="UsuarioCliente-64"><a href="#UsuarioCliente-64"><span class="linenos">64</span></a>        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'usuario'</span><span class="p">,</span> <span class="s1">'cliente'</span><span class="p">)</span>  <span class="c1"># evita duplicar la misma asociacion debe ser unica en la bd</span>
-</span><span id="UsuarioCliente-65"><a href="#UsuarioCliente-65"><span class="linenos">65</span></a>
-</span><span id="UsuarioCliente-66"><a href="#UsuarioCliente-66"><span class="linenos">66</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="UsuarioCliente-67"><a href="#UsuarioCliente-67"><span class="linenos">67</span></a><span class="w">        </span><span class="sd">"""Devuelve `usuario → cliente`."""</span>
-</span><span id="UsuarioCliente-68"><a href="#UsuarioCliente-68"><span class="linenos">68</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">usuario</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2"> → </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cliente</span><span class="o">.</span><span class="n">nombre_o_denominacion</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="UsuarioCliente-57"><a href="#UsuarioCliente-57"><span class="linenos">57</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">RolCliente</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">TextChoices</span><span class="p">):</span>
+</span><span id="UsuarioCliente-58"><a href="#UsuarioCliente-58"><span class="linenos">58</span></a>        <span class="n">ADMIN</span> <span class="o">=</span> <span class="s1">'ADMIN'</span><span class="p">,</span> <span class="s1">'Administrador'</span>
+</span><span id="UsuarioCliente-59"><a href="#UsuarioCliente-59"><span class="linenos">59</span></a>        <span class="n">OPERADOR</span> <span class="o">=</span> <span class="s1">'OPERADOR'</span><span class="p">,</span> <span class="s1">'Operador'</span>
+</span><span id="UsuarioCliente-60"><a href="#UsuarioCliente-60"><span class="linenos">60</span></a>
+</span><span id="UsuarioCliente-61"><a href="#UsuarioCliente-61"><span class="linenos">61</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="UsuarioCliente-62"><a href="#UsuarioCliente-62"><span class="linenos">62</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Usuario</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'clientes_asociados'</span><span class="p">)</span>
+</span><span id="UsuarioCliente-63"><a href="#UsuarioCliente-63"><span class="linenos">63</span></a>    <span class="n">cliente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Cliente</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'usuarios_asociados'</span><span class="p">)</span>
+</span><span id="UsuarioCliente-64"><a href="#UsuarioCliente-64"><span class="linenos">64</span></a>    <span class="n">rol_cliente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">RolCliente</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">RolCliente</span><span class="o">.</span><span class="n">OPERADOR</span><span class="p">)</span>
+</span><span id="UsuarioCliente-65"><a href="#UsuarioCliente-65"><span class="linenos">65</span></a>    <span class="n">fecha_asociacion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="UsuarioCliente-66"><a href="#UsuarioCliente-66"><span class="linenos">66</span></a>
+</span><span id="UsuarioCliente-67"><a href="#UsuarioCliente-67"><span class="linenos">67</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="UsuarioCliente-68"><a href="#UsuarioCliente-68"><span class="linenos">68</span></a><span class="w">        </span><span class="sd">"""Garantiza que la asociación usuario-cliente no se repita."""</span>
+</span><span id="UsuarioCliente-69"><a href="#UsuarioCliente-69"><span class="linenos">69</span></a>        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'usuario'</span><span class="p">,</span> <span class="s1">'cliente'</span><span class="p">)</span>  <span class="c1"># evita duplicar la misma asociacion debe ser unica en la bd</span>
+</span><span id="UsuarioCliente-70"><a href="#UsuarioCliente-70"><span class="linenos">70</span></a>
+</span><span id="UsuarioCliente-71"><a href="#UsuarioCliente-71"><span class="linenos">71</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="UsuarioCliente-72"><a href="#UsuarioCliente-72"><span class="linenos">72</span></a>        <span class="k">return</span> <span class="p">(</span>
+</span><span id="UsuarioCliente-73"><a href="#UsuarioCliente-73"><span class="linenos">73</span></a>            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">usuario</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2"> → "</span>
+</span><span id="UsuarioCliente-74"><a href="#UsuarioCliente-74"><span class="linenos">74</span></a>            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cliente</span><span class="o">.</span><span class="n">nombre_o_denominacion</span><span class="si">}</span><span class="s2"> "</span>
+</span><span id="UsuarioCliente-75"><a href="#UsuarioCliente-75"><span class="linenos">75</span></a>            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_rol_cliente_display</span><span class="p">()</span><span class="si">}</span><span class="s2">)"</span>
+</span><span id="UsuarioCliente-76"><a href="#UsuarioCliente-76"><span class="linenos">76</span></a>        <span class="p">)</span>
 </span></pre></div>
 
 
@@ -854,6 +916,22 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 
 
                             </div>
+                            <div id="UsuarioCliente.rol_cliente" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">rol_cliente</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UsuarioCliente.rol_cliente"></a>
+    
+            <div class="docstring"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</div>
+
+
+                            </div>
                             <div id="UsuarioCliente.fecha_asociacion" class="classattr">
                                 <div class="attr function">
             
@@ -890,6 +968,25 @@ object the first time, the query is executed.</p>
     <a class="headerlink" href="#UsuarioCliente.cliente_id"></a>
     
     
+
+                            </div>
+                            <div id="UsuarioCliente.get_rol_cliente_display" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_rol_cliente_display</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UsuarioCliente.get_rol_cliente_display"></a>
+    
+            <div class="docstring"><p>Method descriptor with partial application of the given arguments
+and keywords.</p>
+
+<p>Supports wrapping existing descriptors and handles non-descriptor
+callables as instance methods.</p>
+</div>
+
 
                             </div>
                             <div id="UsuarioCliente.get_next_by_fecha_asociacion" class="classattr">
@@ -939,6 +1036,52 @@ callables as instance methods.</p>
         
     </div>
     <a class="headerlink" href="#UsuarioCliente.objects"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="UsuarioCliente.RolCliente">
+                            <input id="UsuarioCliente.RolCliente-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">UsuarioCliente.RolCliente</span><wbr>(<span class="base">django.db.models.enums.TextChoices</span>):
+
+                <label class="view-source-button" for="UsuarioCliente.RolCliente-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#UsuarioCliente.RolCliente"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="UsuarioCliente.RolCliente-57"><a href="#UsuarioCliente.RolCliente-57"><span class="linenos">57</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">RolCliente</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">TextChoices</span><span class="p">):</span>
+</span><span id="UsuarioCliente.RolCliente-58"><a href="#UsuarioCliente.RolCliente-58"><span class="linenos">58</span></a>        <span class="n">ADMIN</span> <span class="o">=</span> <span class="s1">'ADMIN'</span><span class="p">,</span> <span class="s1">'Administrador'</span>
+</span><span id="UsuarioCliente.RolCliente-59"><a href="#UsuarioCliente.RolCliente-59"><span class="linenos">59</span></a>        <span class="n">OPERADOR</span> <span class="o">=</span> <span class="s1">'OPERADOR'</span><span class="p">,</span> <span class="s1">'Operador'</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Class for creating enumerated string choices.</p>
+</div>
+
+
+                            <div id="UsuarioCliente.RolCliente.ADMIN" class="classattr">
+                                <div class="attr variable">
+            <span class="name">ADMIN</span>        =
+<span class="default_value"><a href="#UsuarioCliente.RolCliente.ADMIN">UsuarioCliente.RolCliente.ADMIN</a></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UsuarioCliente.RolCliente.ADMIN"></a>
+    
+    
+
+                            </div>
+                            <div id="UsuarioCliente.RolCliente.OPERADOR" class="classattr">
+                                <div class="attr variable">
+            <span class="name">OPERADOR</span>        =
+<span class="default_value"><a href="#UsuarioCliente.RolCliente.OPERADOR">UsuarioCliente.RolCliente.OPERADOR</a></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UsuarioCliente.RolCliente.OPERADOR"></a>
     
     
 
