@@ -1,3 +1,5 @@
+"""Modelos de la aplicación cotizaciones."""
+
 import uuid
 from django.db import models
 
@@ -13,4 +15,5 @@ class Cotizacion(models.Model):
     fecha_actualizacion = models.DateTimeField(auto_now=True)
 
     def __str__(self):
+        """Devuelve `MONEDA - C: compra | V: venta`."""
         return f"{self.moneda} - C: {self.precio_compra} | V: {self.precio_venta}"

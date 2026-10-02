@@ -23,6 +23,20 @@
       <span class="logo-text">Global<strong>Exchange</strong></span>
     </div>
 
+    {% if request.user.is_authenticated and request.resolver_match.url_name != 'dashboard' %}
+      <div class="sidebar-back">
+        <button
+          type="button"
+          id="sidebarBackButton"
+          class="sidebar-back-btn"
+          data-dashboard-url="{% url 'dashboard' %}"
+          title="Volver">
+          <i class="ti ti-arrow-left"></i>
+          <span class="nav-label">Volver</span>
+        </button>
+      </div>
+    {% endif %}
+    
     <nav class="sidebar-nav">
       {% for section in menu_sections %}
         {% if section.label %}
@@ -57,6 +71,14 @@
       <button class="mobile-menu-btn" id="mobileMenuBtn">
         <i class="ti ti-menu-2"></i>
       </button>
+
+      {% if request.user.is_authenticated %}
+        <a href="{% url 'dashboard' %}"
+          class="topbar-icon-btn"
+          title="Inicio">
+          <i class="ti ti-home"></i>
+        </a>
+      {% endif %}
 
       <div class="topbar-title">
         {% block page_title %}Dashboard{% endblock %}
@@ -119,12 +141,18 @@
             </div>
 
             <div class="user-dropdown" id="userDropdown">
-              <a href="/cuenta/perfil/" class="dropdown-item">
+              <a href="{% url 'perfil' %}" class="dropdown-item">
                 <i class="ti ti-user-circle"></i> Mi perfil
               </a>
-              {% if user_role == 'Sin Rol' %}
-                <a href="/cuenta/verificacion/" class="dropdown-item">
-                  <i class="ti ti-id-badge-2"></i> Estado de verificación
+              {% if user_role == 'Sin Rol' and not active_client %}
+                <a href="{% url 'convertirse_en_cliente' %}" class="dropdown-item">
+                  <i class="ti ti-user-plus"></i>
+                  Registrarme como particular
+                </a>
+              {% elif active_client %}
+                <a href="{% url 'mis_clientes' %}" class="dropdown-item">
+                  <i class="ti ti-address-book"></i>
+                  Mis clientes
                 </a>
               {% endif %}
               <div class="dropdown-divider"></div>

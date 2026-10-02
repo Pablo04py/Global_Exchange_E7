@@ -3,6 +3,7 @@ const body       = document.body;
 const toggleBtn  = document.getElementById('sidebarToggle');
 const toggleIcon = document.getElementById('toggleIcon');
 const mobileBtn  = document.getElementById('mobileMenuBtn');
+const backButton = document.getElementById('sidebarBackButton');
 
 if (localStorage.getItem('sidebarCollapsed') === 'true') {
   body.classList.add('sidebar-collapsed');
@@ -82,3 +83,22 @@ function getCookie(name) {
   }
   return cookieValue;
 }
+
+// ── Botón volver ────────────────────────────────────────────────
+
+
+backButton?.addEventListener('click', () => {
+  const dashboardUrl = backButton.dataset.dashboardUrl;
+  const previousPage = document.referrer;
+
+  const isInternalPage =
+    previousPage &&
+    previousPage.startsWith(window.location.origin);
+
+  if (isInternalPage && window.history.length > 1) {
+    window.history.back();
+    return;
+  }
+
+  window.location.href = dashboardUrl;
+});

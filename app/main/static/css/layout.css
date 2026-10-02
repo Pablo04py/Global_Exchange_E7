@@ -422,3 +422,52 @@ body.sidebar-collapsed .main-wrapper {
   text-align: left; 
   cursor: pointer; 
 }
+
+/* ─── BOTÓN VOLVER ───────────────────────────────────────────── */
+
+.sidebar-back {
+  padding: 8px;
+  border-bottom: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+}
+
+.sidebar-back-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 9px 10px;
+
+  border: none;
+  border-radius: var(--radius);
+
+  background: transparent;
+  color: var(--nav-item-color);
+
+  font-family: var(--font);
+  font-size: 13.5px;
+  font-weight: 500;
+
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+
+  transition:
+    background var(--transition),
+    color var(--transition);
+}
+
+.sidebar-back-btn i {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.sidebar-back-btn:hover {
+  background: var(--nav-item-hover-bg);
+  color: var(--nav-item-hover-color);
+}
+
+body.sidebar-collapsed .sidebar-back-btn {
+  justify-content: center;
+}

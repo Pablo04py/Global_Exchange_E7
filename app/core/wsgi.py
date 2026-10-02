@@ -1,10 +1,9 @@
-"""
-WSGI config for core project.
+"""Configuración WSGI del proyecto Global Exchange.
 
-It exposes the WSGI callable as a module-level variable named ``application``.
+Expone la aplicación WSGI en la variable de módulo ``application``, que usan
+los servidores tradicionales (por ejemplo, Gunicorn) para ejecutar Django.
 
-For more information on this file, see
-https://docs.djangoproject.com/en/6.1/howto/deployment/wsgi/
+Más información: https://docs.djangoproject.com/en/6.1/howto/deployment/wsgi/
 """
 
 import os

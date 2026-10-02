@@ -1,3 +1,5 @@
+"""Vistas de la aplicación main: dashboard, menú lateral y cliente activo."""
+
 import json
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -5,7 +7,7 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.conf import settings as django_settings
 from django.urls import reverse 
 
-from clientes.models import Cliente
+from clientes.models import Cliente, UsuarioCliente
 
 # Mapeo slug de URL -> etiqueta interna de rol
 ROLE_SLUGS = {
@@ -28,8 +30,61 @@ def resolve_keycloak_role(user_roles):
             return role
     return "Sin Rol"
 
+def resolve_user_role(request):
+    """Resuelve el rol del usuario autenticado para armar el menú.
+
+    Orden: override de desarrollo en la sesión (`ge_role`), grupos de Django
+    y, por último, roles del token OIDC.
+
+    Args:
+        request: Petición HTTP.
+
+    Returns:
+        str | None: Etiqueta interna del rol, o `None` si no inició sesión.
+    """
+    if not request.user.is_authenticated:
+        return None
+
+    # Prioridad: si hay override de dev (session), se usa; si no, el rol real de Keycloak
+    role = request.session.get('ge_role')
+    if not role:
+        # 2. Extraer roles desde los Grupos de Django asignados por el backend
+        user_roles = list(request.user.groups.values_list('name', flat=True))
+        
+        # 3. Fallback: buscar en el payload del token OIDC en sesión
+        if not user_roles:
+            oidc_payload = request.session.get('oidc_access_token_payload', {})
+            user_roles = oidc_payload.get('realm_access', {}).get('roles', [])
+
+        role = resolve_keycloak_role(user_roles)
+    return role
+
 def get_menu_sections(role, active_client, is_authenticated=False):
-    """Genera las secciones del menú lateral según autenticación, rol y cliente activo"""
+    """
+    Construye las secciones del menú lateral según el contexto del usuario.
+
+    El menú considera tanto el rol global obtenido desde Keycloak como
+    la existencia de un cliente activo.
+
+    Los usuarios autenticados sin rol global pueden registrarse como
+    clientes particulares. Cuando poseen un cliente activo, acceden
+    también a las opciones de gestión y operativa correspondientes.
+
+    Args:
+        role:
+            Rol global funcional del usuario.
+
+        active_client:
+            Cliente actualmente seleccionado, o ``None`` cuando no
+            existe un cliente activo.
+
+        is_authenticated:
+            Indica si existe un usuario autenticado.
+
+    Returns:
+        list:
+            Lista de secciones e ítems que deben mostrarse en el menú.
+    """
 
     # 1. Menú para Visitantes Públicos (Sin autenticar)
     if not is_authenticated:
@@ -52,54 +107,46 @@ def get_menu_sections(role, active_client, is_authenticated=False):
             }
         ]
 
-    # 2. Menú para Usuarios Registrados pero "Sin Rol" (En Verificación)
-    if role == "Sin Rol":
-        return [
-            {
-                "label": "General",
-                "items": [
-                    {"name": "Inicio", "url": "/dashboard/", "icon": "ti-layout-dashboard"},
-                    {"name": "Cotizaciones", "url": "/cotizaciones/", "icon": "ti-trending-up"},
-                    {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
-                ]
-            },
-            {
-                "label": "Mi Cuenta",
-                "items": [
-                    {"name": "Estado de Verificación", "url": "/cuenta/verificacion/", "icon": "ti-id-badge-2", "badge": "Pendiente"},
-                    {"name": "Mi Perfil", "url": "/cuenta/perfil/", "icon": "ti-user-circle"},
-                ]
-            }
-        ]
-
-    # 3. Menú base para Usuarios con Rol Operativo
+    # 2. Menú base para Usuarios con Rol Operativo
     sections = [
         {
             "label": "General",
             "items": [
-                {"name": "Dashboard", "url": "/dashboard/", "icon": "ti-layout-dashboard"},
-                {"name": "Cotizaciones y Gráficos", "url": "/cotizaciones/", "icon": "ti-trending-up"},
-            ]
-        },
-        {
-            "label": "Mi Gestión",
-            "items": [
-                {"name": "Mis Clientes", "url": reverse("mis_clientes"), "icon": "ti-address-book"},
+                {"name": "Inicio", "url": "/dashboard/", "icon": "ti-layout-dashboard"},
+                {"name": "Cotizaciones", "url": "/cotizaciones/", "icon": "ti-trending-up"},
+                {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar",},
             ]
         }
     ]
 
-    # RF13, RF15, RF23, RF41: Solo si el usuario tiene un cliente activo seleccionado
+    #Usuario autenticado sin cliente activo puede registrarse como cliente particular
+    if not active_client:
+        sections.append({
+            "label": "Mi Cuenta",
+            "items": [
+                {"name": "Registrarme como particular", "url": reverse("convertirse_en_cliente"), "icon": "ti-usar-plus"},
+                {"name": "Mi Perfil", "url": reverse("perfil"), "icon": "ti-user-circle"},
+            ]
+        })
 
-    sections.append({
-        "label": "Operativa",
-        "items": [
-            {"name": "Mis Clientes", "url": reverse("mis_clientes"), "icon": "ti-address-book"},
-            {"name": "Operar / Cambiar Divisas", "url": "/operar/", "icon": "ti-arrows-exchange"},
-            {"name": "Historial de Operaciones", "url": "/historial/", "icon": "ti-history"},
-            {"name": "Facturas DNIT", "url": "/facturas/", "icon": "ti-receipt"},
-        ]
-    })
+    if active_client:
+        sections.append({
+            "label": "Mi Gestion",
+            "items": [
+                {"name": "Mis Clientes", "url": reverse("mis_clientes"), "icon": "ti-address-book"},
+                {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-credit-card"},
+            ]
+        })
+    
+    if active_client:
+        sections.append({
+            "label": "Operativa",
+            "items": [
+                {"name": "Operar / Cambiar Divisas", "url": reverse("operar"), "icon": "ti-arrows-exchange"},
+                {"name": "Historial de Operaciones", "url": reverse("historial_transacciones"), "icon": "ti-history"},
+                {"name": "Facturas DNIT", "url": "/facturas/", "icon": "ti-receipt"},
+            ]
+        })
 
     # RF30-RF35: Funciones del Cajero
     if role == "Cajero":
@@ -109,7 +156,7 @@ def get_menu_sections(role, active_client, is_authenticated=False):
                 {"name": "Apertura / Cierre", "url": "/caja/gestion/", "icon": "ti-cash-register"},
                 {"name": "Movimientos de Efectivo", "url": "/caja/movimientos/", "icon": "ti-file-spreadsheet"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
-                {"name": "Medios de Pago", "url": "/medios-pago", "icon": "ti-currency-dollar"},
+                {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-currency-dollar"},
             ]
         })
 
@@ -118,10 +165,10 @@ def get_menu_sections(role, active_client, is_authenticated=False):
         sections.append({
             "label": "Análisis Cambiario",
             "items": [
-                {"name": "Ajuste de Tasas", "url": "/tasas/ajuste/", "icon": "ti-currency-dollar"},
+                {"name": "Ajuste de Tasas", "url": "/operaciones/tasas/", "icon": "ti-currency-dollar"},
                 {"name": "Monitoreo de Ganancias", "url": "/ganancias/", "icon": "ti-chart-bar"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
-                {"name": "Medios de Pago", "url": "/medios-pago", "icon": "ti-currency-dollar"},
+                {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-currency-dollar"},
             ]
         })
 
@@ -133,9 +180,10 @@ def get_menu_sections(role, active_client, is_authenticated=False):
                 {"name": "Clientes", "url": reverse("lista_clientes"), "icon": "ti-users"},
                 {"name": "Nuevo Cliente", "url": reverse("crear_cliente"), "icon": "ti-user-plus"},
                 {"name": "Asignar Cliente", "url": reverse("asignar_cliente"), "icon": "ti-link"},
-                {"name": "Operaciones con Monedas", "url": reverse("crear_moneda"), "icon": "ti-coins"},
+                {"name": "Operaciones con Monedas", "url": "/operaciones/", "icon": "ti-coins"},
+                {"name": "Ajuste de Tasas", "url": "/operaciones/tasas/", "icon": "ti-currency-dollar"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
-                {"name": "Medios de Pago", "url": "/medios-pago", "icon": "ti-currency-dollar"},
+                {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-currency-dollar"},
                 {"name": "Parámetros del Sistema", "url": "/admin/parametros/", "icon": "ti-settings"},
                 {"name": "Auditoría de Logs", "url": "/admin/auditoria/", "icon": "ti-shield-check"},
             ]
@@ -145,34 +193,40 @@ def get_menu_sections(role, active_client, is_authenticated=False):
 
 
 def dashboard(request):
+    """Muestra el dashboard principal adaptado al rol del usuario.
+
+    El rol se resuelve en este orden: override de desarrollo en la sesión
+    (`ge_role`), grupos de Django y, por último, roles del token OIDC.
+    También carga los clientes asociados y fija el cliente activo en la
+    sesión (`ge_active_client`).
+
+    Args:
+        request: Petición HTTP.
+
+    Returns:
+        HttpResponse: Plantilla `dashboard.html` con tarjetas, menú y clientes.
+    """
     is_auth = request.user.is_authenticated
-
-    if is_auth:
-        # Prioridad: si hay override de dev (session), se usa; si no, el rol real de Keycloak
-        role = request.session.get('ge_role')
-        if not role:
-            # 2. Extraer roles desde los Grupos de Django asignados por el backend
-            user_roles = list(request.user.groups.values_list('name', flat=True))
-            
-            # 3. Fallback: buscar en el payload del token OIDC en sesión
-            if not user_roles:
-                oidc_payload = request.session.get('oidc_access_token_payload', {})
-                user_roles = oidc_payload.get('realm_access', {}).get('roles', [])
-
-            role = resolve_keycloak_role(user_roles)
-    else:
-        role = None
+    role = resolve_user_role(request)
 
     associated_clients = []
+    
     if is_auth:
-        clientes_qs = Cliente.objects.filter(usuarios_asociados__usuario=request.user)
+        asociaciones = (
+            UsuarioCliente.objects
+            .select_related('cliente')
+            .filter(usuario=request.user)
+        )
+
         associated_clients = [
             {
-                "id": str(c.id),
-                "name": c.nombre_o_denominacion,
-                "category": c.get_categoria_display(),
+                "id": str(asociacion.cliente.id),
+                "name": asociacion.cliente.nombre_o_denominacion,
+                "category": asociacion.cliente.get_categoria_display(),
+                "role": asociacion.rol_cliente,
+                "role_label": asociacion.get_rol_cliente_display(),
             }
-            for c in clientes_qs
+            for asociacion in asociaciones
         ]
 
     active_client_id = request.session.get('ge_active_client')
@@ -184,6 +238,18 @@ def dashboard(request):
         request.session['ge_active_client'] = active_client_id
 
     active_client = next((c for c in associated_clients if c['id'] == active_client_id), None)
+
+    if not is_auth:
+        user_role_label = "Visitante"
+
+    elif role != "Sin Rol":
+        user_role_label = role
+
+    elif active_client:
+        user_role_label = f"{active_client['role_label']} de Cliente"
+
+    else:
+        user_role_label = "Cliente sin registrar"
 
     cards_by_role = {
         "Administrador General": [
@@ -213,11 +279,23 @@ def dashboard(request):
         {"label": "USD/PYG hoy",       "value": "7.620",   "sub": "Tasa de venta",         "icon": "ti-currency-dollar",   "bg": "#D1FAE5", "color": "#059669"},
     ]
 
+    if not is_auth:
+        summary_cards = []
+    elif role == "Sin Rol" and active_client:
+        # Cliente particular sin rol global de Keycloak.
+        summary_cards = default_cards
+    else:
+        summary_cards = cards_by_role.get(role, [])
+
     context = {
-        "summary_cards": cards_by_role.get(role, []) if is_auth else [],
+        "summary_cards": summary_cards,
         "user_role": role,
-        "user_role_label": role if is_auth else "Visitante",
-        "menu_sections": get_menu_sections(role, active_client, is_authenticated=is_auth),
+        "user_role_label": user_role_label,
+        "menu_sections": get_menu_sections(
+            role,
+            active_client,
+            is_authenticated=is_auth
+        ),
         "associated_clients": associated_clients,
         "active_client": active_client,
     }
@@ -228,6 +306,18 @@ def dashboard(request):
 # Endpoint AJAX para cambiar de cliente activo (RF9)
 @login_required
 def select_client(request):
+    """Endpoint AJAX para cambiar el cliente activo del usuario.
+
+    Espera un POST con JSON `{"client_id": "<uuid>"}`. Solo permite
+    seleccionar clientes asociados al usuario.
+
+    Args:
+        request: Petición HTTP (POST con cuerpo JSON).
+
+    Returns:
+        JsonResponse: `{"status": "ok"}`, 403 si el cliente no le pertenece
+        o 400 si el método no es POST.
+    """
     if request.method == "POST":
         data = json.loads(request.body)
         client_id = data.get("client_id")
@@ -240,6 +330,18 @@ def select_client(request):
 
 # Solo para desarrollo — simular roles sin Keycloak
 def set_role(request, role):
+    """Cambia el rol simulado del usuario (solo en desarrollo).
+
+    Guarda el rol en la sesión (`ge_role`) para probar el sistema sin
+    Keycloak. Devuelve 403 si `DEBUG` está desactivado.
+
+    Args:
+        request: Petición HTTP. Acepta `?next=` para la redirección.
+        role: Slug del rol (`admin`, `analista`, `cajero` o `sinrol`).
+
+    Returns:
+        HttpResponse: Redirección a `next` o a `/dashboard/`.
+    """
     if not django_settings.DEBUG:
         return HttpResponseForbidden()
 

@@ -1,3 +1,9 @@
+"""Definición del menú de procesos por rol.
+
+`MENU_BY_ROLE` asocia cada rol con sus secciones de menú y
+`ROLE_LABELS` con el nombre a mostrar en la interfaz.
+"""
+
 MENU_BY_ROLE = {
 
     "Administrador General": [
@@ -135,6 +141,17 @@ ROLE_LABELS = {
 
 
 def menu_context(request):
+    """Devuelve el menú y el rol del usuario para las plantillas.
+
+    El rol se toma del token OIDC de Keycloak y, en desarrollo, de la
+    variable de sesión `ge_role`.
+
+    Args:
+        request: Petición HTTP.
+
+    Returns:
+        dict: Claves `menu_sections`, `user_role` y `user_role_label`.
+    """
     if not request.user.is_authenticated:
         return {
             "menu_sections": [

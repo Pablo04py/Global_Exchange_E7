@@ -1,3 +1,5 @@
+"""Rutas de la aplicación main (dashboard, cliente activo y cambio de rol en desarrollo)."""
+
 from django.urls import path
 from django.views.generic import RedirectView
 from . import views

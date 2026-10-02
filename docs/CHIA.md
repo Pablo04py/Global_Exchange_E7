@@ -93,4 +93,120 @@
      > 
      > **Decisión**: Se refactorizaron los archivos de plantilla (`form_moneda.html`, `form_tasa.html`, `lista_monedas.html`, `lista_tasas.html` y `simulador.html`) extendiendo de `layouts/base.html`, integrando la iconografía de Tabler e Inter font. Se estructuró la suite de pruebas en `cotizaciones/tests.py` validando la precisión decimal de las conversiones.
 
+### Registro #5 - 24/09/2026
+* **Tarea / Historia**: `SCRUM-47` (Documentación automática del código)
+* **Autor**: Alejandro Giménez
+* **Herramienta / Modelo**: Claude
+* **Contexto / Objetivo**: Verificar la rama feature/SCRUM-47 y dejar la documentación automática lista para integrar en develop.
+* **Prompts Determinantes Utilizados**:
+
+  1. **Revisión de la rama:**
+     > *"Quiero que verifiques si funciona correctamente para poder mergear... teniendo en cuenta los criterios IDE, PDO y CHIA."*
+     >
+     > **Decisión**: Se descartó el HTML generado a mano en `app/docs/` porque estaba desactualizado y no podía regenerarse. Se agregó pdoc a `app/requirements.txt`.
+
+  2. **Documentación automática con Django:**
+     > *"Ayudame a hacer la documentación automática y dejarlo listo para mergear."*
+     >
+     > **Decisión**: Se creó `app/generar_docs.py`, que ejecuta `django.setup()` antes de pdoc (sin eso fallan los imports de los modelos) y excluye las migraciones. La salida va a `docs/api/`, y se montó `./docs` en el contenedor `web`. Se agregaron tareas de VS Code en `.vscode/tasks.json`.
+
 * **Resultado / Decisión**: Culminación exitosa del Sprint 2 del Hito 4. Se verificó el paso correcto de las pruebas unitarias con `manage.py test`, se completó el flujo de integración en Git (`feature/sprint2-cotizaciones-simulador` hacia `develop`) y se publicó el tag de entrega `v1.2.0-sprint2`.
+
+---
+
+### Registro #6 - 27/09/2026
+* **Tarea / Historia**: `SCRUM-19` (Historial de transacciones)
+* **Autor**: Alejandro Gimenez
+* **Herramienta / Modelo**: Claude
+* **Contexto / Objetivo**: Implementar el historial de transacciones de solo consulta para clientes registrados, con filtros, paginación, pruebas unitarias y documentación, integrándolo a la arquitectura existente sin que exista todavía un modelo de transacciones.
+* **Prompts Determinantes Utilizados**:
+
+  1. **Análisis previo del proyecto:**
+     > *"Antes de modificar cualquier archivo, quiero que analices y entiendas el proyecto existente [...] explícame qué habría que hacer para implementar la historia de usuario."*
+     >
+     > **Decisión**: Se constató que no existía ningún modelo de transacciones en `main`, `develop` ni en las ramas `feature/*`, y que Minorista/Corporativo/VIP no son roles de Keycloak sino `Cliente.categoria`. El acceso al historial se definió como "usuario autenticado con al menos un `Cliente` asociado (`UsuarioCliente`)", sin crear roles nuevos.
+
+  2. **Modelo de transacciones (opción A):**
+     > *"Ok me parece bien la opción A."*
+     >
+     > **Decisión**: Se creó `Transaccion` en la app `operaciones` como contrato para la historia de compra/venta: `cliente` (a nombre de quién se opera) y `usuario` (quién operó), FKs `PROTECT` (registro de auditoría), tipo desde el punto de vista del cliente (compra = paga PYG y recibe divisa), `cajero` opcional mientras la operación esté pendiente y `estado` simple (`PENDIENTE`/`CONFIRMADA`/`CANCELADA`), cuya lógica de transición queda para la historia "Estado de transacción".
+
+  3. **Filtros, dispositivo y datos de prueba:**
+     > *"Quiero que fecha y hora estén en la misma sección pero que se pueda configurar por separado [...] Si me gustaría generar transacciones de prueba."*
+     >
+     > **Decisión**: `FiltroHistorialForm` (GET) con filtros por fecha, hora, tipo, moneda, medio de pago, montos, factura, dispositivo, cajero, operado por y estado; sus opciones se construyen solo con datos del usuario para impedir consultar datos ajenos por URL. Paginación de 20 con `Paginator`. `operaciones.utils.detectar_dispositivo` (User-Agent, sin librerías nuevas) para uso de compra/venta. Comando `generar_transacciones_prueba` (solo con `DEBUG=True`) para datos visibles, diferenciado de los tests, que usan una base temporal.
+
+  4. **Un cliente por usuario:**
+     > *"Solo se puede tener un cliente por usuario, osea el termino cliente muere, ya que el usuario registrado solo puede ser minorista, mayorista, vip o corporativo"*
+     >
+     > **Decisión**: Se eliminó el campo `cliente` de `Transaccion` (reescribiendo la migración `0003`, aún no compartida) y el filtro/columna "Cliente" del historial; el aislamiento se hace con `usuario=request.user`. La regla de acceso (tener un `Cliente` asociado) no se modificó y se revisará cuando otra historia configure las categorías de cliente en Keycloak. En `main/views.py` solo se mantuvo la corrección del enlace del menú y la extracción de `resolve_user_role()`, sin agregar enlaces nuevos al menú "Sin Rol".
+
+  5. **Vuelta al modelo del enunciado (varios usuarios por cliente):**
+     > *"Un cliente puede tener uno o más usuarios asociados que pueden operar en su nombre [...] Crees que [...] muestre el historial y arriba haya un indicador de que cliente pertenece ese historial"*
+     >
+     > **Decisión**: Prevalece el enunciado sobre la regla del punto 4: se restauró `Transaccion.cliente` (reescribiendo la `0003`, aún no mergeada). El historial muestra todas las operaciones del **cliente activo** de la sesión (`ge_active_client`, el mismo que elige el selector del dashboard, RF9), incluidas las de otros usuarios del cliente, con columna y filtro "Operado por" e indicador "Historial de: <cliente>". Sin cliente activo válido se usa la misma regla del dashboard (primer cliente asociado). No se agregó una pantalla intermedia de selección porque la elección del cliente activo pertenece a otra historia.
+
+* **Resultado / Decisión**: 72 pruebas nuevas en `app/tests/operaciones/` (modelo, dispositivo, acceso/seguridad, solo lectura, filtros, paginación y comando), todas en verde. Las 8 fallas preexistentes de `tests/main` y `tests/operaciones/test_views.py` no se modificaron por estar fuera del alcance de SCRUM-19. Documentación regenerada con `generar_docs.py`.
+
+### Registro #7 - 02/10/2026
+- **Tarea / Historia**: `SCRUM-20` (Integración de campos obligatorios de comisión y tasa en transacciones, y corrección integral de la suite de pruebas)
+- **Autor**: Fabio Rodriguez
+- **Herramienta / Modelo**: Gemini
+- **Contexto / Objetivo**: Resolver fallos de integridad por restricciones `NOT NULL` en los nuevos campos de comisiones de `Transaccion`, corregir problemas de descubrimiento de paquetes de prueba (`__init__.py` faltantes), inconsistencias de mayúsculas en rutas de plantillas (`templates`) y validación de roles de usuario en los diferentes módulos del sistema (`operaciones`, `cotizaciones`, `main`, `mpagos` y `clientes`).
+- **Prompts Determinantes Utilizados**:
+
+1. **Corrección de restricciones `NOT NULL` en pruebas y comandos:**
+     > *"IntegrityError: null value in column "porcentaje_comision" of relation "operaciones_transaccion" violates not-null constraint al ejecutar comandos de generación y test suites."*
+     > 
+     > **Decisión**: Se implementó un parche dinámico (`patch.object`) en los `setUp` y bases de pruebas para inyectar automáticamente los campos obligatorios faltantes (`porcentaje_comision`, `monto_comision`, `moneda_comision`, `categoria_cliente_aplicada`, `tasa_referencia`), asegurando la compatibilidad con el nuevo modelo de transacciones sin alterar la lógica base del sistema.
+
+2. **Resolución de errores de entorno, case-sensitivity y roles de usuario:**
+     > *"Solucionar errores de descubrimiento de paquetes (`TypeError` por falta de `__init__.py`), `TemplateDoesNotExist` por nombres de carpetas en mayúsculas y errores de acceso `HTTP 403` en vistas debido al uso del campo personalizado `roles` en lugar de los grupos clásicos de Django."*
+     > 
+     > **Decisión**: Se estandarizó la estructura de directorios (`__init__.py` y carpetas `templates` en minúsculas) y se actualizaron los usuarios de prueba en los casos de integración para registrar correctamente el campo `roles=['...']`, logrando estabilizar el entorno y alcanzar el **100% de la suite de pruebas en verde (`OK`)**.
+
+---
+
+### Registro #8 - 02/10/2026
+
+* **Tarea / Historia**: Configuración de entorno de producción local y mejora de navegación
+* **Herramienta de IA utilizada**: ChatGPT
+* **Objetivo**: Preparar una configuración de producción local para Global Exchange utilizando Docker, Gunicorn y Nginx, manteniendo separado el entorno de desarrollo. Además, incorporar una forma directa de regresar al Dashboard desde cualquier pantalla.
+
+#### 1. Configuración de producción local
+
+> Se solicitó analizar cómo configurar el proyecto para ejecutarse en un entorno similar a producción, sin necesidad de desplegarlo en un dominio o VPS.
+
+**Decisión:** Mantener `docker-compose.yml` para desarrollo y crear una configuración independiente mediante `docker-compose.prod.yml`.
+
+La arquitectura propuesta fue:
+
+Navegador → Nginx → Gunicorn → Django → PostgreSQL
+
+Keycloak se mantuvo inicialmente ejecutándose de forma independiente en el puerto `8080`.
+
+#### 2. Incorporación de Gunicorn
+
+> Se solicitó reemplazar el servidor de desarrollo de Django por un servidor adecuado para producción.
+
+**Decisión:** Agregar `gunicorn` a `requirements.txt` y ejecutar Django mediante:
+
+```bash
+gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3
+
+
+### Registro #9 - 02/10/2026
+
+* **Tarea / Historia**: Corrección posterior a merge e integración de cambios en operaciones
+* **Herramienta de IA utilizada**: ChatGPT
+* **Objetivo**: Diagnosticar y reparar errores producidos luego de integrar cambios de distintas ramas en `develop`, verificar el funcionamiento de Django y revisar las migraciones pendientes de la aplicación `operaciones`.
+
+#### 1. Error detectado luego del merge
+
+Luego del merge, el contenedor de Django no podía iniciar correctamente.
+
+El log mostraba:
+
+```text
+ImportError: cannot import name 'registrar_transaccion_cancelada'
+from 'operaciones.services'

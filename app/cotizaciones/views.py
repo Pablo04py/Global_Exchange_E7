@@ -1,3 +1,5 @@
+"""Vistas de la aplicación cotizaciones."""
+
 from django.shortcuts import render
 from django.http import JsonResponse
 from operaciones.models import Moneda, TasaDeCambio
