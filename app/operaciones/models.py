@@ -205,3 +205,32 @@ class Transaccion(models.Model):
             str: El código de la divisa en una compra; `PYG` en una venta.
         """
         return self.moneda.codigo if self.tipo == self.Tipo.COMPRA else self.MONEDA_LOCAL
+
+class LogTransaccion(models.Model):
+    """
+    Tabla de auditoría inmutable (RNF15).
+    Registra cada cambio de estado de manera inalterable.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    transaccion = models.ForeignKey(
+        Transaccion, 
+        on_delete=models.CASCADE, 
+        related_name='logs'
+    )
+    estado_anterior = models.CharField(max_length=20)
+    estado_nuevo = models.CharField(max_length=20)
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.PROTECT,
+        related_name='logs_transacciones'
+    )
+    fecha_hora = models.DateTimeField(auto_now_add=True)
+    motivo = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Log de Transacción"
+        verbose_name_plural = "Logs de Transacciones"
+        ordering = ['-fecha_hora']
+
+    def __str__(self):
+        return f"Log {self.transaccion.id}: {self.estado_anterior} -> {self.estado_nuevo}"

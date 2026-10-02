@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from .models import (
+    LogTransaccion,
     TasaDeCambio,
     Transaccion,
     ConfiguracionComision
@@ -238,6 +239,41 @@ def crear_transaccion(
         medio_pago=medio_pago,
 
         estado=Transaccion.Estado.PENDIENTE,
+    )
+
+    return transaccion
+
+@transaction.atomic
+def cambiar_estado_transaccion(transaccion, nuevo_estado, usuario, motivo=""):
+    """
+    Cambia el estado de una transacción y guarda el log de auditoría inmutable (RNF15).
+    En el Sprint 3 solo se permite la transición PENDIENTE -> CANCELADA.
+    """
+    estado_anterior = transaccion.estado
+
+    # Reglas de transición para el Sprint 3
+    TRANSICIONES_PERMITIDAS = {
+        Transaccion.Estado.PENDIENTE: [Transaccion.Estado.CANCELADA],
+        Transaccion.Estado.CANCELADA: [],   # Estado terminal: no se puede reabrir
+        Transaccion.Estado.CONFIRMADA: [],  # Estado terminal
+    }
+
+    if nuevo_estado not in TRANSICIONES_PERMITIDAS.get(estado_anterior, []):
+        raise ValidationError(
+            f"Transición no permitida: no se puede pasar de '{estado_anterior}' a '{nuevo_estado}'."
+        )
+
+    # 1. Actualizar estado
+    transaccion.estado = nuevo_estado
+    transaccion.save(update_fields=['estado'])
+
+    # 2. Registrar log de auditoría inmutable
+    LogTransaccion.objects.create(
+        transaccion=transaccion,
+        estado_anterior=estado_anterior,
+        estado_nuevo=nuevo_estado,
+        usuario=usuario,
+        motivo=motivo
     )
 
     return transaccion

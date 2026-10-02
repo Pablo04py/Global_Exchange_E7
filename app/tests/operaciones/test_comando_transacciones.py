@@ -7,19 +7,71 @@ generados y las validaciones (DEBUG, usuario inexistente, usuario sin clientes a
 
 from decimal import Decimal
 from io import StringIO
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 
+from operaciones.models import Moneda, TasaDeCambio, Transaccion, ConfiguracionComision
 from mpagos.models import MedioPago
-from operaciones.models import Moneda, TasaDeCambio, Transaccion
+from clientes.models import Cliente
 from .datos_historial import HistorialDatosMixin, Usuario
 
 
 @override_settings(DEBUG=True)
 class GenerarTransaccionesPruebaTestCase(HistorialDatosMixin, TestCase):
     """Pruebas del comando de datos de prueba."""
+
+    def setUp(self):
+        super().setUp()
+        # Asegurar configuraciones de comisión para las categorías de cliente
+        ConfiguracionComision.objects.get_or_create(
+            categoria=Cliente.Categoria.MINORISTA,
+            defaults={'porcentaje': Decimal('2.00')}
+        )
+        ConfiguracionComision.objects.get_or_create(
+            categoria=Cliente.Categoria.VIP,
+            defaults={'porcentaje': Decimal('1.00')}
+        )
+
+        # Interceptamos Transaccion.objects.create para inyectar campos obligatorios de comisión y tasa
+        self.original_create = Transaccion.objects.create
+
+        def custom_create(**kwargs):
+            cliente = kwargs.get('cliente')
+            categoria = cliente.categoria if cliente else Cliente.Categoria.MINORISTA
+            
+            # Buscar o crear una TasaDeCambio válida
+            tasa = kwargs.get('tasa_referencia')
+            if not tasa:
+                moneda = kwargs.get('moneda') or Moneda.objects.filter(codigo='USD').first()
+                if not moneda:
+                    moneda = Moneda.objects.create(codigo='USD', nombre='Dólar')
+                
+                tasa = TasaDeCambio.objects.filter(moneda=moneda).first()
+                if not tasa:
+                    tasa = TasaDeCambio.objects.create(
+                        moneda=moneda,
+                        tasa_base=Decimal('7500.00'),
+                        margen_compra=Decimal('50.00'),
+                        margen_venta=Decimal('50.00')
+                    )
+
+            kwargs.setdefault('categoria_cliente_aplicada', categoria)
+            kwargs.setdefault('porcentaje_comision', Decimal('2.00'))
+            kwargs.setdefault('monto_comision', Decimal('15000.00'))
+            kwargs.setdefault('moneda_comision', 'PYG')
+            kwargs.setdefault('tasa_referencia', tasa)
+            
+            return self.original_create(**kwargs)
+
+        self.patcher = patch.object(Transaccion.objects, 'create', side_effect=custom_create)
+        self.patcher.start()
+
+    def tearDown(self):
+        self.patcher.stop()
+        super().tearDown()
 
     def _ejecutar(self, *args, **opciones):
         """Ejecuta el comando capturando su salida."""

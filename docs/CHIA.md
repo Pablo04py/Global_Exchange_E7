@@ -115,7 +115,7 @@
 
 ### Registro #6 - 27/09/2026
 * **Tarea / Historia**: `SCRUM-19` (Historial de transacciones)
-* **Autor**: _(completar)_
+* **Autor**: Alejandro Gimenez
 * **Herramienta / Modelo**: Claude
 * **Contexto / Objetivo**: Implementar el historial de transacciones de solo consulta para clientes registrados, con filtros, paginación, pruebas unitarias y documentación, integrándolo a la arquitectura existente sin que exista todavía un modelo de transacciones.
 * **Prompts Determinantes Utilizados**:
@@ -146,3 +146,20 @@
      > **Decisión**: Prevalece el enunciado sobre la regla del punto 4: se restauró `Transaccion.cliente` (reescribiendo la `0003`, aún no mergeada). El historial muestra todas las operaciones del **cliente activo** de la sesión (`ge_active_client`, el mismo que elige el selector del dashboard, RF9), incluidas las de otros usuarios del cliente, con columna y filtro "Operado por" e indicador "Historial de: <cliente>". Sin cliente activo válido se usa la misma regla del dashboard (primer cliente asociado). No se agregó una pantalla intermedia de selección porque la elección del cliente activo pertenece a otra historia.
 
 * **Resultado / Decisión**: 72 pruebas nuevas en `app/tests/operaciones/` (modelo, dispositivo, acceso/seguridad, solo lectura, filtros, paginación y comando), todas en verde. Las 8 fallas preexistentes de `tests/main` y `tests/operaciones/test_views.py` no se modificaron por estar fuera del alcance de SCRUM-19. Documentación regenerada con `generar_docs.py`.
+
+### Registro #7 - 02/10/2026
+- **Tarea / Historia**: `SCRUM-20` (Integración de campos obligatorios de comisión y tasa en transacciones, y corrección integral de la suite de pruebas)
+- **Autor**: Fabio Rodriguez
+- **Herramienta / Modelo**: Gemini
+- **Contexto / Objetivo**: Resolver fallos de integridad por restricciones `NOT NULL` en los nuevos campos de comisiones de `Transaccion`, corregir problemas de descubrimiento de paquetes de prueba (`__init__.py` faltantes), inconsistencias de mayúsculas en rutas de plantillas (`templates`) y validación de roles de usuario en los diferentes módulos del sistema (`operaciones`, `cotizaciones`, `main`, `mpagos` y `clientes`).
+- **Prompts Determinantes Utilizados**:
+
+1. **Corrección de restricciones `NOT NULL` en pruebas y comandos:**
+     > *"IntegrityError: null value in column "porcentaje_comision" of relation "operaciones_transaccion" violates not-null constraint al ejecutar comandos de generación y test suites."*
+     > 
+     > **Decisión**: Se implementó un parche dinámico (`patch.object`) en los `setUp` y bases de pruebas para inyectar automáticamente los campos obligatorios faltantes (`porcentaje_comision`, `monto_comision`, `moneda_comision`, `categoria_cliente_aplicada`, `tasa_referencia`), asegurando la compatibilidad con el nuevo modelo de transacciones sin alterar la lógica base del sistema.
+
+2. **Resolución de errores de entorno, case-sensitivity y roles de usuario:**
+     > *"Solucionar errores de descubrimiento de paquetes (`TypeError` por falta de `__init__.py`), `TemplateDoesNotExist` por nombres de carpetas en mayúsculas y errores de acceso `HTTP 403` en vistas debido al uso del campo personalizado `roles` en lugar de los grupos clásicos de Django."*
+     > 
+     > **Decisión**: Se estandarizó la estructura de directorios (`__init__.py` y carpetas `templates` en minúsculas) y se actualizaron los usuarios de prueba en los casos de integración para registrar correctamente el campo `roles=['...']`, logrando estabilizar el entorno y alcanzar el **100% de la suite de pruebas en verde (`OK`)**.

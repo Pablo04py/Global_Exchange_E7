@@ -23,7 +23,7 @@ class HistorialDatosMixin:
 
     - `usuario_a` opera para `cliente_a` (minorista).
     - `usuario_b` opera para `cliente_b` (VIP); sus transacciones no deben
-      verse desde `usuario_a` mientras no esté asociado a `cliente_b`.
+    verse desde `usuario_a` mientras no esté asociado a `cliente_b`.
     """
 
     def setUp(self):

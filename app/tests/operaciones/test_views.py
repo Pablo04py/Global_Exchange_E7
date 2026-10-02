@@ -8,7 +8,6 @@ redirecciones tras POST y la lógica del simulador de conversiones.
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from decimal import Decimal
 from operaciones.models import Moneda, TasaDeCambio
 
@@ -19,32 +18,29 @@ class OperacionesViewsTestCase(TestCase):
     """Pruebas integrales de controladores y seguridad para Operaciones."""
 
     def setUp(self):
-        """Configuración de roles (grupos), usuarios autenticados y datos iniciales."""
+        """Configuración de roles, usuarios autenticados y datos iniciales."""
         self.client = Client()
 
-        # Crear Grupos/Roles para el decorador @requiere_rol
-        self.grupo_admin, _ = Group.objects.get_or_create(name='Administrador General')
-        self.grupo_analista, _ = Group.objects.get_or_create(name='Analista Cambiario')
-
-        # Usuario Administrador
+        # Usuario Administrador (usando el campo roles del modelo custom)
         self.admin_user = Usuario.objects.create_user(
             username="admin_test",
             password="password123",
-            is_staff=True
+            is_staff=True,
+            roles=['Administrador General']
         )
-        self.admin_user.groups.add(self.grupo_admin)
 
         # Usuario Analista
         self.analista_user = Usuario.objects.create_user(
             username="analista_test",
-            password="password123"
+            password="password123",
+            roles=['Analista Cambiario']
         )
-        self.analista_user.groups.add(self.grupo_analista)
 
         # Usuario sin rol asignado
         self.sin_rol_user = Usuario.objects.create_user(
             username="sin_rol_test",
-            password="password123"
+            password="password123",
+            roles=[]
         )
 
         # Moneda y Tasa base de prueba
