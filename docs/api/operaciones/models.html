@@ -366,6 +366,69 @@
                         <li>
                                 <a class="function" href="#Transaccion.objects">objects</a>
                         </li>
+                        <li>
+                                <a class="variable" href="#Transaccion.logs">logs</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#LogTransaccion">LogTransaccion</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#LogTransaccion.id">id</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#LogTransaccion.transaccion">transaccion</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#LogTransaccion.estado_anterior">estado_anterior</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#LogTransaccion.estado_nuevo">estado_nuevo</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#LogTransaccion.usuario">usuario</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#LogTransaccion.fecha_hora">fecha_hora</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#LogTransaccion.motivo">motivo</a>
+                        </li>
+                        <li>
+                                <a class="class" href="#LogTransaccion.DoesNotExist">LogTransaccion.DoesNotExist</a>
+                                        <ul class="memberlist">
+                            </ul>
+
+                        </li>
+                        <li>
+                                <a class="class" href="#LogTransaccion.MultipleObjectsReturned">LogTransaccion.MultipleObjectsReturned</a>
+                                        <ul class="memberlist">
+                            </ul>
+
+                        </li>
+                        <li>
+                                <a class="class" href="#LogTransaccion.NotUpdated">LogTransaccion.NotUpdated</a>
+                                        <ul class="memberlist">
+                            </ul>
+
+                        </li>
+                        <li>
+                                <a class="variable" href="#LogTransaccion.transaccion_id">transaccion_id</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#LogTransaccion.usuario_id">usuario_id</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#LogTransaccion.get_next_by_fecha_hora">get_next_by_fecha_hora</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#LogTransaccion.get_previous_by_fecha_hora">get_previous_by_fecha_hora</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#LogTransaccion.objects">objects</a>
+                        </li>
                 </ul>
 
             </li>
@@ -600,6 +663,35 @@
 </span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a><span class="sd">            str: El código de la divisa en una compra; `PYG` en una venta.</span>
 </span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a><span class="sd">        """</span>
 </span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span>
+</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>
+</span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a><span class="k">class</span><span class="w"> </span><span class="nc">LogTransaccion</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a><span class="w">    </span><span class="sd">"""</span>
+</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a><span class="sd">    Tabla de auditoría inmutable (RNF15).</span>
+</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a><span class="sd">    Registra cada cambio de estado de manera inalterable.</span>
+</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a><span class="sd">    """</span>
+</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a>    <span class="n">transaccion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a>        <span class="n">Transaccion</span><span class="p">,</span> 
+</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a>        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> 
+</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'logs'</span>
+</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a>    <span class="p">)</span>
+</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a>    <span class="n">estado_anterior</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a>    <span class="n">estado_nuevo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> 
+</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'logs_transacciones'</span>
+</span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a>    <span class="p">)</span>
+</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a>    <span class="n">fecha_hora</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a>    <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a>
+</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Log de Transacción"</span>
+</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Logs de Transacciones"</span>
+</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-fecha_hora'</span><span class="p">]</span>
+</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a>
+</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Log </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transaccion</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_anterior</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_nuevo</span><span class="si">}</span><span class="s2">"</span>
 </span></pre></div>
 
 
@@ -2183,6 +2275,31 @@ callables as instance methods.</p>
     
 
                             </div>
+                            <div id="Transaccion.logs" class="classattr">
+                                <div class="attr variable">
+            <span class="name">logs</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Transaccion.logs"></a>
+    
+            <div class="docstring"><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+
+<p>In the example::</p>
+
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+
+<p><code>Parent.children</code> is a <code>ReverseManyToOneDescriptor</code> instance.</p>
+
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code>create_reverse_many_to_one_manager()</code> defined below.</p>
+</div>
+
+
+                            </div>
                 </section>
                 <section id="Transaccion.Tipo">
                             <input id="Transaccion.Tipo-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -2442,6 +2559,296 @@ callables as instance methods.</p>
         
     </div>
     <a class="headerlink" href="#Transaccion.NotUpdated"></a>
+    
+            <div class="docstring"><p>The updated object no longer exists.</p>
+</div>
+
+
+                </section>
+                <section id="LogTransaccion">
+                            <input id="LogTransaccion-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">LogTransaccion</span><wbr>(<span class="base">django.db.models.base.Model</span>):
+
+                <label class="view-source-button" for="LogTransaccion-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#LogTransaccion"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="LogTransaccion-210"><a href="#LogTransaccion-210"><span class="linenos">210</span></a><span class="k">class</span><span class="w"> </span><span class="nc">LogTransaccion</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+</span><span id="LogTransaccion-211"><a href="#LogTransaccion-211"><span class="linenos">211</span></a><span class="w">    </span><span class="sd">"""</span>
+</span><span id="LogTransaccion-212"><a href="#LogTransaccion-212"><span class="linenos">212</span></a><span class="sd">    Tabla de auditoría inmutable (RNF15).</span>
+</span><span id="LogTransaccion-213"><a href="#LogTransaccion-213"><span class="linenos">213</span></a><span class="sd">    Registra cada cambio de estado de manera inalterable.</span>
+</span><span id="LogTransaccion-214"><a href="#LogTransaccion-214"><span class="linenos">214</span></a><span class="sd">    """</span>
+</span><span id="LogTransaccion-215"><a href="#LogTransaccion-215"><span class="linenos">215</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="LogTransaccion-216"><a href="#LogTransaccion-216"><span class="linenos">216</span></a>    <span class="n">transaccion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+</span><span id="LogTransaccion-217"><a href="#LogTransaccion-217"><span class="linenos">217</span></a>        <span class="n">Transaccion</span><span class="p">,</span> 
+</span><span id="LogTransaccion-218"><a href="#LogTransaccion-218"><span class="linenos">218</span></a>        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> 
+</span><span id="LogTransaccion-219"><a href="#LogTransaccion-219"><span class="linenos">219</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'logs'</span>
+</span><span id="LogTransaccion-220"><a href="#LogTransaccion-220"><span class="linenos">220</span></a>    <span class="p">)</span>
+</span><span id="LogTransaccion-221"><a href="#LogTransaccion-221"><span class="linenos">221</span></a>    <span class="n">estado_anterior</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</span><span id="LogTransaccion-222"><a href="#LogTransaccion-222"><span class="linenos">222</span></a>    <span class="n">estado_nuevo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</span><span id="LogTransaccion-223"><a href="#LogTransaccion-223"><span class="linenos">223</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+</span><span id="LogTransaccion-224"><a href="#LogTransaccion-224"><span class="linenos">224</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> 
+</span><span id="LogTransaccion-225"><a href="#LogTransaccion-225"><span class="linenos">225</span></a>        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+</span><span id="LogTransaccion-226"><a href="#LogTransaccion-226"><span class="linenos">226</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'logs_transacciones'</span>
+</span><span id="LogTransaccion-227"><a href="#LogTransaccion-227"><span class="linenos">227</span></a>    <span class="p">)</span>
+</span><span id="LogTransaccion-228"><a href="#LogTransaccion-228"><span class="linenos">228</span></a>    <span class="n">fecha_hora</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="LogTransaccion-229"><a href="#LogTransaccion-229"><span class="linenos">229</span></a>    <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="LogTransaccion-230"><a href="#LogTransaccion-230"><span class="linenos">230</span></a>
+</span><span id="LogTransaccion-231"><a href="#LogTransaccion-231"><span class="linenos">231</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="LogTransaccion-232"><a href="#LogTransaccion-232"><span class="linenos">232</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Log de Transacción"</span>
+</span><span id="LogTransaccion-233"><a href="#LogTransaccion-233"><span class="linenos">233</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Logs de Transacciones"</span>
+</span><span id="LogTransaccion-234"><a href="#LogTransaccion-234"><span class="linenos">234</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-fecha_hora'</span><span class="p">]</span>
+</span><span id="LogTransaccion-235"><a href="#LogTransaccion-235"><span class="linenos">235</span></a>
+</span><span id="LogTransaccion-236"><a href="#LogTransaccion-236"><span class="linenos">236</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="LogTransaccion-237"><a href="#LogTransaccion-237"><span class="linenos">237</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Log </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transaccion</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_anterior</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_nuevo</span><span class="si">}</span><span class="s2">"</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Tabla de auditoría inmutable (RNF15).
+Registra cada cambio de estado de manera inalterable.</p>
+</div>
+
+
+                            <div id="LogTransaccion.id" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.id"></a>
+    
+            <div class="docstring"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</div>
+
+
+                            </div>
+                            <div id="LogTransaccion.transaccion" class="classattr">
+                                <div class="attr variable">
+            <span class="name">transaccion</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.transaccion"></a>
+    
+            <div class="docstring"><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+
+<p>In the example::</p>
+
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+
+<p><code>Child.parent</code> is a <code>ForwardManyToOneDescriptor</code> instance.</p>
+</div>
+
+
+                            </div>
+                            <div id="LogTransaccion.estado_anterior" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">estado_anterior</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.estado_anterior"></a>
+    
+            <div class="docstring"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</div>
+
+
+                            </div>
+                            <div id="LogTransaccion.estado_nuevo" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">estado_nuevo</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.estado_nuevo"></a>
+    
+            <div class="docstring"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</div>
+
+
+                            </div>
+                            <div id="LogTransaccion.usuario" class="classattr">
+                                <div class="attr variable">
+            <span class="name">usuario</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.usuario"></a>
+    
+            <div class="docstring"><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+
+<p>In the example::</p>
+
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+
+<p><code>Child.parent</code> is a <code>ForwardManyToOneDescriptor</code> instance.</p>
+</div>
+
+
+                            </div>
+                            <div id="LogTransaccion.fecha_hora" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">fecha_hora</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.fecha_hora"></a>
+    
+            <div class="docstring"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</div>
+
+
+                            </div>
+                            <div id="LogTransaccion.motivo" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">motivo</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.motivo"></a>
+    
+            <div class="docstring"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</div>
+
+
+                            </div>
+                            <div id="LogTransaccion.transaccion_id" class="classattr">
+                                <div class="attr variable">
+            <span class="name">transaccion_id</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.transaccion_id"></a>
+    
+    
+
+                            </div>
+                            <div id="LogTransaccion.usuario_id" class="classattr">
+                                <div class="attr variable">
+            <span class="name">usuario_id</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.usuario_id"></a>
+    
+    
+
+                            </div>
+                            <div id="LogTransaccion.get_next_by_fecha_hora" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_next_by_fecha_hora</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.get_next_by_fecha_hora"></a>
+    
+            <div class="docstring"><p>Method descriptor with partial application of the given arguments
+and keywords.</p>
+
+<p>Supports wrapping existing descriptors and handles non-descriptor
+callables as instance methods.</p>
+</div>
+
+
+                            </div>
+                            <div id="LogTransaccion.get_previous_by_fecha_hora" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_previous_by_fecha_hora</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.get_previous_by_fecha_hora"></a>
+    
+            <div class="docstring"><p>Method descriptor with partial application of the given arguments
+and keywords.</p>
+
+<p>Supports wrapping existing descriptors and handles non-descriptor
+callables as instance methods.</p>
+</div>
+
+
+                            </div>
+                            <div id="LogTransaccion.objects" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">objects</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.objects"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="LogTransaccion.DoesNotExist">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">LogTransaccion.DoesNotExist</span><wbr>(<span class="base">django.core.exceptions.ObjectDoesNotExist</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.DoesNotExist"></a>
+    
+            <div class="docstring"><p>The requested object does not exist</p>
+</div>
+
+
+                </section>
+                <section id="LogTransaccion.MultipleObjectsReturned">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">LogTransaccion.MultipleObjectsReturned</span><wbr>(<span class="base">django.core.exceptions.MultipleObjectsReturned</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.MultipleObjectsReturned"></a>
+    
+            <div class="docstring"><p>The query returned multiple objects when only one was expected.</p>
+</div>
+
+
+                </section>
+                <section id="LogTransaccion.NotUpdated">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">LogTransaccion.NotUpdated</span><wbr>(<span class="base">django.core.exceptions.ObjectNotUpdated</span>, <span class="base">django.db.utils.DatabaseError</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#LogTransaccion.NotUpdated"></a>
     
             <div class="docstring"><p>The updated object no longer exists.</p>
 </div>
