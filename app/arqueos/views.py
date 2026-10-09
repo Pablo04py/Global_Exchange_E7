@@ -1,15 +1,24 @@
-"""Vistas de la aplicación arqueos (cierre de caja y detalle del arqueo)."""
+"""Vistas de la aplicación arqueos (cierre de caja, detalle del arqueo y reportes de auditoría)."""
+
+import csv
 
 from django.core.exceptions import ValidationError
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views.decorators.http import require_GET
 
 from main.views import get_menu_sections, resolve_user_role
 from usuarios.decorators import requiere_rol
 from . import integracion
-from .forms import CierreCajaForm
+from . import reportes
+from .forms import CierreCajaForm, FiltroReporteForm
 from .models import ArqueoCaja
 from .services import registrar_cierre
+
+# Roles que pueden consultar los reportes de auditoría (SCRUM-41).
+# Para habilitar al Supervisor cuando exista en Keycloak, agregarlo aquí.
+ROLES_REPORTE = ('Administrador General',)
 
 
 def _menu(request):
@@ -87,3 +96,69 @@ def detalle_arqueo(request, arqueo_id):
         'detalles': arqueo.detalles.all(),
         'menu_sections': _menu(request),
     })
+
+
+def _reporte_filtrado(request):
+    """Arma el formulario de filtros y devuelve los arqueos filtrados del reporte.
+
+    Args:
+        request: Petición HTTP (GET con filtros opcionales).
+
+    Returns:
+        tuple[FiltroReporteForm, QuerySet]: El formulario y los arqueos filtrados.
+    """
+    form = FiltroReporteForm(request.GET or None, arqueos=ArqueoCaja.objects.all())
+    if form.is_bound:
+        form.is_valid()  # completa cleaned_data; los campos con error se ignoran al filtrar
+    return form, form.filtrar(reportes.arqueos_para_reporte())
+
+
+@require_GET
+@requiere_rol(*ROLES_REPORTE)
+def reporte_arqueos(request):
+    """Reporte de auditoría de caja: cierres, saldos e inconsistencias (solo lectura).
+
+    Filtra por fecha, sucursal, cajero y nivel de discrepancia, muestra un
+    resumen y ofrece imprimir (impresión del navegador) y exportar a CSV con
+    los mismos filtros.
+
+    Args:
+        request: Petición HTTP de un Administrador General.
+
+    Returns:
+        HttpResponse: Plantilla `arqueos/reporte.html`.
+    """
+    form, arqueos = _reporte_filtrado(request)
+    return render(request, 'arqueos/reporte.html', {
+        'form': form,
+        'arqueos': arqueos,
+        'resumen': reportes.resumen(arqueos),
+        'hay_filtros': any(request.GET.values()),
+        'generado': timezone.localtime(),
+        'menu_sections': _menu(request),
+    })
+
+
+@require_GET
+@requiere_rol(*ROLES_REPORTE)
+def exportar_reporte_csv(request):
+    """Exporta el reporte filtrado a CSV (una fila por moneda de cada arqueo).
+
+    Usa `;` como separador, coma decimal y codificación UTF-8 con BOM para
+    que Excel en español lo abra con columnas y acentos correctos.
+
+    Args:
+        request: Petición HTTP con los mismos filtros que `reporte_arqueos`.
+
+    Returns:
+        HttpResponse: Archivo `reporte_arqueos_<fecha>.csv`.
+    """
+    _, arqueos = _reporte_filtrado(request)
+    nombre = f"reporte_arqueos_{timezone.localtime():%Y%m%d_%H%M}.csv"
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename="{nombre}"'
+    response.write('\ufeff')  # BOM: Excel detecta UTF-8
+    escritor = csv.writer(response, delimiter=';')
+    escritor.writerow(reportes.ENCABEZADOS_CSV)
+    escritor.writerows(reportes.filas_csv(arqueos))
+    return response

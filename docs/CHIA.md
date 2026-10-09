@@ -231,3 +231,24 @@ from 'operaciones.services'
      > **Decisión**: El cajero declara un total por moneda en un **arqueo ciego** (no ve el saldo registrado hasta cerrar). `arqueos.services.registrar_cierre` calcula la diferencia (`declarado - registrado`) y el resultado (cuadra, sobrante o faltante) por moneda, guarda `ArqueoCaja` + `DetalleArqueo` y bloquea la caja dentro de una sola transacción con `SELECT ... FOR UPDATE`. Los arqueos son inmutables (`save` rechaza modificaciones; admin de solo lectura). Desbloquear la caja, crearla, asignarla y abrirla quedan en las historias de los compañeros.
 
 * **Resultado / Decisión**: 35 pruebas nuevas en `app/tests/arqueos/` (cálculo, registro, bloqueo, inmutabilidad, integración configurable con un modelo sustituto y vistas). Suite completa del proyecto: 144 pruebas en verde.
+
+---
+
+### Registro #11 - 08/10/2026
+* **Tarea / Historia**: `SCRUM-41` (Reportes de Auditoría de Caja)
+* **Autor**: Alejandro Gimenez
+* **Herramienta / Modelo**: Claude
+* **Contexto / Objetivo**: Permitir al Administrador General consultar, imprimir y exportar los cierres de caja (arqueos de SCRUM-40) con filtros por fecha, sucursal, cajero y nivel de discrepancia, sin depender de los modelos de sucursal y caja de otras historias.
+* **Prompts Determinantes Utilizados**:
+
+  1. **Definición del alcance:**
+     > *"solo al administrador general [...] me gusta el primero que diga sin discrepancia, con sobrante, con faltante [...] si solo CSV"*
+     >
+     > **Decisión**: El reporte está en la app `arqueos` (`reportes.py`, `FiltroReporteForm`, vistas `reporte_arqueos` y `exportar_reporte_csv`). Acceso solo para `Administrador General` mediante la constante `ROLES_REPORTE` (preparada para agregar el rol Supervisor cuando exista en Keycloak). El nivel de discrepancia se calcula en la base de datos con `Exists` (un cierre con sobrante en una moneda y faltante en otra aparece en ambos niveles). Las opciones de sucursal y cajero salen de la "foto" guardada en los arqueos.
+
+  2. **Imprimible y exportable sin nuevas dependencias:**
+     > *"Si me sirve"* (impresión del navegador)
+     >
+     > **Decisión**: Impresión con CSS `@media print` (oculta menú, filtros y botones) y botón `window.print()`. Exportación a CSV con el módulo estándar `csv`: separador `;`, coma decimal, hora local y BOM UTF-8 para que Excel en español lo abra correctamente; respeta los mismos filtros que la pantalla. Se corrigió además el uso de hora UTC en `ArqueoCaja.__str__` (ahora `timezone.localtime`).
+
+* **Resultado / Decisión**: 20 pruebas nuevas en `app/tests/arqueos/test_reportes.py` (acceso, solo lectura, resumen, cada filtro, CSV y formato). Suite completa del proyecto: 164 pruebas en verde.

@@ -57,15 +57,17 @@
 
                         <label class="view-source-button" for="mod-urls-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">1</span></a><span class="sd">"""Rutas de la aplicación arqueos."""</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.urls</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">4</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">views</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos">6</span></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos">7</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'cerrar/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">cerrar_caja</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'cerrar_caja'</span><span class="p">),</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">8</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'&lt;uuid:arqueo_id&gt;/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">detalle_arqueo</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'detalle_arqueo'</span><span class="p">),</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos">9</span></a><span class="p">]</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">"""Rutas de la aplicación arqueos."""</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.urls</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">views</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'cerrar/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">cerrar_caja</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'cerrar_caja'</span><span class="p">),</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'&lt;uuid:arqueo_id&gt;/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">detalle_arqueo</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'detalle_arqueo'</span><span class="p">),</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'reporte/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">reporte_arqueos</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'reporte_arqueos'</span><span class="p">),</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'reporte/exportar/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">exportar_reporte_csv</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'exportar_reporte_arqueos'</span><span class="p">),</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="p">]</span>
 </span></pre></div>
 
 
@@ -74,7 +76,7 @@
                     <div class="attr variable">
             <span class="name">urlpatterns</span>        =
 <input id="urlpatterns-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="urlpatterns-view-value"></label><span class="default_value">[&lt;URLPattern &#39;cerrar/&#39; [name=&#39;cerrar_caja&#39;]&gt;, &lt;URLPattern &#39;&lt;uuid:arqueo_id&gt;/&#39; [name=&#39;detalle_arqueo&#39;]&gt;]</span>
+            <label class="view-value-button pdoc-button" for="urlpatterns-view-value"></label><span class="default_value">[&lt;URLPattern &#39;cerrar/&#39; [name=&#39;cerrar_caja&#39;]&gt;, &lt;URLPattern &#39;&lt;uuid:arqueo_id&gt;/&#39; [name=&#39;detalle_arqueo&#39;]&gt;, &lt;URLPattern &#39;reporte/&#39; [name=&#39;reporte_arqueos&#39;]&gt;, &lt;URLPattern &#39;reporte/exportar/&#39; [name=&#39;exportar_reporte_arqueos&#39;]&gt;]</span>
 
         
     </div>

@@ -41,8 +41,8 @@ class ArqueoCaja(models.Model):
         ordering = ['-fecha_cierre']
 
     def __str__(self):
-        """Devuelve `Arqueo <caja> - dd/mm/aaaa hh:mm`."""
-        return f"Arqueo {self.caja_nombre} - {self.fecha_cierre:%d/%m/%Y %H:%M}"
+        """Devuelve `Arqueo <caja> - dd/mm/aaaa hh:mm` (hora local)."""
+        return f"Arqueo {self.caja_nombre} - {timezone.localtime(self.fecha_cierre):%d/%m/%Y %H:%M}"
 
     def save(self, *args, **kwargs):
         """Guarda el arqueo solo la primera vez.
