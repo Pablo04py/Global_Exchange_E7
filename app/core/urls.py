@@ -5,7 +5,7 @@ Incluye las URLs de cada aplicación y las rutas de autenticación OIDC con Keyc
 - `admin/`: panel de administración de Django.
 - `oidc/`: inicio de sesión y callback de `mozilla-django-oidc`, y cierre de sesión con Keycloak.
 - `''`: dashboard y utilidades de la app `main`.
-- `usuarios/`, `clientes/`, `medios-pago/`, `cotizaciones/`, `operaciones/`: rutas de cada app.
+- `usuarios/`, `clientes/`, `medios-pago/`, `cotizaciones/`, `operaciones/`, `arqueos/`: rutas de cada app.
 """
 from django.contrib import admin
 from django.urls import path, include
@@ -28,4 +28,6 @@ urlpatterns = [
     path('cotizaciones/', include('cotizaciones.urls')),
     #ruta a operaciones
     path('operaciones/', include('operaciones.urls')),
+    #ruta a arqueos (cierre de caja, SCRUM-40)
+    path('arqueos/', include('arqueos.urls')),
 ]

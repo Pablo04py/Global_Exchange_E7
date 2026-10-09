@@ -210,3 +210,24 @@ El log mostraba:
 ```text
 ImportError: cannot import name 'registrar_transaccion_cancelada'
 from 'operaciones.services'
+
+---
+
+### Registro #10 - 08/10/2026
+* **Tarea / Historia**: `SCRUM-40` (Cierre de Caja y Arqueo)
+* **Autor**: Alejandro Gimenez
+* **Herramienta / Modelo**: Claude
+* **Contexto / Objetivo**: Implementar el cierre de caja del cajero (saldo físico declarado vs. saldo registrado, sobrante/faltante y bloqueo de la caja) cuando los modelos de caja, apertura y saldo registrado pertenecen a historias de otros compañeros (SCRUM-36, SCRUM-37 y otra) que aún no estaban en el repositorio.
+* **Prompts Determinantes Utilizados**:
+
+  1. **Independencia de otras historias:**
+     > *"No hay forma de hacerlo sin que él me diga?, sin depender de otro scrum?"*
+     >
+     > **Decisión**: Se creó la app propia `arqueos` (nombre que no choca con la futura app de caja). El arqueo guarda una "foto" de la caja (identificador, nombre y sucursal) en lugar de una clave foránea, por lo que su migración solo depende de `Usuario`. Toda la dependencia con las otras historias quedó concentrada en `arqueos/integracion.py`, con los nombres del modelo de caja, sus campos, estados y la función de saldo registrado configurables en `settings` (`ARQUEO_*`). Mientras esas piezas no existan, la pantalla muestra "El módulo de caja todavía no está disponible".
+
+  2. **Alcance y reglas del cierre:**
+     > *"Total por moneda está bien"* / *"la caja queda cerrada y no se puede volver a cerrar ni modificar el arqueo"*
+     >
+     > **Decisión**: El cajero declara un total por moneda en un **arqueo ciego** (no ve el saldo registrado hasta cerrar). `arqueos.services.registrar_cierre` calcula la diferencia (`declarado - registrado`) y el resultado (cuadra, sobrante o faltante) por moneda, guarda `ArqueoCaja` + `DetalleArqueo` y bloquea la caja dentro de una sola transacción con `SELECT ... FOR UPDATE`. Los arqueos son inmutables (`save` rechaza modificaciones; admin de solo lectura). Desbloquear la caja, crearla, asignarla y abrirla quedan en las historias de los compañeros.
+
+* **Resultado / Decisión**: 35 pruebas nuevas en `app/tests/arqueos/` (cálculo, registro, bloqueo, inmutabilidad, integración configurable con un modelo sustituto y vistas). Suite completa del proyecto: 144 pruebas en verde.
