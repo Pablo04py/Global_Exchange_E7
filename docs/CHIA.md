@@ -260,6 +260,11 @@ from 'operaciones.services'
      >
      > **Decisión**: Se conservó el cierre de SCRUM-40 (`/arqueos/cerrar/`), del que dependen los reportes de SCRUM-41 y la habilitación de cajas bloqueadas. Se eliminó el cierre de la app `caja`: vista `cerrar_caja_view`, ruta `/caja/cerrar/`, servicio `cerrar_caja`, formulario `CierreCajaForm`, plantilla y modelo `caja.ArqueoCaja` (migración `0007_delete_arqueocaja`; la tabla estaba vacía). El botón "Cierre de caja" de las pantallas de la app `caja` ahora lleva al cierre de SCRUM-40.
 
+  9. **Cierre dentro de la pantalla de apertura:**
+     > *"que el cierre de caja al final se vea dentro de la apertura de caja y no redirija a nuestro apartado de cierre de caja"*
+     >
+     > **Decisión**: `caja:apertura_caja` pasó a ser la pantalla única "Apertura y Cierre de Caja": según el turno del cajero muestra la apertura (ASIGNADA), el cierre con arqueo ciego (ABIERTA), el resultado del arqueo tras cerrar (`?arqueo=<id>`, solo el propio) o un aviso si no tiene caja. La lógica del cierre sigue en la app `arqueos` (`CierreCajaForm`, `registrar_cierre`) y la vista de la app `caja` la reutiliza. `/arqueos/cerrar/` se mantiene solo como redirección para no romper enlaces. En el menú lateral se reemplazaron "Apertura de Caja" y "Cierre de Caja" por una sola opción, "Apertura y Cierre de Caja". Cambios en código de Fabio (SCRUM-37) autorizados por el usuario.
+
 * **Resultado / Decisión**: 56 pruebas en `app/tests/arqueos/` (cálculo, registro, cierre del turno y bloqueo con los modelos reales de `caja`, inmutabilidad, integración, vistas y modo demostración). Suite completa del proyecto: 176 pruebas en verde (incluye `tests/main/test_menu_varios_roles.py`). Cierre y habilitación verificados de punta a punta en el navegador con el modo demostración.
 
 ---

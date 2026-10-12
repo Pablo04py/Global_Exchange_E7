@@ -87,9 +87,10 @@ class MenuVariosRolesTestCase(TestCase):
         self.assertNotIn('Administración', etiquetas)
 
     def test_menu_del_cajero_incluye_apertura_y_cierre(self):
-        """La sección Gestión de Caja tiene "Apertura de Caja" y "Cierre de Caja" (al cierre de SCRUM-40)."""
+        """La sección Gestión de Caja tiene una sola opción "Apertura y Cierre de Caja" (SCRUM-37/40)."""
         secciones = self._secciones(self._usuario_con_roles('cajero', 'Cajero'))
         caja = next(s for s in secciones if s['label'] == 'Gestión de Caja')
         items = {item['name']: item['url'] for item in caja['items']}
-        self.assertEqual(items['Apertura de Caja'], reverse('caja:apertura_caja'))
-        self.assertEqual(items['Cierre de Caja'], reverse('cerrar_caja'))
+        self.assertEqual(items['Apertura y Cierre de Caja'], reverse('caja:apertura_caja'))
+        self.assertNotIn('Apertura de Caja', items)
+        self.assertNotIn('Cierre de Caja', items)

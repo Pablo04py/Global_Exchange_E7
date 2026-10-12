@@ -381,11 +381,7 @@
         </a>
         <a href="{% url 'caja:apertura_caja' %}"
            class="caja-sidebar-link {% if current == 'apertura_caja' %}is-active{% endif %}">
-          <i class="ti ti-cash-register"></i> Apertura de caja
-        </a>
-        <a href="{% url 'cerrar_caja' %}"
-           class="caja-sidebar-link {% if current == 'cerrar_caja' %}is-active{% endif %}">
-          <i class="ti ti-lock"></i> Cierre de caja
+          <i class="ti ti-cash-register"></i> Apertura y cierre de caja
         </a>
         <a href="{% url 'caja:listar_asignaciones' %}"
            class="caja-sidebar-link {% if current == 'listar_asignaciones' %}is-active{% endif %}">

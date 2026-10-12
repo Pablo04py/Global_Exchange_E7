@@ -50,3 +50,19 @@ class AperturaCajaTests(TestCase):
         self.assertEqual(mov_usd.monto, 500)
         self.assertEqual(mov_usd.tipo, 'APERTURA')
         self.assertEqual(mov_usd.sentido, 'ENTRADA')
+
+    def test_despues_de_la_apertura_la_misma_pantalla_ofrece_el_cierre(self):
+        """SCRUM-40: tras abrir, vuelve a la misma pantalla, que ahora muestra el cierre con arqueo ciego."""
+        response = self.client.post(self.url, {'monto_pyg': 5000000, 'monto_usd': 500}, follow=True)
+        self.assertRedirects(response, self.url)
+        self.assertEqual(response.context['modo'], 'cierre')
+        self.assertContains(response, 'name="saldo_PYG"')
+        self.assertContains(response, 'name="saldo_USD"')
+        self.assertNotContains(response, 'name="monto_pyg"')
+
+    def test_muestra_la_apertura_con_turno_asignado(self):
+        """Con el turno ASIGNADA, la pantalla muestra el formulario de apertura y no el de cierre."""
+        response = self.client.get(self.url)
+        self.assertEqual(response.context['modo'], 'apertura')
+        self.assertContains(response, 'name="monto_pyg"')
+        self.assertNotContains(response, 'Cerrar caja')

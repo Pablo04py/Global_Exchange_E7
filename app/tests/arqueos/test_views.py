@@ -1,9 +1,11 @@
 """
-Pruebas de integración de las vistas de cierre de caja y detalle del arqueo (SCRUM-40).
+Pruebas de integración del cierre de caja y del detalle del arqueo (SCRUM-40).
 
-Evalúa permisos por rol, el arqueo ciego, el registro del cierre y el
-bloqueo de la caja, los avisos cuando no hay caja o módulo disponible y el
-acceso al resultado del arqueo.
+El cierre se hace en la pantalla única de apertura y cierre (`caja:apertura_caja`).
+Evalúa el acceso, el arqueo ciego, el registro del cierre y el bloqueo de la
+caja, el resultado mostrado en la misma pantalla, los avisos cuando no hay
+caja o módulo disponible, la ruta histórica `/arqueos/cerrar/` y el acceso al
+detalle del arqueo.
 """
 
 from django.test import TestCase, override_settings
@@ -13,7 +15,7 @@ from arqueos.models import ArqueoCaja
 from caja.models import EstadoCaja, EstadoSesionCaja
 from .apoyo import CONFIG_PRUEBA, CajaDePruebaMixin
 
-URL_CIERRE = reverse('cerrar_caja')
+URL_CIERRE = reverse('caja:apertura_caja')
 
 
 @override_settings(ARQUEO_FUNCION_SALDO='no_existe.saldo')
@@ -37,20 +39,25 @@ class CierreCajaViewTestCase(CajaDePruebaMixin, TestCase):
         return {'saldo_PYG': '5740000', 'saldo_USD': '880'}
 
     def test_anonimo_no_accede(self):
-        """Un usuario no autenticado recibe 403."""
-        self.assertEqual(self.client.get(URL_CIERRE).status_code, 403)
+        """Un usuario no autenticado es enviado al login y no ve el formulario."""
+        response = self.client.get(URL_CIERRE)
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn(reverse('caja:apertura_caja'), response.url.split('?')[0])
 
-    def test_solo_cajeros(self):
-        """Un usuario sin rol Cajero (ej. Administrador) recibe 403."""
+    def test_usuario_sin_turno_no_cierra(self):
+        """Un usuario sin turno (ej. Administrador) ve el aviso y no puede cerrar."""
         self.client.force_login(self.admin)
-        self.assertEqual(self.client.get(URL_CIERRE).status_code, 403)
+        response = self.client.get(URL_CIERRE)
+        self.assertContains(response, 'No tenés una caja asignada para abrir')
+        self.client.post(URL_CIERRE, self._datos_validos())
+        self.assertEqual(ArqueoCaja.objects.count(), 0)
 
     def test_cajero_sin_caja_abierta(self):
         """Un cajero sin turno abierto ve el aviso correspondiente."""
         self.client.force_login(self.otro_cajero)
         response = self.client.get(URL_CIERRE)
-        self.assertContains(response, 'No tenés una caja abierta asignada')
-        self.assertNotContains(response, 'Cerrar caja</button>', html=False)
+        self.assertContains(response, 'No tenés una caja asignada para abrir')
+        self.assertNotContains(response, 'Cerrar caja')
 
     def test_arqueo_ciego(self):
         """El formulario pide un saldo por moneda sin mostrar el saldo registrado."""
@@ -67,12 +74,12 @@ class CierreCajaViewTestCase(CajaDePruebaMixin, TestCase):
         self.assertContains(self.client.get(URL_CIERRE), 'Caja 1 (C1)')
 
     def test_cierre_registra_arqueo_y_bloquea_la_caja(self):
-        """Un cierre válido guarda el arqueo, cierra el turno, bloquea la caja y redirige al resultado."""
+        """Un cierre válido guarda el arqueo, cierra el turno, bloquea la caja y vuelve a la misma pantalla."""
         self.client.force_login(self.cajero)
         response = self.client.post(URL_CIERRE, self._datos_validos())
 
         arqueo = ArqueoCaja.objects.get()
-        self.assertRedirects(response, reverse('detalle_arqueo', kwargs={'arqueo_id': arqueo.id}))
+        self.assertRedirects(response, f'{URL_CIERRE}?arqueo={arqueo.id}')
         self.assertEqual(arqueo.detalles.get(moneda='USD').resultado, 'FALTANTE')
         self.refrescar()
         self.assertEqual(self.turno.estado, EstadoSesionCaja.CERRADA)
@@ -83,7 +90,32 @@ class CierreCajaViewTestCase(CajaDePruebaMixin, TestCase):
         self.client.force_login(self.cajero)
         self.client.post(URL_CIERRE, self._datos_validos())
         response = self.client.get(URL_CIERRE)
-        self.assertContains(response, 'No tenés una caja abierta asignada')
+        self.assertContains(response, 'No tenés una caja asignada para abrir')
+
+    def test_resultado_en_la_misma_pantalla(self):
+        """Después del cierre, la pantalla de apertura y cierre muestra la comparación."""
+        self.client.force_login(self.cajero)
+        response = self.client.post(URL_CIERRE, self._datos_validos(), follow=True)
+        self.assertEqual(response.context['modo'], 'resultado')
+        for texto in ['Resultado del cierre', 'Caja 1 (C1)', 'Cuadra', 'Faltante', '880,00', '900,00', '-20,00']:
+            with self.subTest(texto=texto):
+                self.assertContains(response, texto)
+
+    def test_resultado_ajeno_no_se_muestra(self):
+        """Otro cajero no puede ver un arqueo ajeno con `?arqueo=<id>`; tampoco un id inválido falla."""
+        self.client.force_login(self.cajero)
+        self.client.post(URL_CIERRE, self._datos_validos())
+        arqueo = ArqueoCaja.objects.get()
+        self.client.force_login(self.otro_cajero)
+        for valor in [arqueo.id, 'no-es-uuid']:
+            with self.subTest(valor=valor):
+                response = self.client.get(f'{URL_CIERRE}?arqueo={valor}')
+                self.assertEqual(response.context['modo'], 'sin_caja')
+
+    def test_ruta_historica_redirige(self):
+        """`/arqueos/cerrar/` redirige a la pantalla única de apertura y cierre."""
+        self.client.force_login(self.cajero)
+        self.assertRedirects(self.client.get(reverse('cerrar_caja')), URL_CIERRE)
 
     def test_saldo_invalido_no_registra_nada(self):
         """Un saldo negativo o vacío muestra error y no cierra la caja."""

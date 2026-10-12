@@ -1,4 +1,4 @@
-"""Vistas de la aplicación arqueos (cierre de caja, detalle del arqueo, habilitación de cajas y reportes de auditoría)."""
+"""Vistas de la aplicación arqueos (redirección del cierre, detalle del arqueo, habilitación de cajas y reportes de auditoría)."""
 
 import csv
 
@@ -13,9 +13,9 @@ from main.views import get_menu_sections, resolve_user_role, resolve_user_roles
 from usuarios.decorators import requiere_rol
 from . import integracion
 from . import reportes
-from .forms import CierreCajaForm, FiltroReporteForm
+from .forms import FiltroReporteForm
 from .models import ArqueoCaja
-from .services import cajas_bloqueadas_con_ultimo_cierre, habilitar_caja_bloqueada, registrar_cierre
+from .services import cajas_bloqueadas_con_ultimo_cierre, habilitar_caja_bloqueada
 
 # Roles que pueden habilitar una caja bloqueada por un cierre.
 ROLES_HABILITAR = ('Administrador General',)
@@ -32,49 +32,19 @@ def _menu(request):
     )
 
 
-@requiere_rol('Cajero')
 def cerrar_caja(request):
-    """Cierre de caja del cajero con arqueo ciego.
+    """Ruta histórica del cierre de caja: redirige a la pantalla única de apertura y cierre.
 
-    GET muestra un campo por cada moneda del turno abierto del cajero, sin
-    revelar el saldo registrado. POST registra el arqueo, bloquea la caja y
-    redirige al detalle con la comparación.
-
-    Si el módulo de caja (otras historias) aún no está disponible o el cajero
-    no tiene una caja abierta asignada, se muestra un aviso.
+    El cierre con arqueo ciego se hace en `caja:apertura_caja`; esta ruta se
+    mantiene para no romper enlaces anteriores.
 
     Args:
-        request: Petición HTTP de un usuario con rol `Cajero`.
+        request: Petición HTTP.
 
     Returns:
-        HttpResponse: Plantilla `arqueos/cerrar_caja.html` o redirección a
-        `detalle_arqueo`.
+        HttpResponseRedirect: Redirección a `caja:apertura_caja`.
     """
-    contexto = {'menu_sections': _menu(request)}
-    try:
-        turno = integracion.obtener_turno_abierto(request.user)
-        monedas = sorted(integracion.obtener_saldo_registrado(turno)) if turno else []
-    except integracion.ModuloCajaNoDisponible:
-        contexto['modulo_no_disponible'] = True
-        return render(request, 'arqueos/cerrar_caja.html', contexto)
-
-    if turno is None:
-        return render(request, 'arqueos/cerrar_caja.html', contexto)
-
-    form = CierreCajaForm(request.POST or None, monedas=monedas)
-    if request.method == 'POST' and form.is_valid():
-        try:
-            arqueo = registrar_cierre(request.user, form.saldos_declarados())
-        except ValidationError as error:
-            form.add_error(None, error.message)
-        except integracion.ModuloCajaNoDisponible:
-            contexto['modulo_no_disponible'] = True
-            return render(request, 'arqueos/cerrar_caja.html', contexto)
-        else:
-            return redirect('detalle_arqueo', arqueo_id=arqueo.id)
-
-    contexto.update({'caja': integracion.datos_de_caja(turno), 'form': form})
-    return render(request, 'arqueos/cerrar_caja.html', contexto)
+    return redirect('caja:apertura_caja')
 
 
 @requiere_rol('Cajero', 'Administrador General')
