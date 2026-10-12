@@ -39,10 +39,10 @@ class _MedioPagoChoiceField(forms.ModelChoiceField):
 
 
 class _UsuarioChoiceField(forms.ModelChoiceField):
-    """Muestra a un usuario (cajero u operador) por su nombre completo o, si no lo tiene, por su `username`."""
+    """Muestra a un usuario (cajero u operador) por su nombre completo o, si no lo tiene, por su email o `username`."""
     def label_from_instance(self, obj):
         """Devuelve el nombre completo del usuario o su `username`."""
-        return obj.get_full_name() or obj.username
+        return obj.get_full_name() or obj.email or obj.username
 
 
 class FiltroHistorialForm(forms.Form):

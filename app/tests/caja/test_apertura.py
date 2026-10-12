@@ -23,7 +23,7 @@ class AperturaCajaTests(TestCase):
         )
         self.moneda_pyg = Moneda.objects.create(codigo="PYG", nombre="Guaraníes", habilitada=True)
         self.moneda_usd = Moneda.objects.create(codigo="USD", nombre="Dólares", habilitada=True)
-        self.url = reverse('caja:aperturar_caja')
+        self.url = reverse('caja:apertura_caja')
         self.client.force_login(self.cajero)
 
     def test_apertura_caja_exitosa_movimientos(self):

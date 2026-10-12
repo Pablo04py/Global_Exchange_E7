@@ -364,9 +364,13 @@
            class="caja-sidebar-link {% if current == 'asignar_cajero' %}is-active{% endif %}">
           <i class="ti ti-user-check"></i> Asignar cajero
         </a>
-        <a href="{% url 'caja:aperturar_caja' %}"
-           class="caja-sidebar-link {% if current == 'aperturar_caja' %}is-active{% endif %}">
+        <a href="{% url 'caja:apertura_caja' %}"
+           class="caja-sidebar-link {% if current == 'apertura_caja' %}is-active{% endif %}">
           <i class="ti ti-cash-register"></i> Apertura de caja
+        </a>
+        <a href="{% url 'caja:cerrar_caja' %}"
+           class="caja-sidebar-link {% if current == 'cerrar_caja' %}is-active{% endif %}">
+          <i class="ti ti-lock"></i> Cierre de caja
         </a>
         <a href="{% url 'caja:listar_asignaciones' %}"
            class="caja-sidebar-link {% if current == 'listar_asignaciones' %}is-active{% endif %}">
@@ -382,7 +386,7 @@
           <div class="caja-session-avatar"><i class="ti ti-user"></i></div>
           <div class="caja-session-text">
             Hola,
-            <strong>{{ user.username }}</strong>
+            <strong>{{ user.get_full_name|default:user.email|default:user.username }}</strong>
             <span>{{ user.email }}</span>
           </div>
         </div>
