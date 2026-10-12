@@ -1,0 +1,42 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Comprobante | Global Exchange{% endblock %}
+{% block page_title %}Comprobante de operación{% endblock %}
+
+{% block content %}
+<div style="max-width: 560px; margin: 0 auto;">
+  <div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+
+    <div style="text-align: center; margin-bottom: 20px;">
+      <div style="font-size: 40px; color: #059669;"><i class="ti ti-circle-check"></i></div>
+      <h2 style="font-size: 18px; font-weight: 700; color: #1A2840; margin: 4px 0;">Operación confirmada</h2>
+      <div style="font-size: 12px; color: #6B7A99;">{{ transaccion.fecha|date:"d/m/Y H:i" }}</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #475569; border-top: 1px solid #E5E9F0; padding-top: 16px;">
+      <div style="display: flex; justify-content: space-between;"><span>ID:</span><strong style="font-size: 11px;">{{ transaccion.id }}</strong></div>
+      <div style="display: flex; justify-content: space-between;"><span>Cliente:</span><strong>{{ transaccion.cliente.nombre_o_denominacion }}</strong></div>
+      <div style="display: flex; justify-content: space-between;"><span>Documento:</span><strong>{{ transaccion.cliente.documento }}</strong></div>
+      <div style="display: flex; justify-content: space-between;"><span>Operación:</span><strong>{{ transaccion.get_tipo_display }} {{ transaccion.moneda.codigo }}</strong></div>
+      <div style="display: flex; justify-content: space-between;"><span>Recibido del cliente:</span><strong>{{ transaccion.monto_pagado }} {{ transaccion.moneda_pagada }}</strong></div>
+      <div style="display: flex; justify-content: space-between;"><span>Entregado al cliente:</span><strong>{{ transaccion.monto_recibido }} {{ transaccion.moneda_recibida }}</strong></div>
+      <div style="display: flex; justify-content: space-between;"><span>Tasa aplicada:</span><strong>{{ transaccion.tasa_aplicada }}</strong></div>
+      <div style="display: flex; justify-content: space-between;"><span>Comisión:</span><strong>{{ transaccion.porcentaje_comision }} % ({{ transaccion.monto_comision }} {{ transaccion.moneda_comision }})</strong></div>
+      <div style="display: flex; justify-content: space-between;"><span>Medio de pago:</span><strong>{{ transaccion.medio_pago.get_tipo_display }}</strong></div>
+      <div style="display: flex; justify-content: space-between;"><span>Cajero:</span><strong>{{ transaccion.cajero.get_full_name|default:transaccion.cajero.username }}</strong></div>
+      <div style="display: flex; justify-content: space-between;"><span>Estado:</span><strong>{{ transaccion.get_estado_display }}</strong></div>
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
+      <button type="button" onclick="window.print()"
+              style="background: #F1F5F9; color: #475569; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer;">
+        <i class="ti ti-printer"></i> Imprimir
+      </button>
+      <a href="{% url 'caja_buscar_cliente' %}"
+         style="background: #2563EB; color: #fff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; text-decoration: none;">
+        Nueva operación
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Historial del día | Global Exchange{% endblock %}
+{% block page_title %}Historial del día{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto;">
+
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px;">
+    <div style="flex: 1; min-width: 180px; background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 16px;">
+      <div style="font-size: 11px; color: #6B7A99; text-transform: uppercase;">Operaciones hoy</div>
+      <div style="font-size: 26px; font-weight: 700; color: #1A2840;">{{ total }}</div>
+      <div style="font-size: 12px; color: #6B7A99;">{{ hoy|date:"d/m/Y" }}</div>
+    </div>
+    {% for moneda, saldo in saldos.items %}
+    <div style="flex: 1; min-width: 180px; background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 16px;">
+      <div style="font-size: 11px; color: #6B7A99; text-transform: uppercase;">Efectivo en caja · {{ moneda }}</div>
+      <div style="font-size: 26px; font-weight: 700; color: #059669;">{{ saldo }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if not sesion %}
+  <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 14px 18px; color: #92400E; font-size: 13px; margin-bottom: 20px;">
+    No tiene una sesión de caja abierta, por eso no se muestra el saldo.
+  </div>
+  {% endif %}
+
+  <div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+        <thead>
+          <tr style="border-bottom: 2px solid #E5E9F0; color: #6B7A99; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em;">
+            <th style="padding: 12px;">Hora</th>
+            <th style="padding: 12px;">Cliente</th>
+            <th style="padding: 12px;">Operación</th>
+            <th style="padding: 12px;">Recibido</th>
+            <th style="padding: 12px;">Entregado</th>
+            <th style="padding: 12px;">Pago</th>
+            <th style="padding: 12px;">Estado</th>
+            <th style="padding: 12px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in transacciones %}
+          <tr style="border-bottom: 1px solid #E5E9F0;">
+            <td style="padding: 12px; color: #475569;">{{ t.fecha|date:"H:i" }}</td>
+            <td style="padding: 12px; font-weight: 700; color: #1A2840;">{{ t.cliente.nombre_o_denominacion }}</td>
+            <td style="padding: 12px; color: #475569;">{{ t.get_tipo_display }} {{ t.moneda.codigo }}</td>
+            <td style="padding: 12px; color: #475569;">{{ t.monto_pagado }} {{ t.moneda_pagada }}</td>
+            <td style="padding: 12px; color: #475569;">{{ t.monto_recibido }} {{ t.moneda_recibida }}</td>
+            <td style="padding: 12px; color: #475569;">{{ t.medio_pago.get_tipo_display }}</td>
+            <td style="padding: 12px; color: #475569;">{{ t.get_estado_display }}</td>
+            <td style="padding: 12px; text-align: right;">
+              <a href="{% url 'caja_ticket' t.id %}" style="color: #2563EB; text-decoration: none; font-weight: 600;">Ver</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" style="padding: 24px; text-align: center; color: #6B7A99;">Todavía no hay operaciones hoy.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
