@@ -250,6 +250,11 @@ from 'operaciones.services'
      >
      > **Decisión**: La apertura guarda el fondo inicial en `SaldoInicialCaja` pero no registra un `MovimientoCaja` de tipo `APERTURA`, y `caja.services.saldo_por_moneda` solo suma movimientos. Sin tocar el código de los compañeros, se creó `arqueos.saldos.saldo_registrado` (fondo inicial + entradas - salidas) como función por defecto del arqueo; suma el fondo inicial solo si el turno no tiene movimientos `APERTURA`, para no contarlo dos veces cuando la apertura los registre. El guaraní siempre se incluye (la apertura solo pide las monedas de la tabla `Moneda`). Se eliminó el saldo de demostración y el comando `preparar_demo_cierre` ahora crea el fondo inicial como la apertura real.
 
+  7. **Integración con la apertura por movimientos (fix/SCRUM-37):**
+     > *"por que cuando entro a apertura de caja me sale esto?"*
+     >
+     > **Decisión**: La apertura pasó a registrar el fondo inicial como `MovimientoCaja` de tipo `APERTURA` y se eliminó `SaldoInicialCaja`; además se había reemplazado la plantilla `arqueos/cerrar_caja.html` por la del cierre de la app `caja`. Se movió esa plantilla a `caja/templates/caja/cerrar_caja.html` (donde la busca su vista), se restauró la del arqueo, el comando `preparar_demo_cierre` ahora usa los servicios reales `asignar_cajero` y `apertura_caja`, los tests se adaptaron al libro mayor de movimientos y el ítem "Apertura de Caja" del menú apunta a `caja:apertura_caja`. Queda pendiente con el equipo definir un único cierre (hoy coexisten `/arqueos/cerrar/` y `/caja/cerrar/`).
+
 * **Resultado / Decisión**: 56 pruebas en `app/tests/arqueos/` (cálculo, registro, cierre del turno y bloqueo con los modelos reales de `caja`, inmutabilidad, integración, vistas y modo demostración). Suite completa del proyecto: 176 pruebas en verde (incluye `tests/main/test_menu_varios_roles.py`). Cierre y habilitación verificados de punta a punta en el navegador con el modo demostración.
 
 ---

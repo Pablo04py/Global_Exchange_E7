@@ -1,9 +1,9 @@
 """
 Pruebas del comando `preparar_demo_cierre` (solo desarrollo).
 
-El comando hace lo mismo que la apertura de caja (SCRUM-37) para probar el
-cierre: crea un turno abierto con fondo inicial por moneda. El cierre se hace
-con el saldo registrado real (`arqueos.saldos`).
+El comando crea una caja y usa los servicios reales de la app `caja` para
+asignarla (SCRUM-36) y abrirla (SCRUM-37) con fondo inicial por moneda. El
+cierre se hace con el saldo registrado real (`arqueos.saldos`).
 """
 
 from decimal import Decimal
@@ -15,7 +15,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from arqueos.models import ArqueoCaja
-from caja.models import Caja, EstadoCaja, EstadoSesionCaja, SesionCaja
+from caja.models import Caja, EstadoCaja, EstadoSesionCaja, SesionCaja, TipoMovimiento
 from operaciones.models import Moneda
 from .apoyo import Usuario
 
@@ -43,9 +43,10 @@ class PrepararDemoCierreTestCase(TestCase):
         self.assertEqual(turno.monto_inicial, Decimal('5000000'))
         self.assertIsNotNone(turno.fecha_apertura)
         self.assertEqual(turno.caja.estado, EstadoCaja.EN_USO)
+        apertura = turno.movimientos.filter(tipo=TipoMovimiento.APERTURA)
         self.assertEqual(
-            {s.moneda.codigo: s.monto for s in turno.saldos_iniciales.all()},
-            {'USD': Decimal('1000'), 'EUR': Decimal('1000')},
+            {m.moneda: m.monto for m in apertura},
+            {'PYG': Decimal('5000000'), 'USD': Decimal('1000'), 'EUR': Decimal('1000')},
         )
 
     def test_permite_cerrar_la_caja_de_punta_a_punta(self):

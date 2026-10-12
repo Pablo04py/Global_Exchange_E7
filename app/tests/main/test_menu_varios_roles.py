@@ -59,7 +59,7 @@ class MenuVariosRolesTestCase(TestCase):
         ))
         self.assertIn('Gestión de Caja', secciones)
         self.assertIn('Administración', secciones)
-        self.assertIn('/caja/gestion/', secciones['Gestión de Caja'])
+        self.assertIn(reverse('caja:apertura_caja'), secciones['Gestión de Caja'])
         self.assertIn(reverse('cajas_bloqueadas'), secciones['Administración'])
 
     def test_sin_items_repetidos_entre_secciones_de_rol(self):
@@ -91,5 +91,5 @@ class MenuVariosRolesTestCase(TestCase):
         secciones = self._secciones(self._usuario_con_roles('cajero', 'Cajero'))
         caja = next(s for s in secciones if s['label'] == 'Gestión de Caja')
         items = {item['name']: item['url'] for item in caja['items']}
-        self.assertIn('Apertura de Caja', items)
+        self.assertEqual(items['Apertura de Caja'], reverse('caja:apertura_caja'))
         self.assertEqual(items['Cierre de Caja'], reverse('cerrar_caja'))
