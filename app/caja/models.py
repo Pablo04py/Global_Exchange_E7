@@ -1,6 +1,9 @@
 import uuid
 from django.db import models
 from django.conf import settings
+from django.db.models import Q
+from django.core.validators import MinValueValidator
+from django.utils import timezone
 
 
 class EstadoCaja(models.TextChoices):
@@ -75,3 +78,71 @@ class SesionCaja(models.Model):
 
     def __str__(self):
         return f"Sesión {self.caja.codigo} - Cajero: {self.cajero} [{self.estado}]"
+
+
+class SaldoInicialCaja(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sesion = models.ForeignKey(
+        SesionCaja, 
+        on_delete=models.CASCADE, 
+        related_name='saldos_iniciales'
+    )
+    # Relación dinámica con el modelo Moneda de la app operaciones
+    moneda = models.ForeignKey(
+        'operaciones.Moneda', 
+        on_delete=models.PROTECT, 
+        related_name='saldos_iniciales'
+    )
+    monto = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+
+    class Meta:
+        db_table = 'saldo_inicial_caja'
+        unique_together = ('sesion', 'moneda')
+        verbose_name = 'Saldo Inicial de Caja'
+        verbose_name_plural = 'Saldos Iniciales de Caja'
+
+    def __str__(self):
+        return f"{self.moneda.codigo}: {self.monto} (Sesión {self.sesion.caja.codigo})"
+
+
+class SentidoMovimiento(models.TextChoices):
+    ENTRADA = 'ENTRADA', 'Entrada'
+    SALIDA = 'SALIDA', 'Salida'
+
+
+class TipoMovimiento(models.TextChoices):
+    APERTURA = 'APERTURA', 'Apertura'
+    OPERACION = 'OPERACION', 'Operación de cambio'
+    TRANSFERENCIA = 'TRANSFERENCIA', 'Transferencia entre cajas'
+    AJUSTE = 'AJUSTE', 'Ajuste'
+
+
+class MovimientoCaja(models.Model):
+    """Libro mayor de la caja: cada fila es una entrada o salida de efectivo."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sesion = models.ForeignKey(SesionCaja, on_delete=models.PROTECT, related_name='movimientos')
+    transaccion = models.ForeignKey(
+        'operaciones.Transaccion', on_delete=models.PROTECT,
+        null=True, blank=True, related_name='movimientos_caja',
+    )
+    tipo = models.CharField(max_length=20, choices=TipoMovimiento.choices)
+    sentido = models.CharField(max_length=10, choices=SentidoMovimiento.choices)
+    moneda = models.CharField(max_length=3)
+    monto = models.DecimalField(max_digits=18, decimal_places=2, validators=[MinValueValidator(0.01)])
+    justificacion = models.CharField(max_length=255, blank=True)
+    fecha = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = 'movimiento_caja'
+        ordering = ['-fecha']
+        indexes = [models.Index(fields=['sesion', 'moneda'])]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['transaccion', 'sentido'],
+                condition=Q(transaccion__isnull=False),
+                name='uniq_movimiento_por_transaccion_y_sentido',
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.sentido} {self.monto} {self.moneda} ({self.tipo})"

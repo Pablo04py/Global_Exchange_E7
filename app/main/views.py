@@ -188,7 +188,9 @@ def get_menu_sections(role, active_client, is_authenticated=False, roles=None):
     if "Cajero" in roles:
         sections.append({
             "label": "Gestión de Caja",
-            "items": [
+            "items": [                
+                {"name": "Operar en caja", "url": reverse("caja_buscar_cliente"), "icon": "ti-user-search"},
+                {"name": "Historial del día", "url": reverse("caja_historial_dia"), "icon": "ti-history"},
                 {"name": "Apertura / Cierre", "url": "/caja/gestion/", "icon": "ti-cash-register"},
                 {"name": "Movimientos de Efectivo", "url": "/caja/movimientos/", "icon": "ti-file-spreadsheet"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
@@ -329,6 +331,35 @@ def dashboard(request):
         summary_cards = default_cards
     else:
         summary_cards = cards_by_role.get(role, [])
+
+    # ── Notificación inicial del dashboard ──
+    notificacion_inicio = None
+
+    if is_auth:
+
+        ultima_no_leida = (
+            request.user.notificaciones
+            .filter(leida=False)
+            .select_related('notificacion')
+            .order_by('-notificacion__fecha_creacion')
+            .first()
+        )
+
+        if ultima_no_leida:
+
+            ultima_mostrada_id = request.session.get(
+                'ge_ultima_notificacion_mostrada'
+            )
+
+            if str(ultima_no_leida.id) != ultima_mostrada_id:
+
+                notificacion_inicio = ultima_no_leida
+
+                request.session[
+                    'ge_ultima_notificacion_mostrada'
+                ] = str(ultima_no_leida.id)
+
+
 
     context = {
         "summary_cards": summary_cards,

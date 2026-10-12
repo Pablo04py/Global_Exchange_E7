@@ -1,8 +1,7 @@
 from django import forms
-
-from django import forms
 from django.contrib.auth import get_user_model
 from .models import Caja, SesionCaja, EstadoCaja, EstadoSesionCaja
+from operaciones.models import Moneda
 
 User = get_user_model()
 
@@ -33,3 +32,25 @@ class AsignarCajeroForm(forms.ModelForm):
         if sesion_pendiente:
             raise forms.ValidationError("Este cajero ya tiene una caja asignada o abierta actualmente.")
         return cajero
+
+
+class AperturaCajaForm(forms.Form):
+    """
+    Formulario dinámico que genera un campo de entrada para cada moneda habilitada en la base de datos.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        monedas = Moneda.objects.filter(habilitada=True)
+        for moneda in monedas:
+            self.fields[f'monto_{moneda.codigo.lower()}'] = forms.DecimalField(
+                max_digits=15,
+                decimal_places=2,
+                min_value=0,
+                initial=0.00,
+                label=f"Fondo Inicial en {moneda.nombre} ({moneda.codigo})",
+                widget=forms.NumberInput(attrs={
+                    'class': 'form-control', 
+                    'step': '0.01', 
+                    'placeholder': '0.00'
+                })
+            )

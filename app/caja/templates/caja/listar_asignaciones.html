@@ -1,0 +1,250 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Asignaciones de Caja · Global Exchange{% endblock %}
+{% block page_title %}Asignaciones de Caja{% endblock %}
+
+{% block extra_css %}
+<style>
+.list-wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.list-card {
+    background: #fff;
+    border: 1px solid #E5E9F0;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(26, 40, 64, 0.06);
+    overflow: hidden;
+}
+
+.list-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 20px 24px;
+    border-bottom: 1px solid #E5E9F0;
+}
+
+.list-card-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.list-card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #EEF3FB;
+    color: #1A2840;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.list-card-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A2840;
+}
+
+.list-card-subtitle {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: #6B7A90;
+}
+
+.table-scroll {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.data-table th {
+    padding: 12px 24px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6B7A90;
+    background: #F5F7FA;
+    border-bottom: 1px solid #E5E9F0;
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: 14px 24px;
+    color: #1A2840;
+    border-bottom: 1px solid #E5E9F0;
+    white-space: nowrap;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+    background: #F9FAFC;
+}
+.cell-main {
+    font-weight: 600;
+}
+
+.cell-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cell-user i {
+    color: #6B7A90;
+    font-size: 16px;
+}
+.cell-date {
+    color: #6B7A90;
+    font-variant-numeric: tabular-nums;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    background: #EEF3FB;
+    color: #2F6FDE;
+    text-transform: capitalize;
+}
+
+.status-asignada,
+.status-asignado,
+.status-pendiente {
+    background: #FFF4DD;
+    color: #B7791F;
+}
+
+.status-abierta,
+.status-abierto,
+.status-activa,
+.status-activo {
+    background: #E6F6EC;
+    color: #1E8449;
+}
+
+.status-cerrada,
+.status-cerrado,
+.status-inactiva,
+.status-inactivo {
+    background: #EDF0F5;
+    color: #6B7A90;
+}
+
+.empty-state {
+    padding: 48px 24px;
+    text-align: center;
+    color: #6B7A90;
+}
+
+.empty-state i {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 32px;
+    color: #B8C2D1;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    background: #1A2840;
+    border: 1px solid #1A2840;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.btn-primary:hover {
+    background: #26395A;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="list-wrapper">
+<div class="list-card">
+
+    <div class="list-card-header">
+    <div class="list-card-heading">
+        <div class="list-card-icon">
+        <i class="ti ti-users-group"></i>
+        </div>
+        <div>
+        <h2 class="list-card-title">Asignaciones de caja</h2>
+        <p class="list-card-subtitle">Cajeros asignados a cada caja y su estado actual.</p>
+        </div>
+    </div>
+
+    <a href="{% url 'caja:asignar_cajero' %}" class="btn-primary">
+        <i class="ti ti-user-plus"></i> Asignar cajero
+    </a>
+    </div>
+
+    <div class="table-scroll">
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Caja</th>
+            <th>Cajero</th>
+            <th>Estado</th>
+            <th>Fecha asignación</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for sesion in sesiones %}
+        <tr>
+            <td class="cell-main">{{ sesion.caja.nombre }}</td>
+            <td>
+            <span class="cell-user">
+                <i class="ti ti-user-circle"></i> {{ sesion.cajero.username }}
+            </span>
+            </td>
+            <td>
+            <span class="status-badge status-{{ sesion.estado|slugify }}">{{ sesion.estado }}</span>
+            </td>
+            <td class="cell-date">{{ sesion.fecha_asignacion|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">
+            <div class="empty-state">
+                <i class="ti ti-inbox"></i>
+                No hay asignaciones registradas.
+            </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+</div>
+</div>
+{% endblock %}

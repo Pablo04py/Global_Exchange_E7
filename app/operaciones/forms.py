@@ -1,5 +1,6 @@
 """Formularios de la aplicación operaciones."""
 
+from django.db.models import Q
 from django import forms
 from django.contrib.auth import get_user_model
 from mpagos.models import MedioPago
@@ -26,6 +27,14 @@ class _MedioPagoChoiceField(forms.ModelChoiceField):
     """Muestra el medio de pago con su número enmascarado (ej. `Tarjeta **** 1234`)."""
     def label_from_instance(self, obj):
         """Devuelve `tipo número_enmascarado`."""
+
+        if obj.tipo == 'EFECTIVO':
+            return 'Efectivo en caja'
+
+        if(obj.tipo == 'TARJETA' and obj.stripe_payment_method_id):
+            marca = (obj.marca_tarjeta.title() if obj.marca_tarjeta else 'Tarjeta')
+            return (f"{marca} {obj.numero_enmascarado}")
+
         return f"{obj.get_tipo_display()} {obj.numero_enmascarado}"
 
 
@@ -164,7 +173,7 @@ class OperacionForm(forms.Form):
         label="Monto"
     )
 
-    medio_pago = forms.ModelChoiceField(
+    medio_pago = _MedioPagoChoiceField(
         queryset=MedioPago.objects.none(),
         label="Medio de pago",
         empty_label="Seleccione un medio de pago"
@@ -191,8 +200,29 @@ class OperacionForm(forms.Form):
                     cliente=cliente,
                     activo=True
                 )
+                .filter(
+                    Q(tipo__in=['SIPAP', 'EFECTIVO'])
+                    |
+                    Q(
+                        tipo='TARJETA',
+                        stripe_payment_method_id__isnull=False
+                    )
+                )
+                .exclude(
+                    tipo='TARJETA',
+                    stripe_payment_method_id=''
+                )
                 .order_by(
                     '-es_predeterminado',
                     '-creado_en'
                 )
             )
+class CajaOperacionForm(OperacionForm):
+    """Operación presencial: no se elige un medio guardado, solo la forma de pago."""
+    forma_pago = forms.ChoiceField(
+        choices=MedioPago.TIPO_CHOICES, initial='EFECTIVO', label="Forma de pago"
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.fields['medio_pago']

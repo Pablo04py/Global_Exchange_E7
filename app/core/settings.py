@@ -33,12 +33,11 @@ INSTALLED_APPS = [
     'operaciones',
     'arqueos',
     'caja',
-
-    
+    'notificaciones',
+    'main',
     
     # Librerías de terceros
     'mozilla_django_oidc',
-    'main',
 ]
 
 MIDDLEWARE = [
@@ -64,6 +63,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'notificaciones.context_processors.notificaciones_context',
                 #Removido de mientras 'main.menu_procesos.menu_context',
             ],
         },
@@ -140,3 +140,10 @@ LOGIN_URL = 'oidc_authentication_init'
 # exista la función real, puede apuntarse a `arqueos.demo.saldo_de_demostracion`
 # desde el `.env`.
 ARQUEO_FUNCION_SALDO = config('ARQUEO_FUNCION_SALDO', default='caja.services.saldo_registrado')
+
+
+# Stripe Sandbox
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+STRIPE_CURRENCY = config('STRIPE_CURRENCY', default='pyg').lower()

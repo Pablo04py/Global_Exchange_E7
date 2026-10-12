@@ -16,6 +16,9 @@ urlpatterns = [
     
     # Ruta para despliegue del formulario de alta
     path('crear/', views.crear_medio_pago, name='crear'),
+
+    path('stripe/setup-intent/', views.crear_setup_intent, name='stripe_setup_intent'),
+    path('stripe/registro-retorno/', views.stripe_registro_retorno, name='stripe_registro_retorno'),
     
     # Ruta paramétrica para confirmar y procesar la eliminación
     path('eliminar/<int:pk>/', views.eliminar_medio_pago, name='eliminar'),
