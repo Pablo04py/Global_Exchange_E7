@@ -72,6 +72,9 @@
                         <li>
                                 <a class="variable" href="#Moneda.transacciones">transacciones</a>
                         </li>
+                        <li>
+                                <a class="variable" href="#Moneda.saldos_iniciales">saldos_iniciales</a>
+                        </li>
                 </ul>
 
             </li>
@@ -235,7 +238,7 @@
                                             <a class="variable" href="#Transaccion.Estado.PENDIENTE">PENDIENTE</a>
                                     </li>
                                     <li>
-                                            <a class="variable" href="#Transaccion.Estado.CONFIRMADA">CONFIRMADA</a>
+                                            <a class="variable" href="#Transaccion.Estado.PAGADA">PAGADA</a>
                                     </li>
                                     <li>
                                             <a class="variable" href="#Transaccion.Estado.CANCELADA">CANCELADA</a>
@@ -245,6 +248,18 @@
                         </li>
                         <li>
                                 <a class="variable" href="#Transaccion.MONEDA_LOCAL">MONEDA_LOCAL</a>
+                        </li>
+                        <li>
+                                <a class="class" href="#Transaccion.Canal">Transaccion.Canal</a>
+                                        <ul class="memberlist">
+                                    <li>
+                                            <a class="variable" href="#Transaccion.Canal.WEB">WEB</a>
+                                    </li>
+                                    <li>
+                                            <a class="variable" href="#Transaccion.Canal.CAJA">CAJA</a>
+                                    </li>
+                            </ul>
+
                         </li>
                         <li>
                                 <a class="function" href="#Transaccion.id">id</a>
@@ -302,6 +317,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#Transaccion.fecha">fecha</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Transaccion.canal">canal</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Transaccion.moneda_pagada">moneda_pagada</a>
@@ -364,10 +382,16 @@
                                 <a class="function" href="#Transaccion.get_previous_by_fecha">get_previous_by_fecha</a>
                         </li>
                         <li>
+                                <a class="function" href="#Transaccion.get_canal_display">get_canal_display</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Transaccion.objects">objects</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Transaccion.logs">logs</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Transaccion.movimientos_caja">movimientos_caja</a>
                         </li>
                 </ul>
 
@@ -582,7 +606,7 @@
 </span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="sd">        facturada: Si se emitió factura de la operación.</span>
 </span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">        dispositivo: Tipo de dispositivo desde el que se realizó</span>
 </span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">            (ver `operaciones.utils.detectar_dispositivo`).</span>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        estado: `PENDIENTE`, `CONFIRMADA` o `CANCELADA`.</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        estado: `PENDIENTE`, `PAGADA` o `CANCELADA`.</span>
 </span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">        fecha: Fecha y hora de la operación.</span>
 </span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">    """</span>
 </span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>
@@ -604,94 +628,101 @@
 </span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Estado</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">TextChoices</span><span class="p">):</span>
 </span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a><span class="w">        </span><span class="sd">"""Estados de la transacción (la lógica de cambio de estado es de otra historia)."""</span>
 </span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>        <span class="n">PENDIENTE</span> <span class="o">=</span> <span class="s1">'PENDIENTE'</span><span class="p">,</span> <span class="s1">'Pendiente'</span>
-</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>        <span class="n">CONFIRMADA</span> <span class="o">=</span> <span class="s1">'CONFIRMADA'</span><span class="p">,</span> <span class="s1">'Confirmada'</span>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>        <span class="n">PAGADA</span> <span class="o">=</span> <span class="s1">'PAGADA'</span><span class="p">,</span> <span class="s1">'Pagada'</span>
 </span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>        <span class="n">CANCELADA</span> <span class="o">=</span> <span class="s1">'CANCELADA'</span><span class="p">,</span> <span class="s1">'Cancelada'</span>
 </span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>
 </span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>    <span class="n">MONEDA_LOCAL</span> <span class="o">=</span> <span class="s1">'PYG'</span>
 </span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>    <span class="n">cliente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Cliente</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
-</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones_realizadas'</span>
-</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>    <span class="p">)</span>
-</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>    <span class="n">cajero</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones_atendidas'</span>
-</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>    <span class="p">)</span>
-</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>    <span class="n">tipo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Tipo</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
-</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>    <span class="n">moneda</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Moneda</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
-</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>    <span class="n">medio_pago</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">'mpagos.MedioPago'</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
-</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>    <span class="n">monto_pagado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>    <span class="n">monto_recibido</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>    <span class="n">tasa_referencia</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">TasaDeCambio</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
-</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>    <span class="n">tasa_aplicada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>    <span class="n">categoria_cliente_aplicada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Cliente</span><span class="o">.</span><span class="n">Categoria</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
-</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>    <span class="n">porcentaje_comision</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>    <span class="n">monto_comision</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>    <span class="n">moneda_comision</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>    
-</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>    <span class="n">facturada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>    <span class="n">dispositivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Dispositivo</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Dispositivo</span><span class="o">.</span><span class="n">OTRO</span><span class="p">)</span>
-</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>    <span class="n">estado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Estado</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Estado</span><span class="o">.</span><span class="n">PENDIENTE</span><span class="p">)</span>
-</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>    <span class="c1"># default en lugar de auto_now_add para poder registrar operaciones con fecha pasada</span>
-</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>    <span class="n">fecha</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
-</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>
-</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a><span class="w">        </span><span class="sd">"""Nombres legibles, orden de más reciente a más antigua e índice por cliente."""</span>
-</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Transacción"</span>
-</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Transacciones"</span>
-</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-fecha'</span><span class="p">]</span>
-</span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a>        <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s1">'cliente'</span><span class="p">,</span> <span class="s1">'-fecha'</span><span class="p">])]</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Canal</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">TextChoices</span><span class="p">):</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a><span class="w">        </span><span class="sd">"""Canal por el que se originó la operación."""</span>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>        <span class="n">WEB</span> <span class="o">=</span> <span class="s1">'WEB'</span><span class="p">,</span> <span class="s1">'Web'</span>
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>        <span class="n">CAJA</span> <span class="o">=</span> <span class="s1">'CAJA'</span><span class="p">,</span> <span class="s1">'Caja (presencial)'</span>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>    <span class="n">cliente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Cliente</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones_realizadas'</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>    <span class="p">)</span>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>    <span class="n">cajero</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones_atendidas'</span>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>    <span class="p">)</span>
+</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>    <span class="n">tipo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Tipo</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
+</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>    <span class="n">moneda</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Moneda</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
+</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>    <span class="n">medio_pago</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">'mpagos.MedioPago'</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
+</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>    <span class="n">monto_pagado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>    <span class="n">monto_recibido</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>    <span class="n">tasa_referencia</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">TasaDeCambio</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
+</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>    <span class="n">tasa_aplicada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>    <span class="n">categoria_cliente_aplicada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Cliente</span><span class="o">.</span><span class="n">Categoria</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
+</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>    <span class="n">porcentaje_comision</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>    <span class="n">monto_comision</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>    <span class="n">moneda_comision</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>    
+</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>    <span class="n">facturada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a>    <span class="n">dispositivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Dispositivo</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Dispositivo</span><span class="o">.</span><span class="n">OTRO</span><span class="p">)</span>
+</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a>    <span class="n">estado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Estado</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Estado</span><span class="o">.</span><span class="n">PENDIENTE</span><span class="p">)</span>
+</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a>    <span class="c1"># default en lugar de auto_now_add para poder registrar operaciones con fecha pasada</span>
+</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>    <span class="n">fecha</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+</span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a>    <span class="n">canal</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Canal</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Canal</span><span class="o">.</span><span class="n">WEB</span><span class="p">)</span>
 </span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a>
-</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a><span class="w">        </span><span class="sd">"""Devuelve `TIPO MONEDA - cliente (dd/mm/aaaa hh:mm)`."""</span>
-</span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tipo_display</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cliente</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fecha</span><span class="si">:</span><span class="s2">%d/%m/%Y %H:%M</span><span class="si">}</span><span class="s2">)"</span>
-</span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a>
-</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a>    <span class="nd">@property</span>
-</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moneda_pagada</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a><span class="w">        </span><span class="sd">"""Código de la moneda que entregó el cliente.</span>
-</span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a>
-</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a><span class="sd">        Returns:</span>
-</span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a><span class="sd">            str: `PYG` en una compra; el código de la divisa en una venta.</span>
-</span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a><span class="sd">        """</span>
-</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span>
-</span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a>
-</span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a>    <span class="nd">@property</span>
-</span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moneda_recibida</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a><span class="w">        </span><span class="sd">"""Código de la moneda que recibió el cliente.</span>
-</span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a>
-</span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a><span class="sd">        Returns:</span>
-</span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a><span class="sd">            str: El código de la divisa en una compra; `PYG` en una venta.</span>
-</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a><span class="sd">        """</span>
-</span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span>
-</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>
-</span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a><span class="k">class</span><span class="w"> </span><span class="nc">LogTransaccion</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a><span class="w">    </span><span class="sd">"""</span>
-</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a><span class="sd">    Tabla de auditoría inmutable (RNF15).</span>
-</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a><span class="sd">    Registra cada cambio de estado de manera inalterable.</span>
-</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a><span class="sd">    """</span>
-</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a>    <span class="n">transaccion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a>        <span class="n">Transaccion</span><span class="p">,</span> 
-</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a>        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> 
-</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'logs'</span>
-</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a>    <span class="p">)</span>
-</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a>    <span class="n">estado_anterior</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a>    <span class="n">estado_nuevo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> 
-</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
-</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'logs_transacciones'</span>
+</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a><span class="w">        </span><span class="sd">"""Nombres legibles, orden de más reciente a más antigua e índice por cliente."""</span>
+</span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Transacción"</span>
+</span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Transacciones"</span>
+</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-fecha'</span><span class="p">]</span>
+</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a>        <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s1">'cliente'</span><span class="p">,</span> <span class="s1">'-fecha'</span><span class="p">])]</span>
+</span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>
+</span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a><span class="w">        </span><span class="sd">"""Devuelve `TIPO MONEDA - cliente (dd/mm/aaaa hh:mm)`."""</span>
+</span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tipo_display</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cliente</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fecha</span><span class="si">:</span><span class="s2">%d/%m/%Y %H:%M</span><span class="si">}</span><span class="s2">)"</span>
+</span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a>
+</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a>    <span class="nd">@property</span>
+</span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moneda_pagada</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a><span class="w">        </span><span class="sd">"""Código de la moneda que entregó el cliente.</span>
+</span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a>
+</span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a><span class="sd">        Returns:</span>
+</span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a><span class="sd">            str: `PYG` en una compra; el código de la divisa en una venta.</span>
+</span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a><span class="sd">        """</span>
+</span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span>
+</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a>
+</span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>    <span class="nd">@property</span>
+</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moneda_recibida</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a><span class="w">        </span><span class="sd">"""Código de la moneda que recibió el cliente.</span>
+</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a>
+</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a><span class="sd">        Returns:</span>
+</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a><span class="sd">            str: El código de la divisa en una compra; `PYG` en una venta.</span>
+</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a><span class="sd">        """</span>
+</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span>
+</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a>
+</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a><span class="k">class</span><span class="w"> </span><span class="nc">LogTransaccion</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a><span class="w">    </span><span class="sd">"""</span>
+</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a><span class="sd">    Tabla de auditoría inmutable (RNF15).</span>
+</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a><span class="sd">    Registra cada cambio de estado de manera inalterable.</span>
+</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a><span class="sd">    """</span>
+</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>    <span class="n">transaccion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>        <span class="n">Transaccion</span><span class="p">,</span> 
+</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> 
+</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'logs'</span>
 </span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a>    <span class="p">)</span>
-</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a>    <span class="n">fecha_hora</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a>    <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a>
-</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Log de Transacción"</span>
-</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Logs de Transacciones"</span>
-</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-fecha_hora'</span><span class="p">]</span>
-</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a>
-</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Log </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transaccion</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_anterior</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_nuevo</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a>    <span class="n">estado_anterior</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a>    <span class="n">estado_nuevo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> 
+</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a>        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'logs_transacciones'</span>
+</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a>    <span class="p">)</span>
+</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a>    <span class="n">fecha_hora</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>    <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>
+</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Log de Transacción"</span>
+</span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Logs de Transacciones"</span>
+</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-fecha_hora'</span><span class="p">]</span>
+</span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a>
+</span><span id="L-242"><a href="#L-242"><span class="linenos">242</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-243"><a href="#L-243"><span class="linenos">243</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Log </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transaccion</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_anterior</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_nuevo</span><span class="si">}</span><span class="s2">"</span>
 </span></pre></div>
 
 
@@ -855,6 +886,31 @@ class built by <code>create_reverse_many_to_one_manager()</code> defined below.<
         
     </div>
     <a class="headerlink" href="#Moneda.transacciones"></a>
+    
+            <div class="docstring"><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+
+<p>In the example::</p>
+
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+
+<p><code>Parent.children</code> is a <code>ReverseManyToOneDescriptor</code> instance.</p>
+
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code>create_reverse_many_to_one_manager()</code> defined below.</p>
+</div>
+
+
+                            </div>
+                            <div id="Moneda.saldos_iniciales" class="classattr">
+                                <div class="attr variable">
+            <span class="name">saldos_iniciales</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Moneda.saldos_iniciales"></a>
     
             <div class="docstring"><p>Accessor to the related objects manager on the reverse side of a
 many-to-one relation.</p>
@@ -1544,7 +1600,7 @@ callables as instance methods.</p>
 </span><span id="Transaccion-125"><a href="#Transaccion-125"><span class="linenos">125</span></a><span class="sd">        facturada: Si se emitió factura de la operación.</span>
 </span><span id="Transaccion-126"><a href="#Transaccion-126"><span class="linenos">126</span></a><span class="sd">        dispositivo: Tipo de dispositivo desde el que se realizó</span>
 </span><span id="Transaccion-127"><a href="#Transaccion-127"><span class="linenos">127</span></a><span class="sd">            (ver `operaciones.utils.detectar_dispositivo`).</span>
-</span><span id="Transaccion-128"><a href="#Transaccion-128"><span class="linenos">128</span></a><span class="sd">        estado: `PENDIENTE`, `CONFIRMADA` o `CANCELADA`.</span>
+</span><span id="Transaccion-128"><a href="#Transaccion-128"><span class="linenos">128</span></a><span class="sd">        estado: `PENDIENTE`, `PAGADA` o `CANCELADA`.</span>
 </span><span id="Transaccion-129"><a href="#Transaccion-129"><span class="linenos">129</span></a><span class="sd">        fecha: Fecha y hora de la operación.</span>
 </span><span id="Transaccion-130"><a href="#Transaccion-130"><span class="linenos">130</span></a><span class="sd">    """</span>
 </span><span id="Transaccion-131"><a href="#Transaccion-131"><span class="linenos">131</span></a>
@@ -1566,65 +1622,72 @@ callables as instance methods.</p>
 </span><span id="Transaccion-147"><a href="#Transaccion-147"><span class="linenos">147</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Estado</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">TextChoices</span><span class="p">):</span>
 </span><span id="Transaccion-148"><a href="#Transaccion-148"><span class="linenos">148</span></a><span class="w">        </span><span class="sd">"""Estados de la transacción (la lógica de cambio de estado es de otra historia)."""</span>
 </span><span id="Transaccion-149"><a href="#Transaccion-149"><span class="linenos">149</span></a>        <span class="n">PENDIENTE</span> <span class="o">=</span> <span class="s1">'PENDIENTE'</span><span class="p">,</span> <span class="s1">'Pendiente'</span>
-</span><span id="Transaccion-150"><a href="#Transaccion-150"><span class="linenos">150</span></a>        <span class="n">CONFIRMADA</span> <span class="o">=</span> <span class="s1">'CONFIRMADA'</span><span class="p">,</span> <span class="s1">'Confirmada'</span>
+</span><span id="Transaccion-150"><a href="#Transaccion-150"><span class="linenos">150</span></a>        <span class="n">PAGADA</span> <span class="o">=</span> <span class="s1">'PAGADA'</span><span class="p">,</span> <span class="s1">'Pagada'</span>
 </span><span id="Transaccion-151"><a href="#Transaccion-151"><span class="linenos">151</span></a>        <span class="n">CANCELADA</span> <span class="o">=</span> <span class="s1">'CANCELADA'</span><span class="p">,</span> <span class="s1">'Cancelada'</span>
 </span><span id="Transaccion-152"><a href="#Transaccion-152"><span class="linenos">152</span></a>
 </span><span id="Transaccion-153"><a href="#Transaccion-153"><span class="linenos">153</span></a>    <span class="n">MONEDA_LOCAL</span> <span class="o">=</span> <span class="s1">'PYG'</span>
 </span><span id="Transaccion-154"><a href="#Transaccion-154"><span class="linenos">154</span></a>
-</span><span id="Transaccion-155"><a href="#Transaccion-155"><span class="linenos">155</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="Transaccion-156"><a href="#Transaccion-156"><span class="linenos">156</span></a>    <span class="n">cliente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Cliente</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
-</span><span id="Transaccion-157"><a href="#Transaccion-157"><span class="linenos">157</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-</span><span id="Transaccion-158"><a href="#Transaccion-158"><span class="linenos">158</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones_realizadas'</span>
-</span><span id="Transaccion-159"><a href="#Transaccion-159"><span class="linenos">159</span></a>    <span class="p">)</span>
-</span><span id="Transaccion-160"><a href="#Transaccion-160"><span class="linenos">160</span></a>    <span class="n">cajero</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-</span><span id="Transaccion-161"><a href="#Transaccion-161"><span class="linenos">161</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="Transaccion-162"><a href="#Transaccion-162"><span class="linenos">162</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones_atendidas'</span>
-</span><span id="Transaccion-163"><a href="#Transaccion-163"><span class="linenos">163</span></a>    <span class="p">)</span>
-</span><span id="Transaccion-164"><a href="#Transaccion-164"><span class="linenos">164</span></a>    <span class="n">tipo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Tipo</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
-</span><span id="Transaccion-165"><a href="#Transaccion-165"><span class="linenos">165</span></a>    <span class="n">moneda</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Moneda</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
-</span><span id="Transaccion-166"><a href="#Transaccion-166"><span class="linenos">166</span></a>    <span class="n">medio_pago</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">'mpagos.MedioPago'</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
-</span><span id="Transaccion-167"><a href="#Transaccion-167"><span class="linenos">167</span></a>    <span class="n">monto_pagado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="Transaccion-168"><a href="#Transaccion-168"><span class="linenos">168</span></a>    <span class="n">monto_recibido</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="Transaccion-169"><a href="#Transaccion-169"><span class="linenos">169</span></a>    <span class="n">tasa_referencia</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">TasaDeCambio</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
-</span><span id="Transaccion-170"><a href="#Transaccion-170"><span class="linenos">170</span></a>    <span class="n">tasa_aplicada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-</span><span id="Transaccion-171"><a href="#Transaccion-171"><span class="linenos">171</span></a>    <span class="n">categoria_cliente_aplicada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Cliente</span><span class="o">.</span><span class="n">Categoria</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
-</span><span id="Transaccion-172"><a href="#Transaccion-172"><span class="linenos">172</span></a>    <span class="n">porcentaje_comision</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="Transaccion-173"><a href="#Transaccion-173"><span class="linenos">173</span></a>    <span class="n">monto_comision</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-</span><span id="Transaccion-174"><a href="#Transaccion-174"><span class="linenos">174</span></a>    <span class="n">moneda_comision</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>    
-</span><span id="Transaccion-175"><a href="#Transaccion-175"><span class="linenos">175</span></a>    <span class="n">facturada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="Transaccion-176"><a href="#Transaccion-176"><span class="linenos">176</span></a>    <span class="n">dispositivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Dispositivo</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Dispositivo</span><span class="o">.</span><span class="n">OTRO</span><span class="p">)</span>
-</span><span id="Transaccion-177"><a href="#Transaccion-177"><span class="linenos">177</span></a>    <span class="n">estado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Estado</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Estado</span><span class="o">.</span><span class="n">PENDIENTE</span><span class="p">)</span>
-</span><span id="Transaccion-178"><a href="#Transaccion-178"><span class="linenos">178</span></a>    <span class="c1"># default en lugar de auto_now_add para poder registrar operaciones con fecha pasada</span>
-</span><span id="Transaccion-179"><a href="#Transaccion-179"><span class="linenos">179</span></a>    <span class="n">fecha</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
-</span><span id="Transaccion-180"><a href="#Transaccion-180"><span class="linenos">180</span></a>
-</span><span id="Transaccion-181"><a href="#Transaccion-181"><span class="linenos">181</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="Transaccion-182"><a href="#Transaccion-182"><span class="linenos">182</span></a><span class="w">        </span><span class="sd">"""Nombres legibles, orden de más reciente a más antigua e índice por cliente."""</span>
-</span><span id="Transaccion-183"><a href="#Transaccion-183"><span class="linenos">183</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Transacción"</span>
-</span><span id="Transaccion-184"><a href="#Transaccion-184"><span class="linenos">184</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Transacciones"</span>
-</span><span id="Transaccion-185"><a href="#Transaccion-185"><span class="linenos">185</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-fecha'</span><span class="p">]</span>
-</span><span id="Transaccion-186"><a href="#Transaccion-186"><span class="linenos">186</span></a>        <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s1">'cliente'</span><span class="p">,</span> <span class="s1">'-fecha'</span><span class="p">])]</span>
+</span><span id="Transaccion-155"><a href="#Transaccion-155"><span class="linenos">155</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Canal</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">TextChoices</span><span class="p">):</span>
+</span><span id="Transaccion-156"><a href="#Transaccion-156"><span class="linenos">156</span></a><span class="w">        </span><span class="sd">"""Canal por el que se originó la operación."""</span>
+</span><span id="Transaccion-157"><a href="#Transaccion-157"><span class="linenos">157</span></a>        <span class="n">WEB</span> <span class="o">=</span> <span class="s1">'WEB'</span><span class="p">,</span> <span class="s1">'Web'</span>
+</span><span id="Transaccion-158"><a href="#Transaccion-158"><span class="linenos">158</span></a>        <span class="n">CAJA</span> <span class="o">=</span> <span class="s1">'CAJA'</span><span class="p">,</span> <span class="s1">'Caja (presencial)'</span>
+</span><span id="Transaccion-159"><a href="#Transaccion-159"><span class="linenos">159</span></a>
+</span><span id="Transaccion-160"><a href="#Transaccion-160"><span class="linenos">160</span></a>
+</span><span id="Transaccion-161"><a href="#Transaccion-161"><span class="linenos">161</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="Transaccion-162"><a href="#Transaccion-162"><span class="linenos">162</span></a>    <span class="n">cliente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Cliente</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
+</span><span id="Transaccion-163"><a href="#Transaccion-163"><span class="linenos">163</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+</span><span id="Transaccion-164"><a href="#Transaccion-164"><span class="linenos">164</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones_realizadas'</span>
+</span><span id="Transaccion-165"><a href="#Transaccion-165"><span class="linenos">165</span></a>    <span class="p">)</span>
+</span><span id="Transaccion-166"><a href="#Transaccion-166"><span class="linenos">166</span></a>    <span class="n">cajero</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+</span><span id="Transaccion-167"><a href="#Transaccion-167"><span class="linenos">167</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="Transaccion-168"><a href="#Transaccion-168"><span class="linenos">168</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones_atendidas'</span>
+</span><span id="Transaccion-169"><a href="#Transaccion-169"><span class="linenos">169</span></a>    <span class="p">)</span>
+</span><span id="Transaccion-170"><a href="#Transaccion-170"><span class="linenos">170</span></a>    <span class="n">tipo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Tipo</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
+</span><span id="Transaccion-171"><a href="#Transaccion-171"><span class="linenos">171</span></a>    <span class="n">moneda</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Moneda</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
+</span><span id="Transaccion-172"><a href="#Transaccion-172"><span class="linenos">172</span></a>    <span class="n">medio_pago</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">'mpagos.MedioPago'</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
+</span><span id="Transaccion-173"><a href="#Transaccion-173"><span class="linenos">173</span></a>    <span class="n">monto_pagado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="Transaccion-174"><a href="#Transaccion-174"><span class="linenos">174</span></a>    <span class="n">monto_recibido</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="Transaccion-175"><a href="#Transaccion-175"><span class="linenos">175</span></a>    <span class="n">tasa_referencia</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">TasaDeCambio</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">'transacciones'</span><span class="p">)</span>
+</span><span id="Transaccion-176"><a href="#Transaccion-176"><span class="linenos">176</span></a>    <span class="n">tasa_aplicada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</span><span id="Transaccion-177"><a href="#Transaccion-177"><span class="linenos">177</span></a>    <span class="n">categoria_cliente_aplicada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Cliente</span><span class="o">.</span><span class="n">Categoria</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
+</span><span id="Transaccion-178"><a href="#Transaccion-178"><span class="linenos">178</span></a>    <span class="n">porcentaje_comision</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="Transaccion-179"><a href="#Transaccion-179"><span class="linenos">179</span></a>    <span class="n">monto_comision</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</span><span id="Transaccion-180"><a href="#Transaccion-180"><span class="linenos">180</span></a>    <span class="n">moneda_comision</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>    
+</span><span id="Transaccion-181"><a href="#Transaccion-181"><span class="linenos">181</span></a>    <span class="n">facturada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="Transaccion-182"><a href="#Transaccion-182"><span class="linenos">182</span></a>    <span class="n">dispositivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Dispositivo</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Dispositivo</span><span class="o">.</span><span class="n">OTRO</span><span class="p">)</span>
+</span><span id="Transaccion-183"><a href="#Transaccion-183"><span class="linenos">183</span></a>    <span class="n">estado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Estado</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Estado</span><span class="o">.</span><span class="n">PENDIENTE</span><span class="p">)</span>
+</span><span id="Transaccion-184"><a href="#Transaccion-184"><span class="linenos">184</span></a>    <span class="c1"># default en lugar de auto_now_add para poder registrar operaciones con fecha pasada</span>
+</span><span id="Transaccion-185"><a href="#Transaccion-185"><span class="linenos">185</span></a>    <span class="n">fecha</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+</span><span id="Transaccion-186"><a href="#Transaccion-186"><span class="linenos">186</span></a>    <span class="n">canal</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">Canal</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Canal</span><span class="o">.</span><span class="n">WEB</span><span class="p">)</span>
 </span><span id="Transaccion-187"><a href="#Transaccion-187"><span class="linenos">187</span></a>
-</span><span id="Transaccion-188"><a href="#Transaccion-188"><span class="linenos">188</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Transaccion-189"><a href="#Transaccion-189"><span class="linenos">189</span></a><span class="w">        </span><span class="sd">"""Devuelve `TIPO MONEDA - cliente (dd/mm/aaaa hh:mm)`."""</span>
-</span><span id="Transaccion-190"><a href="#Transaccion-190"><span class="linenos">190</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tipo_display</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cliente</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fecha</span><span class="si">:</span><span class="s2">%d/%m/%Y %H:%M</span><span class="si">}</span><span class="s2">)"</span>
-</span><span id="Transaccion-191"><a href="#Transaccion-191"><span class="linenos">191</span></a>
-</span><span id="Transaccion-192"><a href="#Transaccion-192"><span class="linenos">192</span></a>    <span class="nd">@property</span>
-</span><span id="Transaccion-193"><a href="#Transaccion-193"><span class="linenos">193</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moneda_pagada</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Transaccion-194"><a href="#Transaccion-194"><span class="linenos">194</span></a><span class="w">        </span><span class="sd">"""Código de la moneda que entregó el cliente.</span>
-</span><span id="Transaccion-195"><a href="#Transaccion-195"><span class="linenos">195</span></a>
-</span><span id="Transaccion-196"><a href="#Transaccion-196"><span class="linenos">196</span></a><span class="sd">        Returns:</span>
-</span><span id="Transaccion-197"><a href="#Transaccion-197"><span class="linenos">197</span></a><span class="sd">            str: `PYG` en una compra; el código de la divisa en una venta.</span>
-</span><span id="Transaccion-198"><a href="#Transaccion-198"><span class="linenos">198</span></a><span class="sd">        """</span>
-</span><span id="Transaccion-199"><a href="#Transaccion-199"><span class="linenos">199</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span>
-</span><span id="Transaccion-200"><a href="#Transaccion-200"><span class="linenos">200</span></a>
-</span><span id="Transaccion-201"><a href="#Transaccion-201"><span class="linenos">201</span></a>    <span class="nd">@property</span>
-</span><span id="Transaccion-202"><a href="#Transaccion-202"><span class="linenos">202</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moneda_recibida</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Transaccion-203"><a href="#Transaccion-203"><span class="linenos">203</span></a><span class="w">        </span><span class="sd">"""Código de la moneda que recibió el cliente.</span>
-</span><span id="Transaccion-204"><a href="#Transaccion-204"><span class="linenos">204</span></a>
-</span><span id="Transaccion-205"><a href="#Transaccion-205"><span class="linenos">205</span></a><span class="sd">        Returns:</span>
-</span><span id="Transaccion-206"><a href="#Transaccion-206"><span class="linenos">206</span></a><span class="sd">            str: El código de la divisa en una compra; `PYG` en una venta.</span>
-</span><span id="Transaccion-207"><a href="#Transaccion-207"><span class="linenos">207</span></a><span class="sd">        """</span>
-</span><span id="Transaccion-208"><a href="#Transaccion-208"><span class="linenos">208</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span>
+</span><span id="Transaccion-188"><a href="#Transaccion-188"><span class="linenos">188</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="Transaccion-189"><a href="#Transaccion-189"><span class="linenos">189</span></a><span class="w">        </span><span class="sd">"""Nombres legibles, orden de más reciente a más antigua e índice por cliente."""</span>
+</span><span id="Transaccion-190"><a href="#Transaccion-190"><span class="linenos">190</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Transacción"</span>
+</span><span id="Transaccion-191"><a href="#Transaccion-191"><span class="linenos">191</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Transacciones"</span>
+</span><span id="Transaccion-192"><a href="#Transaccion-192"><span class="linenos">192</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-fecha'</span><span class="p">]</span>
+</span><span id="Transaccion-193"><a href="#Transaccion-193"><span class="linenos">193</span></a>        <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s1">'cliente'</span><span class="p">,</span> <span class="s1">'-fecha'</span><span class="p">])]</span>
+</span><span id="Transaccion-194"><a href="#Transaccion-194"><span class="linenos">194</span></a>
+</span><span id="Transaccion-195"><a href="#Transaccion-195"><span class="linenos">195</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Transaccion-196"><a href="#Transaccion-196"><span class="linenos">196</span></a><span class="w">        </span><span class="sd">"""Devuelve `TIPO MONEDA - cliente (dd/mm/aaaa hh:mm)`."""</span>
+</span><span id="Transaccion-197"><a href="#Transaccion-197"><span class="linenos">197</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tipo_display</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cliente</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fecha</span><span class="si">:</span><span class="s2">%d/%m/%Y %H:%M</span><span class="si">}</span><span class="s2">)"</span>
+</span><span id="Transaccion-198"><a href="#Transaccion-198"><span class="linenos">198</span></a>
+</span><span id="Transaccion-199"><a href="#Transaccion-199"><span class="linenos">199</span></a>    <span class="nd">@property</span>
+</span><span id="Transaccion-200"><a href="#Transaccion-200"><span class="linenos">200</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moneda_pagada</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Transaccion-201"><a href="#Transaccion-201"><span class="linenos">201</span></a><span class="w">        </span><span class="sd">"""Código de la moneda que entregó el cliente.</span>
+</span><span id="Transaccion-202"><a href="#Transaccion-202"><span class="linenos">202</span></a>
+</span><span id="Transaccion-203"><a href="#Transaccion-203"><span class="linenos">203</span></a><span class="sd">        Returns:</span>
+</span><span id="Transaccion-204"><a href="#Transaccion-204"><span class="linenos">204</span></a><span class="sd">            str: `PYG` en una compra; el código de la divisa en una venta.</span>
+</span><span id="Transaccion-205"><a href="#Transaccion-205"><span class="linenos">205</span></a><span class="sd">        """</span>
+</span><span id="Transaccion-206"><a href="#Transaccion-206"><span class="linenos">206</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span>
+</span><span id="Transaccion-207"><a href="#Transaccion-207"><span class="linenos">207</span></a>
+</span><span id="Transaccion-208"><a href="#Transaccion-208"><span class="linenos">208</span></a>    <span class="nd">@property</span>
+</span><span id="Transaccion-209"><a href="#Transaccion-209"><span class="linenos">209</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moneda_recibida</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Transaccion-210"><a href="#Transaccion-210"><span class="linenos">210</span></a><span class="w">        </span><span class="sd">"""Código de la moneda que recibió el cliente.</span>
+</span><span id="Transaccion-211"><a href="#Transaccion-211"><span class="linenos">211</span></a>
+</span><span id="Transaccion-212"><a href="#Transaccion-212"><span class="linenos">212</span></a><span class="sd">        Returns:</span>
+</span><span id="Transaccion-213"><a href="#Transaccion-213"><span class="linenos">213</span></a><span class="sd">            str: El código de la divisa en una compra; `PYG` en una venta.</span>
+</span><span id="Transaccion-214"><a href="#Transaccion-214"><span class="linenos">214</span></a><span class="sd">        """</span>
+</span><span id="Transaccion-215"><a href="#Transaccion-215"><span class="linenos">215</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span>
 </span></pre></div>
 
 
@@ -1662,7 +1725,7 @@ mientras la transacción esté <code>PENDIENTE</code>.</li>
 <li><strong>facturada:</strong>  Si se emitió factura de la operación.</li>
 <li><strong>dispositivo:</strong>  Tipo de dispositivo desde el que se realizó
 (ver <code><a href="utils.html#detectar_dispositivo">operaciones.utils.detectar_dispositivo</a></code>).</li>
-<li><strong>estado:</strong>  <code>PENDIENTE</code>, <code>CONFIRMADA</code> o <code>CANCELADA</code>.</li>
+<li><strong>estado:</strong>  <code>PENDIENTE</code>, <code>PAGADA</code> o <code>CANCELADA</code>.</li>
 <li><strong>fecha:</strong>  Fecha y hora de la operación.</li>
 </ul>
 </div>
@@ -2020,6 +2083,22 @@ object the first time, the query is executed.</p>
 
 
                             </div>
+                            <div id="Transaccion.canal" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">canal</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Transaccion.canal"></a>
+    
+            <div class="docstring"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</div>
+
+
+                            </div>
                             <div id="Transaccion.moneda_pagada" class="classattr">
                                         <input id="Transaccion.moneda_pagada-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr variable">
@@ -2029,14 +2108,14 @@ object the first time, the query is executed.</p>
 
     </div>
     <a class="headerlink" href="#Transaccion.moneda_pagada"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Transaccion.moneda_pagada-192"><a href="#Transaccion.moneda_pagada-192"><span class="linenos">192</span></a>    <span class="nd">@property</span>
-</span><span id="Transaccion.moneda_pagada-193"><a href="#Transaccion.moneda_pagada-193"><span class="linenos">193</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moneda_pagada</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Transaccion.moneda_pagada-194"><a href="#Transaccion.moneda_pagada-194"><span class="linenos">194</span></a><span class="w">        </span><span class="sd">"""Código de la moneda que entregó el cliente.</span>
-</span><span id="Transaccion.moneda_pagada-195"><a href="#Transaccion.moneda_pagada-195"><span class="linenos">195</span></a>
-</span><span id="Transaccion.moneda_pagada-196"><a href="#Transaccion.moneda_pagada-196"><span class="linenos">196</span></a><span class="sd">        Returns:</span>
-</span><span id="Transaccion.moneda_pagada-197"><a href="#Transaccion.moneda_pagada-197"><span class="linenos">197</span></a><span class="sd">            str: `PYG` en una compra; el código de la divisa en una venta.</span>
-</span><span id="Transaccion.moneda_pagada-198"><a href="#Transaccion.moneda_pagada-198"><span class="linenos">198</span></a><span class="sd">        """</span>
-</span><span id="Transaccion.moneda_pagada-199"><a href="#Transaccion.moneda_pagada-199"><span class="linenos">199</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Transaccion.moneda_pagada-199"><a href="#Transaccion.moneda_pagada-199"><span class="linenos">199</span></a>    <span class="nd">@property</span>
+</span><span id="Transaccion.moneda_pagada-200"><a href="#Transaccion.moneda_pagada-200"><span class="linenos">200</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moneda_pagada</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Transaccion.moneda_pagada-201"><a href="#Transaccion.moneda_pagada-201"><span class="linenos">201</span></a><span class="w">        </span><span class="sd">"""Código de la moneda que entregó el cliente.</span>
+</span><span id="Transaccion.moneda_pagada-202"><a href="#Transaccion.moneda_pagada-202"><span class="linenos">202</span></a>
+</span><span id="Transaccion.moneda_pagada-203"><a href="#Transaccion.moneda_pagada-203"><span class="linenos">203</span></a><span class="sd">        Returns:</span>
+</span><span id="Transaccion.moneda_pagada-204"><a href="#Transaccion.moneda_pagada-204"><span class="linenos">204</span></a><span class="sd">            str: `PYG` en una compra; el código de la divisa en una venta.</span>
+</span><span id="Transaccion.moneda_pagada-205"><a href="#Transaccion.moneda_pagada-205"><span class="linenos">205</span></a><span class="sd">        """</span>
+</span><span id="Transaccion.moneda_pagada-206"><a href="#Transaccion.moneda_pagada-206"><span class="linenos">206</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span>
 </span></pre></div>
 
 
@@ -2060,14 +2139,14 @@ object the first time, the query is executed.</p>
 
     </div>
     <a class="headerlink" href="#Transaccion.moneda_recibida"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Transaccion.moneda_recibida-201"><a href="#Transaccion.moneda_recibida-201"><span class="linenos">201</span></a>    <span class="nd">@property</span>
-</span><span id="Transaccion.moneda_recibida-202"><a href="#Transaccion.moneda_recibida-202"><span class="linenos">202</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moneda_recibida</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Transaccion.moneda_recibida-203"><a href="#Transaccion.moneda_recibida-203"><span class="linenos">203</span></a><span class="w">        </span><span class="sd">"""Código de la moneda que recibió el cliente.</span>
-</span><span id="Transaccion.moneda_recibida-204"><a href="#Transaccion.moneda_recibida-204"><span class="linenos">204</span></a>
-</span><span id="Transaccion.moneda_recibida-205"><a href="#Transaccion.moneda_recibida-205"><span class="linenos">205</span></a><span class="sd">        Returns:</span>
-</span><span id="Transaccion.moneda_recibida-206"><a href="#Transaccion.moneda_recibida-206"><span class="linenos">206</span></a><span class="sd">            str: El código de la divisa en una compra; `PYG` en una venta.</span>
-</span><span id="Transaccion.moneda_recibida-207"><a href="#Transaccion.moneda_recibida-207"><span class="linenos">207</span></a><span class="sd">        """</span>
-</span><span id="Transaccion.moneda_recibida-208"><a href="#Transaccion.moneda_recibida-208"><span class="linenos">208</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Transaccion.moneda_recibida-208"><a href="#Transaccion.moneda_recibida-208"><span class="linenos">208</span></a>    <span class="nd">@property</span>
+</span><span id="Transaccion.moneda_recibida-209"><a href="#Transaccion.moneda_recibida-209"><span class="linenos">209</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moneda_recibida</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Transaccion.moneda_recibida-210"><a href="#Transaccion.moneda_recibida-210"><span class="linenos">210</span></a><span class="w">        </span><span class="sd">"""Código de la moneda que recibió el cliente.</span>
+</span><span id="Transaccion.moneda_recibida-211"><a href="#Transaccion.moneda_recibida-211"><span class="linenos">211</span></a>
+</span><span id="Transaccion.moneda_recibida-212"><a href="#Transaccion.moneda_recibida-212"><span class="linenos">212</span></a><span class="sd">        Returns:</span>
+</span><span id="Transaccion.moneda_recibida-213"><a href="#Transaccion.moneda_recibida-213"><span class="linenos">213</span></a><span class="sd">            str: El código de la divisa en una compra; `PYG` en una venta.</span>
+</span><span id="Transaccion.moneda_recibida-214"><a href="#Transaccion.moneda_recibida-214"><span class="linenos">214</span></a><span class="sd">        """</span>
+</span><span id="Transaccion.moneda_recibida-215"><a href="#Transaccion.moneda_recibida-215"><span class="linenos">215</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tipo</span><span class="o">.</span><span class="n">COMPRA</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">MONEDA_LOCAL</span>
 </span></pre></div>
 
 
@@ -2262,6 +2341,25 @@ callables as instance methods.</p>
 
 
                             </div>
+                            <div id="Transaccion.get_canal_display" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_canal_display</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Transaccion.get_canal_display"></a>
+    
+            <div class="docstring"><p>Method descriptor with partial application of the given arguments
+and keywords.</p>
+
+<p>Supports wrapping existing descriptors and handles non-descriptor
+callables as instance methods.</p>
+</div>
+
+
+                            </div>
                             <div id="Transaccion.objects" class="classattr">
                                 <div class="attr function">
             
@@ -2282,6 +2380,31 @@ callables as instance methods.</p>
         
     </div>
     <a class="headerlink" href="#Transaccion.logs"></a>
+    
+            <div class="docstring"><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+
+<p>In the example::</p>
+
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+
+<p><code>Parent.children</code> is a <code>ReverseManyToOneDescriptor</code> instance.</p>
+
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code>create_reverse_many_to_one_manager()</code> defined below.</p>
+</div>
+
+
+                            </div>
+                            <div id="Transaccion.movimientos_caja" class="classattr">
+                                <div class="attr variable">
+            <span class="name">movimientos_caja</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Transaccion.movimientos_caja"></a>
     
             <div class="docstring"><p>Accessor to the related objects manager on the reverse side of a
 many-to-one relation.</p>
@@ -2474,7 +2597,7 @@ class built by <code>create_reverse_many_to_one_manager()</code> defined below.<
             <div class="pdoc-code codehilite"><pre><span></span><span id="Transaccion.Estado-147"><a href="#Transaccion.Estado-147"><span class="linenos">147</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Estado</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">TextChoices</span><span class="p">):</span>
 </span><span id="Transaccion.Estado-148"><a href="#Transaccion.Estado-148"><span class="linenos">148</span></a><span class="w">        </span><span class="sd">"""Estados de la transacción (la lógica de cambio de estado es de otra historia)."""</span>
 </span><span id="Transaccion.Estado-149"><a href="#Transaccion.Estado-149"><span class="linenos">149</span></a>        <span class="n">PENDIENTE</span> <span class="o">=</span> <span class="s1">'PENDIENTE'</span><span class="p">,</span> <span class="s1">'Pendiente'</span>
-</span><span id="Transaccion.Estado-150"><a href="#Transaccion.Estado-150"><span class="linenos">150</span></a>        <span class="n">CONFIRMADA</span> <span class="o">=</span> <span class="s1">'CONFIRMADA'</span><span class="p">,</span> <span class="s1">'Confirmada'</span>
+</span><span id="Transaccion.Estado-150"><a href="#Transaccion.Estado-150"><span class="linenos">150</span></a>        <span class="n">PAGADA</span> <span class="o">=</span> <span class="s1">'PAGADA'</span><span class="p">,</span> <span class="s1">'Pagada'</span>
 </span><span id="Transaccion.Estado-151"><a href="#Transaccion.Estado-151"><span class="linenos">151</span></a>        <span class="n">CANCELADA</span> <span class="o">=</span> <span class="s1">'CANCELADA'</span><span class="p">,</span> <span class="s1">'Cancelada'</span>
 </span></pre></div>
 
@@ -2495,14 +2618,14 @@ class built by <code>create_reverse_many_to_one_manager()</code> defined below.<
     
 
                             </div>
-                            <div id="Transaccion.Estado.CONFIRMADA" class="classattr">
+                            <div id="Transaccion.Estado.PAGADA" class="classattr">
                                 <div class="attr variable">
-            <span class="name">CONFIRMADA</span>        =
-<span class="default_value"><a href="#Transaccion.Estado.CONFIRMADA">Transaccion.Estado.CONFIRMADA</a></span>
+            <span class="name">PAGADA</span>        =
+<span class="default_value"><a href="#Transaccion.Estado.PAGADA">Transaccion.Estado.PAGADA</a></span>
 
         
     </div>
-    <a class="headerlink" href="#Transaccion.Estado.CONFIRMADA"></a>
+    <a class="headerlink" href="#Transaccion.Estado.PAGADA"></a>
     
     
 
@@ -2515,6 +2638,53 @@ class built by <code>create_reverse_many_to_one_manager()</code> defined below.<
         
     </div>
     <a class="headerlink" href="#Transaccion.Estado.CANCELADA"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="Transaccion.Canal">
+                            <input id="Transaccion.Canal-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">Transaccion.Canal</span><wbr>(<span class="base">django.db.models.enums.TextChoices</span>):
+
+                <label class="view-source-button" for="Transaccion.Canal-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Transaccion.Canal"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Transaccion.Canal-155"><a href="#Transaccion.Canal-155"><span class="linenos">155</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Canal</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">TextChoices</span><span class="p">):</span>
+</span><span id="Transaccion.Canal-156"><a href="#Transaccion.Canal-156"><span class="linenos">156</span></a><span class="w">        </span><span class="sd">"""Canal por el que se originó la operación."""</span>
+</span><span id="Transaccion.Canal-157"><a href="#Transaccion.Canal-157"><span class="linenos">157</span></a>        <span class="n">WEB</span> <span class="o">=</span> <span class="s1">'WEB'</span><span class="p">,</span> <span class="s1">'Web'</span>
+</span><span id="Transaccion.Canal-158"><a href="#Transaccion.Canal-158"><span class="linenos">158</span></a>        <span class="n">CAJA</span> <span class="o">=</span> <span class="s1">'CAJA'</span><span class="p">,</span> <span class="s1">'Caja (presencial)'</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Canal por el que se originó la operación.</p>
+</div>
+
+
+                            <div id="Transaccion.Canal.WEB" class="classattr">
+                                <div class="attr variable">
+            <span class="name">WEB</span>        =
+<span class="default_value"><a href="#Transaccion.Canal.WEB">Transaccion.Canal.WEB</a></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Transaccion.Canal.WEB"></a>
+    
+    
+
+                            </div>
+                            <div id="Transaccion.Canal.CAJA" class="classattr">
+                                <div class="attr variable">
+            <span class="name">CAJA</span>        =
+<span class="default_value"><a href="#Transaccion.Canal.CAJA">Transaccion.Canal.CAJA</a></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Transaccion.Canal.CAJA"></a>
     
     
 
@@ -2576,34 +2746,34 @@ class built by <code>create_reverse_many_to_one_manager()</code> defined below.<
 
     </div>
     <a class="headerlink" href="#LogTransaccion"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="LogTransaccion-210"><a href="#LogTransaccion-210"><span class="linenos">210</span></a><span class="k">class</span><span class="w"> </span><span class="nc">LogTransaccion</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-</span><span id="LogTransaccion-211"><a href="#LogTransaccion-211"><span class="linenos">211</span></a><span class="w">    </span><span class="sd">"""</span>
-</span><span id="LogTransaccion-212"><a href="#LogTransaccion-212"><span class="linenos">212</span></a><span class="sd">    Tabla de auditoría inmutable (RNF15).</span>
-</span><span id="LogTransaccion-213"><a href="#LogTransaccion-213"><span class="linenos">213</span></a><span class="sd">    Registra cada cambio de estado de manera inalterable.</span>
-</span><span id="LogTransaccion-214"><a href="#LogTransaccion-214"><span class="linenos">214</span></a><span class="sd">    """</span>
-</span><span id="LogTransaccion-215"><a href="#LogTransaccion-215"><span class="linenos">215</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="LogTransaccion-216"><a href="#LogTransaccion-216"><span class="linenos">216</span></a>    <span class="n">transaccion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-</span><span id="LogTransaccion-217"><a href="#LogTransaccion-217"><span class="linenos">217</span></a>        <span class="n">Transaccion</span><span class="p">,</span> 
-</span><span id="LogTransaccion-218"><a href="#LogTransaccion-218"><span class="linenos">218</span></a>        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> 
-</span><span id="LogTransaccion-219"><a href="#LogTransaccion-219"><span class="linenos">219</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'logs'</span>
-</span><span id="LogTransaccion-220"><a href="#LogTransaccion-220"><span class="linenos">220</span></a>    <span class="p">)</span>
-</span><span id="LogTransaccion-221"><a href="#LogTransaccion-221"><span class="linenos">221</span></a>    <span class="n">estado_anterior</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</span><span id="LogTransaccion-222"><a href="#LogTransaccion-222"><span class="linenos">222</span></a>    <span class="n">estado_nuevo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</span><span id="LogTransaccion-223"><a href="#LogTransaccion-223"><span class="linenos">223</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-</span><span id="LogTransaccion-224"><a href="#LogTransaccion-224"><span class="linenos">224</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> 
-</span><span id="LogTransaccion-225"><a href="#LogTransaccion-225"><span class="linenos">225</span></a>        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
-</span><span id="LogTransaccion-226"><a href="#LogTransaccion-226"><span class="linenos">226</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'logs_transacciones'</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="LogTransaccion-217"><a href="#LogTransaccion-217"><span class="linenos">217</span></a><span class="k">class</span><span class="w"> </span><span class="nc">LogTransaccion</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+</span><span id="LogTransaccion-218"><a href="#LogTransaccion-218"><span class="linenos">218</span></a><span class="w">    </span><span class="sd">"""</span>
+</span><span id="LogTransaccion-219"><a href="#LogTransaccion-219"><span class="linenos">219</span></a><span class="sd">    Tabla de auditoría inmutable (RNF15).</span>
+</span><span id="LogTransaccion-220"><a href="#LogTransaccion-220"><span class="linenos">220</span></a><span class="sd">    Registra cada cambio de estado de manera inalterable.</span>
+</span><span id="LogTransaccion-221"><a href="#LogTransaccion-221"><span class="linenos">221</span></a><span class="sd">    """</span>
+</span><span id="LogTransaccion-222"><a href="#LogTransaccion-222"><span class="linenos">222</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="LogTransaccion-223"><a href="#LogTransaccion-223"><span class="linenos">223</span></a>    <span class="n">transaccion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+</span><span id="LogTransaccion-224"><a href="#LogTransaccion-224"><span class="linenos">224</span></a>        <span class="n">Transaccion</span><span class="p">,</span> 
+</span><span id="LogTransaccion-225"><a href="#LogTransaccion-225"><span class="linenos">225</span></a>        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> 
+</span><span id="LogTransaccion-226"><a href="#LogTransaccion-226"><span class="linenos">226</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'logs'</span>
 </span><span id="LogTransaccion-227"><a href="#LogTransaccion-227"><span class="linenos">227</span></a>    <span class="p">)</span>
-</span><span id="LogTransaccion-228"><a href="#LogTransaccion-228"><span class="linenos">228</span></a>    <span class="n">fecha_hora</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="LogTransaccion-229"><a href="#LogTransaccion-229"><span class="linenos">229</span></a>    <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="LogTransaccion-230"><a href="#LogTransaccion-230"><span class="linenos">230</span></a>
-</span><span id="LogTransaccion-231"><a href="#LogTransaccion-231"><span class="linenos">231</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="LogTransaccion-232"><a href="#LogTransaccion-232"><span class="linenos">232</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Log de Transacción"</span>
-</span><span id="LogTransaccion-233"><a href="#LogTransaccion-233"><span class="linenos">233</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Logs de Transacciones"</span>
-</span><span id="LogTransaccion-234"><a href="#LogTransaccion-234"><span class="linenos">234</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-fecha_hora'</span><span class="p">]</span>
-</span><span id="LogTransaccion-235"><a href="#LogTransaccion-235"><span class="linenos">235</span></a>
-</span><span id="LogTransaccion-236"><a href="#LogTransaccion-236"><span class="linenos">236</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="LogTransaccion-237"><a href="#LogTransaccion-237"><span class="linenos">237</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Log </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transaccion</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_anterior</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_nuevo</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="LogTransaccion-228"><a href="#LogTransaccion-228"><span class="linenos">228</span></a>    <span class="n">estado_anterior</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</span><span id="LogTransaccion-229"><a href="#LogTransaccion-229"><span class="linenos">229</span></a>    <span class="n">estado_nuevo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</span><span id="LogTransaccion-230"><a href="#LogTransaccion-230"><span class="linenos">230</span></a>    <span class="n">usuario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+</span><span id="LogTransaccion-231"><a href="#LogTransaccion-231"><span class="linenos">231</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> 
+</span><span id="LogTransaccion-232"><a href="#LogTransaccion-232"><span class="linenos">232</span></a>        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+</span><span id="LogTransaccion-233"><a href="#LogTransaccion-233"><span class="linenos">233</span></a>        <span class="n">related_name</span><span class="o">=</span><span class="s1">'logs_transacciones'</span>
+</span><span id="LogTransaccion-234"><a href="#LogTransaccion-234"><span class="linenos">234</span></a>    <span class="p">)</span>
+</span><span id="LogTransaccion-235"><a href="#LogTransaccion-235"><span class="linenos">235</span></a>    <span class="n">fecha_hora</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="LogTransaccion-236"><a href="#LogTransaccion-236"><span class="linenos">236</span></a>    <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="LogTransaccion-237"><a href="#LogTransaccion-237"><span class="linenos">237</span></a>
+</span><span id="LogTransaccion-238"><a href="#LogTransaccion-238"><span class="linenos">238</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="LogTransaccion-239"><a href="#LogTransaccion-239"><span class="linenos">239</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Log de Transacción"</span>
+</span><span id="LogTransaccion-240"><a href="#LogTransaccion-240"><span class="linenos">240</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Logs de Transacciones"</span>
+</span><span id="LogTransaccion-241"><a href="#LogTransaccion-241"><span class="linenos">241</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-fecha_hora'</span><span class="p">]</span>
+</span><span id="LogTransaccion-242"><a href="#LogTransaccion-242"><span class="linenos">242</span></a>
+</span><span id="LogTransaccion-243"><a href="#LogTransaccion-243"><span class="linenos">243</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="LogTransaccion-244"><a href="#LogTransaccion-244"><span class="linenos">244</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Log </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transaccion</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_anterior</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estado_nuevo</span><span class="si">}</span><span class="s2">"</span>
 </span></pre></div>
 
 

@@ -138,6 +138,18 @@
             <li>
                     <a class="variable" href="#ARQUEO_FUNCION_SALDO">ARQUEO_FUNCION_SALDO</a>
             </li>
+            <li>
+                    <a class="variable" href="#STRIPE_SECRET_KEY">STRIPE_SECRET_KEY</a>
+            </li>
+            <li>
+                    <a class="variable" href="#STRIPE_PUBLISHABLE_KEY">STRIPE_PUBLISHABLE_KEY</a>
+            </li>
+            <li>
+                    <a class="variable" href="#STRIPE_WEBHOOK_SECRET">STRIPE_WEBHOOK_SECRET</a>
+            </li>
+            <li>
+                    <a class="variable" href="#STRIPE_CURRENCY">STRIPE_CURRENCY</a>
+            </li>
     </ul>
 
 
@@ -201,37 +213,37 @@ Ver <code>.env.example</code> en la raíz del repositorio.</p>
 </span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>    <span class="s1">'operaciones'</span><span class="p">,</span>
 </span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>    <span class="s1">'arqueos'</span><span class="p">,</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>    <span class="s1">'caja'</span><span class="p">,</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>
-</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>    
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>    <span class="s1">'notificaciones'</span><span class="p">,</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>    <span class="s1">'main'</span><span class="p">,</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>    
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>    <span class="c1"># Librerías de terceros</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>    <span class="s1">'mozilla_django_oidc'</span><span class="p">,</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>    <span class="s1">'main'</span><span class="p">,</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="p">]</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="n">MIDDLEWARE</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>    <span class="s1">'django.middleware.security.SecurityMiddleware'</span><span class="p">,</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="s1">'django.contrib.sessions.middleware.SessionMiddleware'</span><span class="p">,</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>    <span class="s1">'django.middleware.common.CommonMiddleware'</span><span class="p">,</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>    <span class="s1">'django.middleware.csrf.CsrfViewMiddleware'</span><span class="p">,</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>    <span class="s1">'django.contrib.auth.middleware.AuthenticationMiddleware'</span><span class="p">,</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>    <span class="s1">'django.contrib.messages.middleware.MessageMiddleware'</span><span class="p">,</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>    <span class="s1">'django.middleware.clickjacking.XFrameOptionsMiddleware'</span><span class="p">,</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="p">]</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="n">ROOT_URLCONF</span> <span class="o">=</span> <span class="s1">'core.urls'</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="n">TEMPLATES</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="p">{</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="s1">'BACKEND'</span><span class="p">:</span> <span class="s1">'django.template.backends.django.DjangoTemplates'</span><span class="p">,</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>        <span class="s1">'DIRS'</span><span class="p">:</span> <span class="p">[</span><span class="n">BASE_DIR</span> <span class="o">/</span> <span class="s1">'templates'</span><span class="p">],</span> <span class="c1"># Apunta a la carpeta /app/templates</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>        <span class="s1">'APP_DIRS'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="s1">'OPTIONS'</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>            <span class="s1">'context_processors'</span><span class="p">:</span> <span class="p">[</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>                <span class="s1">'django.template.context_processors.debug'</span><span class="p">,</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>                <span class="s1">'django.template.context_processors.request'</span><span class="p">,</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>                <span class="s1">'django.contrib.auth.context_processors.auth'</span><span class="p">,</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>                <span class="s1">'django.contrib.messages.context_processors.messages'</span><span class="p">,</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="p">]</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="n">MIDDLEWARE</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>    <span class="s1">'django.middleware.security.SecurityMiddleware'</span><span class="p">,</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>    <span class="s1">'django.contrib.sessions.middleware.SessionMiddleware'</span><span class="p">,</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="s1">'django.middleware.common.CommonMiddleware'</span><span class="p">,</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>    <span class="s1">'django.middleware.csrf.CsrfViewMiddleware'</span><span class="p">,</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>    <span class="s1">'django.contrib.auth.middleware.AuthenticationMiddleware'</span><span class="p">,</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>    <span class="s1">'django.contrib.messages.middleware.MessageMiddleware'</span><span class="p">,</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>    <span class="s1">'django.middleware.clickjacking.XFrameOptionsMiddleware'</span><span class="p">,</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="p">]</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="n">ROOT_URLCONF</span> <span class="o">=</span> <span class="s1">'core.urls'</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="n">TEMPLATES</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="p">{</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>        <span class="s1">'BACKEND'</span><span class="p">:</span> <span class="s1">'django.template.backends.django.DjangoTemplates'</span><span class="p">,</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="s1">'DIRS'</span><span class="p">:</span> <span class="p">[</span><span class="n">BASE_DIR</span> <span class="o">/</span> <span class="s1">'templates'</span><span class="p">],</span> <span class="c1"># Apunta a la carpeta /app/templates</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>        <span class="s1">'APP_DIRS'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>        <span class="s1">'OPTIONS'</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>            <span class="s1">'context_processors'</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>                <span class="s1">'django.template.context_processors.debug'</span><span class="p">,</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>                <span class="s1">'django.template.context_processors.request'</span><span class="p">,</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>                <span class="s1">'django.contrib.auth.context_processors.auth'</span><span class="p">,</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>                <span class="s1">'django.contrib.messages.context_processors.messages'</span><span class="p">,</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>                <span class="s1">'notificaciones.context_processors.notificaciones_context'</span><span class="p">,</span>
 </span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>                <span class="c1">#Removido de mientras 'main.menu_procesos.menu_context',</span>
 </span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>            <span class="p">],</span>
 </span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>        <span class="p">},</span>
@@ -304,10 +316,15 @@ Ver <code>.env.example</code> en la raíz del repositorio.</p>
 </span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="n">LOGIN_URL</span> <span class="o">=</span> <span class="s1">'oidc_authentication_init'</span>
 </span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>
 </span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="c1"># Cierre de caja (SCRUM-40): función que devuelve el saldo registrado por moneda</span>
-</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="c1"># de un turno de caja (ver `arqueos.integracion`). En desarrollo, mientras no</span>
-</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="c1"># exista la función real, puede apuntarse a `arqueos.demo.saldo_de_demostracion`</span>
-</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="c1"># desde el `.env`.</span>
-</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a><span class="n">ARQUEO_FUNCION_SALDO</span> <span class="o">=</span> <span class="n">config</span><span class="p">(</span><span class="s1">'ARQUEO_FUNCION_SALDO'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">'caja.services.saldo_registrado'</span><span class="p">)</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="c1"># de un turno de caja (ver `arqueos.integracion` y `arqueos.saldos`).</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="n">ARQUEO_FUNCION_SALDO</span> <span class="o">=</span> <span class="n">config</span><span class="p">(</span><span class="s1">'ARQUEO_FUNCION_SALDO'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">'arqueos.saldos.saldo_registrado'</span><span class="p">)</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a><span class="c1"># Stripe Sandbox</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a><span class="n">STRIPE_SECRET_KEY</span> <span class="o">=</span> <span class="n">config</span><span class="p">(</span><span class="s1">'STRIPE_SECRET_KEY'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">''</span><span class="p">)</span>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a><span class="n">STRIPE_PUBLISHABLE_KEY</span> <span class="o">=</span> <span class="n">config</span><span class="p">(</span><span class="s1">'STRIPE_PUBLISHABLE_KEY'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">''</span><span class="p">)</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a><span class="n">STRIPE_WEBHOOK_SECRET</span> <span class="o">=</span> <span class="n">config</span><span class="p">(</span><span class="s1">'STRIPE_WEBHOOK_SECRET'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">''</span><span class="p">)</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a><span class="n">STRIPE_CURRENCY</span> <span class="o">=</span> <span class="n">config</span><span class="p">(</span><span class="s1">'STRIPE_CURRENCY'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">'pyg'</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -364,7 +381,7 @@ Ver <code>.env.example</code> en la raíz del repositorio.</p>
                     <div class="attr variable">
             <span class="name">INSTALLED_APPS</span>        =
 <input id="INSTALLED_APPS-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="INSTALLED_APPS-view-value"></label><span class="default_value">[&#39;django.contrib.admin&#39;, &#39;django.contrib.auth&#39;, &#39;django.contrib.contenttypes&#39;, &#39;django.contrib.sessions&#39;, &#39;django.contrib.messages&#39;, &#39;django.contrib.staticfiles&#39;, &#39;django.contrib.postgres&#39;, &#39;usuarios&#39;, &#39;clientes&#39;, &#39;mpagos&#39;, &#39;cotizaciones&#39;, &#39;operaciones&#39;, &#39;arqueos&#39;, &#39;caja&#39;, &#39;mozilla_django_oidc&#39;, &#39;main&#39;]</span>
+            <label class="view-value-button pdoc-button" for="INSTALLED_APPS-view-value"></label><span class="default_value">[&#39;django.contrib.admin&#39;, &#39;django.contrib.auth&#39;, &#39;django.contrib.contenttypes&#39;, &#39;django.contrib.sessions&#39;, &#39;django.contrib.messages&#39;, &#39;django.contrib.staticfiles&#39;, &#39;django.contrib.postgres&#39;, &#39;usuarios&#39;, &#39;clientes&#39;, &#39;mpagos&#39;, &#39;cotizaciones&#39;, &#39;operaciones&#39;, &#39;arqueos&#39;, &#39;caja&#39;, &#39;notificaciones&#39;, &#39;main&#39;, &#39;mozilla_django_oidc&#39;]</span>
 
         
     </div>
@@ -402,7 +419,7 @@ Ver <code>.env.example</code> en la raíz del repositorio.</p>
                     <div class="attr variable">
             <span class="name">TEMPLATES</span>        =
 <input id="TEMPLATES-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="TEMPLATES-view-value"></label><span class="default_value">[{&#39;BACKEND&#39;: &#39;django.template.backends.django.DjangoTemplates&#39;, &#39;DIRS&#39;: [PosixPath(&#39;/app/templates&#39;)], &#39;APP_DIRS&#39;: True, &#39;OPTIONS&#39;: {&#39;context_processors&#39;: [&#39;django.template.context_processors.debug&#39;, &#39;django.template.context_processors.request&#39;, &#39;django.contrib.auth.context_processors.auth&#39;, &#39;django.contrib.messages.context_processors.messages&#39;]}}]</span>
+            <label class="view-value-button pdoc-button" for="TEMPLATES-view-value"></label><span class="default_value">[{&#39;BACKEND&#39;: &#39;django.template.backends.django.DjangoTemplates&#39;, &#39;DIRS&#39;: [PosixPath(&#39;/app/templates&#39;)], &#39;APP_DIRS&#39;: True, &#39;OPTIONS&#39;: {&#39;context_processors&#39;: [&#39;django.template.context_processors.debug&#39;, &#39;django.template.context_processors.request&#39;, &#39;django.contrib.auth.context_processors.auth&#39;, &#39;django.contrib.messages.context_processors.messages&#39;, &#39;notificaciones.context_processors.notificaciones_context&#39;]}}]</span>
 
         
     </div>
@@ -740,11 +757,59 @@ Ver <code>.env.example</code> en la raíz del repositorio.</p>
                 <section id="ARQUEO_FUNCION_SALDO">
                     <div class="attr variable">
             <span class="name">ARQUEO_FUNCION_SALDO</span>        =
-<span class="default_value">$ARQUEO_FUNCION_SALDO</span>
+<span class="default_value">&#39;<a href="../arqueos/saldos.html#saldo_registrado">arqueos.saldos.saldo_registrado</a>&#39;</span>
 
         
     </div>
     <a class="headerlink" href="#ARQUEO_FUNCION_SALDO"></a>
+    
+    
+
+                </section>
+                <section id="STRIPE_SECRET_KEY">
+                    <div class="attr variable">
+            <span class="name">STRIPE_SECRET_KEY</span>        =
+<span class="default_value">&#39;&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#STRIPE_SECRET_KEY"></a>
+    
+    
+
+                </section>
+                <section id="STRIPE_PUBLISHABLE_KEY">
+                    <div class="attr variable">
+            <span class="name">STRIPE_PUBLISHABLE_KEY</span>        =
+<span class="default_value">&#39;&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#STRIPE_PUBLISHABLE_KEY"></a>
+    
+    
+
+                </section>
+                <section id="STRIPE_WEBHOOK_SECRET">
+                    <div class="attr variable">
+            <span class="name">STRIPE_WEBHOOK_SECRET</span>        =
+<span class="default_value">&#39;&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#STRIPE_WEBHOOK_SECRET"></a>
+    
+    
+
+                </section>
+                <section id="STRIPE_CURRENCY">
+                    <div class="attr variable">
+            <span class="name">STRIPE_CURRENCY</span>        =
+<span class="default_value">&#39;pyg&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#STRIPE_CURRENCY"></a>
     
     
 

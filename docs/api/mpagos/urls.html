@@ -80,13 +80,16 @@
 </span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>    
 </span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="c1"># Ruta para despliegue del formulario de alta</span>
 </span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'crear/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">crear_medio_pago</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'crear'</span><span class="p">),</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="c1"># Ruta paramétrica para confirmar y procesar la eliminación</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'eliminar/&lt;int:pk&gt;/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">eliminar_medio_pago</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'eliminar'</span><span class="p">),</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="c1"># Ruta para acceso directo de edicion de medios de pago</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'editar/&lt;int:pk&gt;/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">editar_medio_pago</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'editar'</span><span class="p">),</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="p">]</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'stripe/setup-intent/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">crear_setup_intent</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'stripe_setup_intent'</span><span class="p">),</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'stripe/registro-retorno/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">stripe_registro_retorno</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'stripe_registro_retorno'</span><span class="p">),</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="c1"># Ruta paramétrica para confirmar y procesar la eliminación</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'eliminar/&lt;int:pk&gt;/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">eliminar_medio_pago</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'eliminar'</span><span class="p">),</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="c1"># Ruta para acceso directo de edicion de medios de pago</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">path</span><span class="p">(</span><span class="s1">'editar/&lt;int:pk&gt;/'</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">editar_medio_pago</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'editar'</span><span class="p">),</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="p">]</span>
 </span></pre></div>
 
 
@@ -107,7 +110,7 @@
                     <div class="attr variable">
             <span class="name">urlpatterns</span>        =
 <input id="urlpatterns-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="urlpatterns-view-value"></label><span class="default_value">[&lt;URLPattern &#39;&#39; [name=&#39;listar&#39;]&gt;, &lt;URLPattern &#39;crear/&#39; [name=&#39;crear&#39;]&gt;, &lt;URLPattern &#39;eliminar/&lt;int:pk&gt;/&#39; [name=&#39;eliminar&#39;]&gt;, &lt;URLPattern &#39;editar/&lt;int:pk&gt;/&#39; [name=&#39;editar&#39;]&gt;]</span>
+            <label class="view-value-button pdoc-button" for="urlpatterns-view-value"></label><span class="default_value">[&lt;URLPattern &#39;&#39; [name=&#39;listar&#39;]&gt;, &lt;URLPattern &#39;crear/&#39; [name=&#39;crear&#39;]&gt;, &lt;URLPattern &#39;stripe/setup-intent/&#39; [name=&#39;stripe_setup_intent&#39;]&gt;, &lt;URLPattern &#39;stripe/registro-retorno/&#39; [name=&#39;stripe_registro_retorno&#39;]&gt;, &lt;URLPattern &#39;eliminar/&lt;int:pk&gt;/&#39; [name=&#39;eliminar&#39;]&gt;, &lt;URLPattern &#39;editar/&lt;int:pk&gt;/&#39; [name=&#39;editar&#39;]&gt;]</span>
 
         
     </div>

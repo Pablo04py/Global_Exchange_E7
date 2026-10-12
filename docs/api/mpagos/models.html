@@ -55,6 +55,18 @@
                                 <a class="function" href="#MedioPago.numero_enmascarado">numero_enmascarado</a>
                         </li>
                         <li>
+                                <a class="function" href="#MedioPago.stripe_payment_method_id">stripe_payment_method_id</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#MedioPago.marca_tarjeta">marca_tarjeta</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#MedioPago.exp_mes">exp_mes</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#MedioPago.exp_anio">exp_anio</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#MedioPago.es_predeterminado">es_predeterminado</a>
                         </li>
                         <li>
@@ -207,38 +219,65 @@ los métodos de acreditación/cobro de los clientes de la casa de cambio.</p>
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Número o identificador enmascarado. Ej: **** 4321 o Alias CBU/Cuenta."</span>
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>    <span class="p">)</span>
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>    <span class="c1"># Banderas de estado operativo</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="n">es_predeterminado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"¿Es Predeterminado?"</span><span class="p">,</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Indica si es el medio de pago seleccionado por defecto."</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>    <span class="p">)</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="n">activo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Indica si el registro está activo (borrado lógico)."</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>    <span class="p">)</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>    <span class="n">creado_en</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Fecha y hora de registro en el sistema."</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>    <span class="p">)</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="w">        </span><span class="sd">"""Configuración de metadatos del modelo en la base de datos."""</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Medio de Pago"</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Medios de Pago"</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-es_predeterminado'</span><span class="p">,</span> <span class="s1">'-creado_en'</span><span class="p">]</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="w">        </span><span class="sd">"""</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">        Retorna la representación textual del medio de pago.</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>    <span class="n">stripe_payment_method_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>        <span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Identificador del método de pago almacenado en Stripe."</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="p">)</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>    <span class="n">marca_tarjeta</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>        <span class="n">max_length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Marca de la tarjeta informada por Stripe."</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>    <span class="p">)</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>    <span class="n">exp_mes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Mes de vencimiento de la tarjeta."</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>    <span class="p">)</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>    <span class="n">exp_anio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Año de vencimiento de la tarjeta."</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="p">)</span>
 </span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">        Returns:</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">            str: Tipo, identificador enmascarado y titular.</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">        """</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>        <span class="c1"># Formato accesible para desplegar en listas y selectores de la interfaz</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tipo_display</span><span class="p">()</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">numero_enmascarado</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nombre_titular</span><span class="si">}</span><span class="s2">)"</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>    <span class="c1"># Banderas de estado operativo</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>    <span class="n">es_predeterminado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"¿Es Predeterminado?"</span><span class="p">,</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Indica si es el medio de pago seleccionado por defecto."</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="p">)</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>    
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="n">activo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Indica si el registro está activo (borrado lógico)."</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>    <span class="p">)</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>    <span class="n">creado_en</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>        <span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Fecha y hora de registro en el sistema."</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>    <span class="p">)</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="w">        </span><span class="sd">"""Configuración de metadatos del modelo en la base de datos."""</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Medio de Pago"</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Medios de Pago"</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-es_predeterminado'</span><span class="p">,</span> <span class="s1">'-creado_en'</span><span class="p">]</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="w">        </span><span class="sd">"""</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">        Retorna la representación textual del medio de pago.</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        Returns:</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">            str: Tipo, identificador enmascarado y titular.</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">        """</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>        <span class="c1"># Formato accesible para desplegar en listas y selectores de la interfaz</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tipo_display</span><span class="p">()</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">numero_enmascarado</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nombre_titular</span><span class="si">}</span><span class="s2">)"</span>
 </span></pre></div>
 
 
@@ -314,38 +353,65 @@ los métodos de acreditación/cobro de los clientes de la casa de cambio.</p>
 </span><span id="MedioPago-71"><a href="#MedioPago-71"><span class="linenos"> 71</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Número o identificador enmascarado. Ej: **** 4321 o Alias CBU/Cuenta."</span>
 </span><span id="MedioPago-72"><a href="#MedioPago-72"><span class="linenos"> 72</span></a>    <span class="p">)</span>
 </span><span id="MedioPago-73"><a href="#MedioPago-73"><span class="linenos"> 73</span></a>
-</span><span id="MedioPago-74"><a href="#MedioPago-74"><span class="linenos"> 74</span></a>    <span class="c1"># Banderas de estado operativo</span>
-</span><span id="MedioPago-75"><a href="#MedioPago-75"><span class="linenos"> 75</span></a>    <span class="n">es_predeterminado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
-</span><span id="MedioPago-76"><a href="#MedioPago-76"><span class="linenos"> 76</span></a>        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
-</span><span id="MedioPago-77"><a href="#MedioPago-77"><span class="linenos"> 77</span></a>        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"¿Es Predeterminado?"</span><span class="p">,</span>
-</span><span id="MedioPago-78"><a href="#MedioPago-78"><span class="linenos"> 78</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Indica si es el medio de pago seleccionado por defecto."</span>
-</span><span id="MedioPago-79"><a href="#MedioPago-79"><span class="linenos"> 79</span></a>    <span class="p">)</span>
-</span><span id="MedioPago-80"><a href="#MedioPago-80"><span class="linenos"> 80</span></a>    
-</span><span id="MedioPago-81"><a href="#MedioPago-81"><span class="linenos"> 81</span></a>    <span class="n">activo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
-</span><span id="MedioPago-82"><a href="#MedioPago-82"><span class="linenos"> 82</span></a>        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="MedioPago-83"><a href="#MedioPago-83"><span class="linenos"> 83</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Indica si el registro está activo (borrado lógico)."</span>
-</span><span id="MedioPago-84"><a href="#MedioPago-84"><span class="linenos"> 84</span></a>    <span class="p">)</span>
-</span><span id="MedioPago-85"><a href="#MedioPago-85"><span class="linenos"> 85</span></a>    
-</span><span id="MedioPago-86"><a href="#MedioPago-86"><span class="linenos"> 86</span></a>    <span class="n">creado_en</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span>
-</span><span id="MedioPago-87"><a href="#MedioPago-87"><span class="linenos"> 87</span></a>        <span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="MedioPago-88"><a href="#MedioPago-88"><span class="linenos"> 88</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Fecha y hora de registro en el sistema."</span>
-</span><span id="MedioPago-89"><a href="#MedioPago-89"><span class="linenos"> 89</span></a>    <span class="p">)</span>
-</span><span id="MedioPago-90"><a href="#MedioPago-90"><span class="linenos"> 90</span></a>
-</span><span id="MedioPago-91"><a href="#MedioPago-91"><span class="linenos"> 91</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-</span><span id="MedioPago-92"><a href="#MedioPago-92"><span class="linenos"> 92</span></a><span class="w">        </span><span class="sd">"""Configuración de metadatos del modelo en la base de datos."""</span>
-</span><span id="MedioPago-93"><a href="#MedioPago-93"><span class="linenos"> 93</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Medio de Pago"</span>
-</span><span id="MedioPago-94"><a href="#MedioPago-94"><span class="linenos"> 94</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Medios de Pago"</span>
-</span><span id="MedioPago-95"><a href="#MedioPago-95"><span class="linenos"> 95</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-es_predeterminado'</span><span class="p">,</span> <span class="s1">'-creado_en'</span><span class="p">]</span>
-</span><span id="MedioPago-96"><a href="#MedioPago-96"><span class="linenos"> 96</span></a>
-</span><span id="MedioPago-97"><a href="#MedioPago-97"><span class="linenos"> 97</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="MedioPago-98"><a href="#MedioPago-98"><span class="linenos"> 98</span></a><span class="w">        </span><span class="sd">"""</span>
-</span><span id="MedioPago-99"><a href="#MedioPago-99"><span class="linenos"> 99</span></a><span class="sd">        Retorna la representación textual del medio de pago.</span>
+</span><span id="MedioPago-74"><a href="#MedioPago-74"><span class="linenos"> 74</span></a>    <span class="n">stripe_payment_method_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+</span><span id="MedioPago-75"><a href="#MedioPago-75"><span class="linenos"> 75</span></a>        <span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+</span><span id="MedioPago-76"><a href="#MedioPago-76"><span class="linenos"> 76</span></a>        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="MedioPago-77"><a href="#MedioPago-77"><span class="linenos"> 77</span></a>        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="MedioPago-78"><a href="#MedioPago-78"><span class="linenos"> 78</span></a>        <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="MedioPago-79"><a href="#MedioPago-79"><span class="linenos"> 79</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Identificador del método de pago almacenado en Stripe."</span>
+</span><span id="MedioPago-80"><a href="#MedioPago-80"><span class="linenos"> 80</span></a>    <span class="p">)</span>
+</span><span id="MedioPago-81"><a href="#MedioPago-81"><span class="linenos"> 81</span></a>
+</span><span id="MedioPago-82"><a href="#MedioPago-82"><span class="linenos"> 82</span></a>    <span class="n">marca_tarjeta</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+</span><span id="MedioPago-83"><a href="#MedioPago-83"><span class="linenos"> 83</span></a>        <span class="n">max_length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+</span><span id="MedioPago-84"><a href="#MedioPago-84"><span class="linenos"> 84</span></a>        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="MedioPago-85"><a href="#MedioPago-85"><span class="linenos"> 85</span></a>        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="MedioPago-86"><a href="#MedioPago-86"><span class="linenos"> 86</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Marca de la tarjeta informada por Stripe."</span>
+</span><span id="MedioPago-87"><a href="#MedioPago-87"><span class="linenos"> 87</span></a>    <span class="p">)</span>
+</span><span id="MedioPago-88"><a href="#MedioPago-88"><span class="linenos"> 88</span></a>
+</span><span id="MedioPago-89"><a href="#MedioPago-89"><span class="linenos"> 89</span></a>    <span class="n">exp_mes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span>
+</span><span id="MedioPago-90"><a href="#MedioPago-90"><span class="linenos"> 90</span></a>        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="MedioPago-91"><a href="#MedioPago-91"><span class="linenos"> 91</span></a>        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="MedioPago-92"><a href="#MedioPago-92"><span class="linenos"> 92</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Mes de vencimiento de la tarjeta."</span>
+</span><span id="MedioPago-93"><a href="#MedioPago-93"><span class="linenos"> 93</span></a>    <span class="p">)</span>
+</span><span id="MedioPago-94"><a href="#MedioPago-94"><span class="linenos"> 94</span></a>
+</span><span id="MedioPago-95"><a href="#MedioPago-95"><span class="linenos"> 95</span></a>    <span class="n">exp_anio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span>
+</span><span id="MedioPago-96"><a href="#MedioPago-96"><span class="linenos"> 96</span></a>        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="MedioPago-97"><a href="#MedioPago-97"><span class="linenos"> 97</span></a>        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="MedioPago-98"><a href="#MedioPago-98"><span class="linenos"> 98</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Año de vencimiento de la tarjeta."</span>
+</span><span id="MedioPago-99"><a href="#MedioPago-99"><span class="linenos"> 99</span></a>    <span class="p">)</span>
 </span><span id="MedioPago-100"><a href="#MedioPago-100"><span class="linenos">100</span></a>
-</span><span id="MedioPago-101"><a href="#MedioPago-101"><span class="linenos">101</span></a><span class="sd">        Returns:</span>
-</span><span id="MedioPago-102"><a href="#MedioPago-102"><span class="linenos">102</span></a><span class="sd">            str: Tipo, identificador enmascarado y titular.</span>
-</span><span id="MedioPago-103"><a href="#MedioPago-103"><span class="linenos">103</span></a><span class="sd">        """</span>
-</span><span id="MedioPago-104"><a href="#MedioPago-104"><span class="linenos">104</span></a>        <span class="c1"># Formato accesible para desplegar en listas y selectores de la interfaz</span>
-</span><span id="MedioPago-105"><a href="#MedioPago-105"><span class="linenos">105</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tipo_display</span><span class="p">()</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">numero_enmascarado</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nombre_titular</span><span class="si">}</span><span class="s2">)"</span>
+</span><span id="MedioPago-101"><a href="#MedioPago-101"><span class="linenos">101</span></a>    <span class="c1"># Banderas de estado operativo</span>
+</span><span id="MedioPago-102"><a href="#MedioPago-102"><span class="linenos">102</span></a>    <span class="n">es_predeterminado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+</span><span id="MedioPago-103"><a href="#MedioPago-103"><span class="linenos">103</span></a>        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+</span><span id="MedioPago-104"><a href="#MedioPago-104"><span class="linenos">104</span></a>        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"¿Es Predeterminado?"</span><span class="p">,</span>
+</span><span id="MedioPago-105"><a href="#MedioPago-105"><span class="linenos">105</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Indica si es el medio de pago seleccionado por defecto."</span>
+</span><span id="MedioPago-106"><a href="#MedioPago-106"><span class="linenos">106</span></a>    <span class="p">)</span>
+</span><span id="MedioPago-107"><a href="#MedioPago-107"><span class="linenos">107</span></a>    
+</span><span id="MedioPago-108"><a href="#MedioPago-108"><span class="linenos">108</span></a>    <span class="n">activo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+</span><span id="MedioPago-109"><a href="#MedioPago-109"><span class="linenos">109</span></a>        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="MedioPago-110"><a href="#MedioPago-110"><span class="linenos">110</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Indica si el registro está activo (borrado lógico)."</span>
+</span><span id="MedioPago-111"><a href="#MedioPago-111"><span class="linenos">111</span></a>    <span class="p">)</span>
+</span><span id="MedioPago-112"><a href="#MedioPago-112"><span class="linenos">112</span></a>    
+</span><span id="MedioPago-113"><a href="#MedioPago-113"><span class="linenos">113</span></a>    <span class="n">creado_en</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span>
+</span><span id="MedioPago-114"><a href="#MedioPago-114"><span class="linenos">114</span></a>        <span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="MedioPago-115"><a href="#MedioPago-115"><span class="linenos">115</span></a>        <span class="n">help_text</span><span class="o">=</span><span class="s2">"Fecha y hora de registro en el sistema."</span>
+</span><span id="MedioPago-116"><a href="#MedioPago-116"><span class="linenos">116</span></a>    <span class="p">)</span>
+</span><span id="MedioPago-117"><a href="#MedioPago-117"><span class="linenos">117</span></a>
+</span><span id="MedioPago-118"><a href="#MedioPago-118"><span class="linenos">118</span></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="MedioPago-119"><a href="#MedioPago-119"><span class="linenos">119</span></a><span class="w">        </span><span class="sd">"""Configuración de metadatos del modelo en la base de datos."""</span>
+</span><span id="MedioPago-120"><a href="#MedioPago-120"><span class="linenos">120</span></a>        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">"Medio de Pago"</span>
+</span><span id="MedioPago-121"><a href="#MedioPago-121"><span class="linenos">121</span></a>        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">"Medios de Pago"</span>
+</span><span id="MedioPago-122"><a href="#MedioPago-122"><span class="linenos">122</span></a>        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'-es_predeterminado'</span><span class="p">,</span> <span class="s1">'-creado_en'</span><span class="p">]</span>
+</span><span id="MedioPago-123"><a href="#MedioPago-123"><span class="linenos">123</span></a>
+</span><span id="MedioPago-124"><a href="#MedioPago-124"><span class="linenos">124</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="MedioPago-125"><a href="#MedioPago-125"><span class="linenos">125</span></a><span class="w">        </span><span class="sd">"""</span>
+</span><span id="MedioPago-126"><a href="#MedioPago-126"><span class="linenos">126</span></a><span class="sd">        Retorna la representación textual del medio de pago.</span>
+</span><span id="MedioPago-127"><a href="#MedioPago-127"><span class="linenos">127</span></a>
+</span><span id="MedioPago-128"><a href="#MedioPago-128"><span class="linenos">128</span></a><span class="sd">        Returns:</span>
+</span><span id="MedioPago-129"><a href="#MedioPago-129"><span class="linenos">129</span></a><span class="sd">            str: Tipo, identificador enmascarado y titular.</span>
+</span><span id="MedioPago-130"><a href="#MedioPago-130"><span class="linenos">130</span></a><span class="sd">        """</span>
+</span><span id="MedioPago-131"><a href="#MedioPago-131"><span class="linenos">131</span></a>        <span class="c1"># Formato accesible para desplegar en listas y selectores de la interfaz</span>
+</span><span id="MedioPago-132"><a href="#MedioPago-132"><span class="linenos">132</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tipo_display</span><span class="p">()</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">numero_enmascarado</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nombre_titular</span><span class="si">}</span><span class="s2">)"</span>
 </span></pre></div>
 
 
@@ -470,6 +536,70 @@ object the first time, the query is executed.</p>
         
     </div>
     <a class="headerlink" href="#MedioPago.numero_enmascarado"></a>
+    
+            <div class="docstring"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</div>
+
+
+                            </div>
+                            <div id="MedioPago.stripe_payment_method_id" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">stripe_payment_method_id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#MedioPago.stripe_payment_method_id"></a>
+    
+            <div class="docstring"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</div>
+
+
+                            </div>
+                            <div id="MedioPago.marca_tarjeta" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">marca_tarjeta</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#MedioPago.marca_tarjeta"></a>
+    
+            <div class="docstring"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</div>
+
+
+                            </div>
+                            <div id="MedioPago.exp_mes" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">exp_mes</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#MedioPago.exp_mes"></a>
+    
+            <div class="docstring"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</div>
+
+
+                            </div>
+                            <div id="MedioPago.exp_anio" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">exp_anio</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#MedioPago.exp_anio"></a>
     
             <div class="docstring"><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
