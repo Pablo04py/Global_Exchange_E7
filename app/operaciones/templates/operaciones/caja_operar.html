@@ -1,0 +1,107 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Operar en caja | Global Exchange{% endblock %}
+{% block page_title %}Operar en caja{% endblock %}
+
+{% block content %}
+<div style="max-width: 680px; margin: 0 auto;">
+
+  <div style="background: #DBEAFE; border: 1px solid #BFDBFE; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #1E3A8A;">
+    <div><strong>{{ cliente.nombre_o_denominacion }}</strong> — {{ cliente.get_categoria_display }}</div>
+    <div style="font-size: 13px; margin-top: 2px;">
+      Doc.: {{ cliente.documento }} · Caja: {{ sesion.caja }} · Pago en efectivo
+    </div>
+    <a href="{% url 'caja_buscar_cliente' %}" style="font-size: 12px; color: #2563EB;">Cambiar de cliente</a>
+  </div>
+
+  <form method="post"
+        style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div style="background: #FEE2E2; border: 1px solid #FCA5A5; border-radius: 8px; padding: 12px 16px; color: #991B1B; font-size: 13px; margin-bottom: 16px;">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div>
+        {{ form.tipo_operacion.label_tag }}
+        {{ form.tipo_operacion }}
+        {{ form.tipo_operacion.errors }}
+      </div>
+
+      <div>
+        {{ form.moneda.label_tag }}
+        {{ form.moneda }}
+        {{ form.moneda.errors }}
+      </div>
+
+      <div>
+        {{ form.monto.label_tag }}
+        {{ form.monto }}
+        {{ form.monto.errors }}
+      </div>
+      
+      <div>
+        {{ form.forma_pago.label_tag }}
+        {{ form.forma_pago }}
+        {{ form.forma_pago.errors }}
+      </div>
+
+      <button type="submit" name="accion" value="simular"
+              style="background: #2563EB; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer;">
+        Simular operación
+      </button>
+    </div>
+
+    {% if simulacion %}
+    <hr style="margin: 24px 0; border: none; border-top: 1px solid #E5E9F0;">
+
+    <h3 style="font-size: 16px; font-weight: 700; color: #1A2840; margin: 0 0 12px 0;">Resumen de la operación</h3>
+
+    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #475569;">
+      <div style="display: flex; justify-content: space-between;">
+        <span>Tasa aplicada:</span>
+        <strong>{{ simulacion.tasa_aplicada }}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span>Comisión:</span>
+        <strong>{{ simulacion.porcentaje_comision }} %</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span>Monto de comisión:</span>
+        <strong>{{ simulacion.monto_comision }} {{ simulacion.moneda_comision }}</strong>
+      </div>
+    </div>
+
+    <div style="background: #F8FAFC; border: 1px solid #E5E9F0; border-radius: 10px; padding: 16px; margin: 16px 0; font-size: 14px;">
+      <div style="margin-bottom: 8px;">
+        <span style="color: #6B7A99;">El cajero RECIBE del cliente:</span><br>
+        <strong style="font-size: 20px; color: #1A2840;">{{ simulacion.monto_origen }} {{ simulacion.moneda_origen }}</strong>
+      </div>
+      <div>
+        <span style="color: #6B7A99;">El cajero ENTREGA al cliente:</span><br>
+        <strong style="font-size: 20px; color: #059669;">{{ simulacion.monto_destino }} {{ simulacion.moneda_destino }}</strong>
+      </div>
+    </div>
+
+    {% if not simulacion.en_efectivo %}
+    <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #92400E; margin-bottom: 12px;">
+      Pago sin efectivo: confirme en el POS o en el banco que el cobro se acreditó antes de confirmar.
+      El guaraní no se descuenta ni se suma a la caja; la divisa extranjera sí.
+    </div>
+    {% endif %}
+
+    <input type="hidden" name="tasa_id_simulada" value="{{ simulacion.tasa_id }}">
+    <input type="hidden" name="huella" value="{{ simulacion.huella }}">
+
+    <button type="submit" name="accion" value="confirmar"
+            style="width: 100%; background: #059669; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer;"
+            onclick="return confirm('¿Confirmar la operación? Verifique que el efectivo fue contado.');">
+      Confirmar operación
+    </button>
+    {% endif %}
+  </form>
+</div>
+{% endblock %}
