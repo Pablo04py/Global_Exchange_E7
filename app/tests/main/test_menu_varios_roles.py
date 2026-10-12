@@ -85,3 +85,11 @@ class MenuVariosRolesTestCase(TestCase):
         etiquetas = [s['label'] for s in get_menu_sections('Cajero', None, is_authenticated=True)]
         self.assertIn('Gestión de Caja', etiquetas)
         self.assertNotIn('Administración', etiquetas)
+
+    def test_menu_del_cajero_incluye_apertura_y_cierre(self):
+        """La sección Gestión de Caja tiene "Apertura de Caja" y "Cierre de Caja" (al cierre de SCRUM-40)."""
+        secciones = self._secciones(self._usuario_con_roles('cajero', 'Cajero'))
+        caja = next(s for s in secciones if s['label'] == 'Gestión de Caja')
+        items = {item['name']: item['url'] for item in caja['items']}
+        self.assertIn('Apertura de Caja', items)
+        self.assertEqual(items['Cierre de Caja'], reverse('cerrar_caja'))
