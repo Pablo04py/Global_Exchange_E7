@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'mpagos',
     'cotizaciones',
     'operaciones',
+    'caja',
 
     
     

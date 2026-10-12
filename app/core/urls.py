@@ -28,4 +28,7 @@ urlpatterns = [
     path('cotizaciones/', include('cotizaciones.urls')),
     #ruta a operaciones
     path('operaciones/', include('operaciones.urls')),
+    #ruta a caja
+    path('caja/', include('caja.urls', namespace='caja')),
+
 ]
