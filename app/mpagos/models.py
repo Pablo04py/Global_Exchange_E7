@@ -70,6 +70,33 @@ class MedioPago(models.Model):
         help_text="Número o identificador enmascarado. Ej: **** 4321 o Alias CBU/Cuenta."
     )
 
+    stripe_payment_method_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        unique=True,
+        help_text="Identificador del método de pago almacenado en Stripe."
+    )
+
+    marca_tarjeta = models.CharField(
+        max_length=30,
+        blank=True,
+        null=True,
+        help_text="Marca de la tarjeta informada por Stripe."
+    )
+
+    exp_mes = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        help_text="Mes de vencimiento de la tarjeta."
+    )
+
+    exp_anio = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        help_text="Año de vencimiento de la tarjeta."
+    )
+
     # Banderas de estado operativo
     es_predeterminado = models.BooleanField(
         default=False, 
