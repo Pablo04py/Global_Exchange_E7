@@ -1,5 +1,12 @@
 """Vistas de la aplicación operaciones (monedas, tasas de cambio, simulador e historial de transacciones)."""
 
+import stripe
+
+from django.conf import settings
+
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET, require_POST
 
 from decimal import Decimal, InvalidOperation
 
@@ -11,7 +18,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_GET
 
 from clientes.models import Cliente
-from main.views import get_menu_sections, resolve_user_role
+from main.views import get_menu_sections, resolve_user_role, resolve_user_roles
 from usuarios.decorators import requiere_rol
 
 from .models import Moneda, TasaDeCambio, Transaccion
@@ -21,7 +28,14 @@ from .services import (
     crear_transaccion,
     CotizacionDesactualizada,
     registrar_transaccion_cancelada,
+    cambiar_estado_transaccion,
+    obtener_o_crear_medio_efectivo,
 )
+
+from .pagos.stripe_service import crear_payment_intent_tarjeta_guardada
+
+from django.db import transaction
+from notificaciones.services import crear_notificacion_cambio_tasa
 
 @requiere_rol('Administrador General')
 def lista_monedas(request):
@@ -125,15 +139,42 @@ def crear_tasa(request, moneda_id=None):
 
     Returns:
         HttpResponse: Formulario o redirección a `lista_tasas`.
+    
+    Al registrar una nueva tasa:
+    - conserva el historial existente;
+    - identifica la tasa vigente anterior;
+    - registra la nueva tasa;
+    - genera una notificación para los usuarios del sistema.
     """
     # Si viene un moneda_id por la URL, buscamos la moneda. Si no, queda en None.
     moneda_inicial = get_object_or_404(Moneda, id=moneda_id) if moneda_id else None
 
     if request.method == 'POST':
         form = TasaDeCambioForm(request.POST)
+
         if form.is_valid():
-            form.save()
+
+            moneda = form.cleaned_data['moneda']
+
+            tasa_anterior = TasaDeCambio.objects.filter(moneda=moneda).order_by('-fecha_vigencia').first()
+
+            with transaction.atomic():
+
+                tasa_nueva = form.save()
+
+                crear_notificacion_cambio_tasa(
+                    tasa_nueva=tasa_nueva,
+                    tasa_anterior=tasa_anterior,
+                    usuario=request.user
+                )
+
+            messages.success(
+                request,
+                f"La tasa de {moneda.codigo} fue actualizada correctamente."
+            )
+
             return redirect('lista_tasas')
+
     else:
         form = TasaDeCambioForm(initial={'moneda': moneda_inicial} if moneda_inicial else None)
 
@@ -282,7 +323,9 @@ def historial_transacciones(request):
         )),
         'total': page_obj.paginator.count,
         'hay_filtros': any(v for k, v in request.GET.items() if k != 'page'),
-        'menu_sections': get_menu_sections(resolve_user_role(request), cliente, is_authenticated=True),
+        'menu_sections': get_menu_sections(
+            resolve_user_role(request), cliente, is_authenticated=True, roles=resolve_user_roles(request)
+        ),
     }
     return render(request, 'operaciones/historial.html', context)
 
@@ -299,6 +342,11 @@ def operar(request):
         )
 
         return redirect('dashboard')
+
+    obtener_o_crear_medio_efectivo(
+        cliente=cliente,
+        usuario=request.user
+    )
 
     simulacion = None
 
@@ -408,21 +456,462 @@ def operar(request):
 
 
 @login_required
-def detalle_transaccion(
-    request,
-    transaccion_id
-):
+def detalle_transaccion(request, transaccion_id):
 
-    transaccion = get_object_or_404(
-        Transaccion,
-        id=transaccion_id,
-        usuario=request.user
-    )
+    cliente = obtener_cliente_activo(request)
+    if not cliente:
+        messages.warning(request,"Debe tener un cliente activo.")
+        return redirect('dashboard')
+
+    transaccion = get_object_or_404(Transaccion.objects.select_related('cliente','usuario','moneda','medio_pago'),id=transaccion_id,cliente=cliente)
 
     return render(
         request,
         'operaciones/detalle_transaccion.html',
         {
-            'transaccion': transaccion
+            'transaccion': transaccion,
+            'stripe_publishable_key': (
+                settings.STRIPE_PUBLISHABLE_KEY
+            ),
         }
+    )
+
+
+@login_required
+@require_POST
+def iniciar_pago_stripe(
+    request,
+    transaccion_id
+):
+    """
+    Crea un PaymentIntent para una tarjeta
+    previamente guardada en Stripe.
+    """
+
+    cliente = obtener_cliente_activo(request)
+
+    if not cliente:
+        return JsonResponse(
+            {
+                'error': (
+                    'Debe tener un cliente activo.'
+                )
+            },
+            status=400
+        )
+
+    transaccion = get_object_or_404(
+        Transaccion.objects.select_related(
+            'cliente',
+            'medio_pago',
+            'moneda'
+        ),
+        id=transaccion_id,
+        cliente=cliente,
+    )
+
+    try:
+
+        payment_intent = (
+            crear_payment_intent_tarjeta_guardada(
+                transaccion
+            )
+        )
+
+        return JsonResponse(
+            {
+                'client_secret':
+                    payment_intent.client_secret
+            }
+        )
+
+    except ValidationError as error:
+
+        mensaje = (
+            error.message
+            if hasattr(error, 'message')
+            else str(error)
+        )
+
+        return JsonResponse(
+            {
+                'error': mensaje
+            },
+            status=400
+        )
+
+    except Exception as error:
+
+        print(
+            "ERROR PAYMENT INTENT STRIPE:",
+            type(error).__name__,
+            repr(error),
+            flush=True
+        )
+
+        return JsonResponse(
+            {
+                'error': (
+                    'No se pudo iniciar el pago '
+                    'con Stripe.'
+                )
+            },
+            status=500
+        )
+
+@login_required
+def stripe_pago_exitoso(
+    request,
+    transaccion_id
+):
+    cliente = obtener_cliente_activo(request)
+
+    transaccion = get_object_or_404(
+        Transaccion,
+        id=transaccion_id,
+        cliente=cliente,
+    )
+
+    messages.info(
+        request,
+        "Stripe recibió el pago. "
+        "Estamos verificando la confirmación."
+    )
+
+    return redirect(
+        'detalle_transaccion',
+        transaccion_id=transaccion.id
+    )
+
+@csrf_exempt
+@require_POST
+def stripe_webhook(request):
+    """
+    Recibe eventos firmados de Stripe y confirma
+    las operaciones pagadas.
+    """
+
+    payload = request.body
+
+    signature = request.META.get(
+        'HTTP_STRIPE_SIGNATURE'
+    )
+
+    if not settings.STRIPE_WEBHOOK_SECRET:
+        return HttpResponse(status=500)
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload,
+            signature,
+            settings.STRIPE_WEBHOOK_SECRET,
+        )
+
+    except Exception as error:
+        print(
+            "ERROR FIRMA WEBHOOK STRIPE:",
+            type(error).__name__,
+            repr(error),
+            flush=True
+        )
+
+        return HttpResponse(status=400)
+
+    if event.type != 'payment_intent.succeeded':
+        return HttpResponse(status=200)
+
+    payment_intent = event.data.object
+
+    metadata = (
+        payment_intent.metadata.to_dict()
+        if payment_intent.metadata
+        else {}
+    )
+
+    transaccion_id = metadata.get(
+        'transaccion_id'
+    )
+
+    if not transaccion_id:
+        return HttpResponse(status=200)
+
+    try:
+        transaccion = (
+            Transaccion.objects
+            .select_related(
+                'cliente',
+                'medio_pago',
+                'usuario'
+            )
+            .get(id=transaccion_id)
+        )
+
+    except Transaccion.DoesNotExist:
+        return HttpResponse(status=404)
+
+    # Comprobar que Stripe procesó el Customer
+    # correspondiente al cliente de la operación.
+    if (
+        payment_intent.customer
+        != transaccion.cliente.stripe_customer_id
+    ):
+        return HttpResponse(status=400)
+
+    # Comprobar la tarjeta utilizada.
+    if (
+        payment_intent.payment_method
+        != transaccion.medio_pago.stripe_payment_method_id
+    ):
+        return HttpResponse(status=400)
+
+    transaccion.refresh_from_db()
+
+    # Stripe puede reenviar el mismo webhook.
+    # Si ya está pagada, respondemos 200 sin duplicar el log.
+    if (
+        transaccion.estado
+        == Transaccion.Estado.PAGADA
+    ):
+        return HttpResponse(status=200)
+
+    if (
+        transaccion.estado
+        != Transaccion.Estado.PENDIENTE
+    ):
+        return HttpResponse(status=200)
+
+    cambiar_estado_transaccion(
+        transaccion=transaccion,
+        nuevo_estado=Transaccion.Estado.PAGADA,
+        usuario=transaccion.usuario,
+        motivo=(
+            "Pago confirmado mediante "
+            "Stripe Sandbox."
+        ),
+    )
+
+    print(
+        "STRIPE: Transacción",
+        transaccion.id,
+        "confirmada como PAGADA.",
+        flush=True
+    )
+
+    return HttpResponse(status=200)
+
+@login_required
+@require_GET
+def estado_pago_stripe(
+    request,
+    transaccion_id
+):
+    """
+    Devuelve el estado actual de una transacción
+    perteneciente al cliente activo.
+    """
+
+    cliente = obtener_cliente_activo(request)
+
+    if not cliente:
+        return JsonResponse(
+            {
+                'error': 'Debe tener un cliente activo.'
+            },
+            status=400
+        )
+
+    transaccion = get_object_or_404(
+        Transaccion,
+        id=transaccion_id,
+        cliente=cliente,
+    )
+
+    return JsonResponse(
+        {
+            'estado': transaccion.estado,
+            'pagada': (
+                transaccion.estado
+                == Transaccion.Estado.PAGADA
+            ),
+        }
+    )
+
+@login_required
+@require_POST
+def confirmar_pago_sipap(
+    request,
+    transaccion_id
+):
+    """
+    Confirma de forma simulada un pago mediante SIPAP.
+    """
+
+    cliente = obtener_cliente_activo(request)
+
+    if not cliente:
+        messages.warning(
+            request,
+            "Debe tener un cliente activo."
+        )
+        return redirect('dashboard')
+
+    transaccion = get_object_or_404(
+        Transaccion.objects.select_related(
+            'medio_pago'
+        ),
+        id=transaccion_id,
+        cliente=cliente,
+    )
+
+    # Verificar que realmente sea SIPAP
+    if transaccion.medio_pago.tipo != 'SIPAP':
+
+        messages.error(
+            request,
+            "El medio de pago de esta operación no es SIPAP."
+        )
+
+        return redirect(
+            'detalle_transaccion',
+            transaccion_id=transaccion.id
+        )
+
+    # Solo se puede confirmar una operación pendiente
+    if (
+        transaccion.estado
+        != Transaccion.Estado.PENDIENTE
+    ):
+
+        messages.warning(
+            request,
+            "La operación ya fue procesada."
+        )
+
+        return redirect(
+            'detalle_transaccion',
+            transaccion_id=transaccion.id
+        )
+
+    try:
+
+        cambiar_estado_transaccion(
+            transaccion=transaccion,
+            nuevo_estado=Transaccion.Estado.PAGADA,
+            usuario=request.user,
+            motivo=(
+                "Pago SIPAP confirmado "
+                "mediante simulación."
+            ),
+        )
+
+        messages.success(
+            request,
+            "Pago SIPAP confirmado correctamente."
+        )
+
+    except ValidationError as error:
+
+        mensaje = (
+            error.message
+            if hasattr(error, 'message')
+            else str(error)
+        )
+
+        messages.error(
+            request,
+            mensaje
+        )
+
+    return redirect(
+        'detalle_transaccion',
+        transaccion_id=transaccion.id
+    )
+
+@login_required
+@require_POST
+def confirmar_pago_efectivo(
+    request,
+    transaccion_id
+):
+    """
+    Confirma manualmente la recepción de un pago en efectivo.
+    """
+
+    cliente = obtener_cliente_activo(request)
+
+    if not cliente:
+        messages.warning(
+            request,
+            "Debe tener un cliente activo."
+        )
+        return redirect('dashboard')
+
+    transaccion = get_object_or_404(
+        Transaccion.objects.select_related(
+            'medio_pago'
+        ),
+        id=transaccion_id,
+        cliente=cliente,
+    )
+
+    if transaccion.medio_pago.tipo != 'EFECTIVO':
+
+        messages.error(
+            request,
+            "El medio de pago de esta operación no es efectivo."
+        )
+
+        return redirect(
+            'detalle_transaccion',
+            transaccion_id=transaccion.id
+        )
+
+    if (
+        transaccion.estado
+        != Transaccion.Estado.PENDIENTE
+    ):
+
+        messages.warning(
+            request,
+            "La operación ya fue procesada."
+        )
+
+        return redirect(
+            'detalle_transaccion',
+            transaccion_id=transaccion.id
+        )
+
+    try:
+
+        cambiar_estado_transaccion(
+            transaccion=transaccion,
+            nuevo_estado=Transaccion.Estado.PAGADA,
+            usuario=request.user,
+            motivo=(
+                "Pago en efectivo confirmado "
+                "manualmente."
+            ),
+        )
+
+        messages.success(
+            request,
+            "Pago en efectivo confirmado correctamente."
+        )
+
+    except ValidationError as error:
+
+        mensaje = (
+            error.message
+            if hasattr(error, 'message')
+            else str(error)
+        )
+
+        messages.error(
+            request,
+            mensaje
+        )
+
+    return redirect(
+        'detalle_transaccion',
+        transaccion_id=transaccion.id
     )

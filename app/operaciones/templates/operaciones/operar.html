@@ -9,110 +9,283 @@ Operar / Cambiar Divisas
 {% endblock %}
 
 {% block content %}
+<style>
+  .operation-page {
+    max-width: 720px;
+    margin: 0 auto;
+  }
 
-<div class="operation-container">
+  .operation-client {
+    background: #DBEAFE;
+    border: 1px solid #BFDBFE;
+    border-radius: 12px;
+    padding: 15px 18px;
+    margin-bottom: 20px;
+    color: #1E3A8A;
+    font-size: 14px;
+  }
 
-    <h2>Operar / Cambiar Divisas</h2>
+  .operation-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E9F0;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  }
 
-    <p>
-        Cliente activo:
-        <strong>{{ cliente.nombre_o_denominacion }}</strong>
-        — {{ cliente.get_categoria_display }}
-    </p>
+  .operation-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 
-    <form method="post">
-        {% csrf_token %}
+  .operation-field label {
+    display: block;
+    margin-bottom: 6px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+  }
 
-        {% if form.non_field_errors %}
-            <div class="alert alert-error">
-                {{ form.non_field_errors }}
-            </div>
-        {% endif %}
+  .operation-field input,
+  .operation-field select {
+    width: 100%;
+    min-height: 42px;
+    box-sizing: border-box;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    padding: 9px 12px;
+    background: #FFFFFF;
+    color: #1E293B;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
 
-        <div>
-            {{ form.tipo_operacion.label_tag }}
-            {{ form.tipo_operacion }}
-            {{ form.tipo_operacion.errors }}
+  .operation-field input:focus,
+  .operation-field select:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .10);
+  }
+
+  .operation-field .errorlist,
+  .operation-error .errorlist {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    color: #B91C1C;
+    font-size: 12px;
+  }
+
+  .operation-error {
+    background: #FEE2E2;
+    border: 1px solid #FCA5A5;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #991B1B;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .operation-button {
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .15s ease, transform .05s ease;
+  }
+
+  .operation-button:hover {
+    opacity: .92;
+  }
+
+  .operation-button:active {
+    transform: translateY(1px);
+  }
+
+  .operation-button-primary {
+    background: #2563EB;
+  }
+
+  .operation-button-success {
+    background: #059669;
+  }
+
+  .operation-divider {
+    margin: 26px 0;
+    border: 0;
+    border-top: 1px solid #E5E9F0;
+  }
+
+  .operation-summary-title {
+    margin: 0 0 14px;
+    color: #1A2840;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .operation-summary-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    color: #475569;
+    font-size: 13px;
+  }
+
+  .operation-summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .operation-summary-box {
+    margin: 16px 0;
+    padding: 16px;
+    background: #F8FAFC;
+    border: 1px solid #E5E9F0;
+    border-radius: 10px;
+  }
+
+  .operation-summary-block + .operation-summary-block {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #E2E8F0;
+  }
+
+  .operation-summary-label {
+    display: block;
+    margin-bottom: 4px;
+    color: #64748B;
+    font-size: 13px;
+  }
+
+  .operation-summary-amount {
+    display: block;
+    color: #1A2840;
+    font-size: 21px;
+    font-weight: 700;
+  }
+
+  .operation-summary-receive {
+    color: #059669;
+  }
+
+  @media (max-width: 640px) {
+    .operation-card {
+      padding: 18px;
+    }
+
+    .operation-summary-row {
+      flex-direction: column;
+      gap: 3px;
+    }
+  }
+</style>
+
+<div class="operation-page">
+
+  <div class="operation-client">
+    Cliente activo:
+    <strong>{{ cliente.nombre_o_denominacion }}</strong>
+    — {{ cliente.get_categoria_display }}
+  </div>
+
+  <form method="post" class="operation-card">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="operation-error">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <div class="operation-fields">
+      <div class="operation-field">
+        {{ form.tipo_operacion.label_tag }}
+        {{ form.tipo_operacion }}
+        {{ form.tipo_operacion.errors }}
+      </div>
+
+      <div class="operation-field">
+        {{ form.moneda.label_tag }}
+        {{ form.moneda }}
+        {{ form.moneda.errors }}
+      </div>
+
+      <div class="operation-field">
+        {{ form.monto.label_tag }}
+        {{ form.monto }}
+        {{ form.monto.errors }}
+      </div>
+
+      <div class="operation-field">
+        {{ form.medio_pago.label_tag }}
+        {{ form.medio_pago }}
+        {{ form.medio_pago.errors }}
+      </div>
+
+      <button
+        type="submit"
+        name="accion"
+        value="simular"
+        class="operation-button operation-button-primary"
+      >
+        Simular operación
+      </button>
+    </div>
+
+    {% if simulacion %}
+      <hr class="operation-divider">
+
+      <h3 class="operation-summary-title">Resumen de la operación</h3>
+
+      <div class="operation-summary-meta">
+        <div class="operation-summary-row">
+          <span>Tipo de operación:</span>
+          <strong>{{ form.tipo_operacion.value }}</strong>
         </div>
 
-        <div>
-            {{ form.moneda.label_tag }}
-            {{ form.moneda }}
-            {{ form.moneda.errors }}
+        <div class="operation-summary-row">
+          <span>Tasa aplicada:</span>
+          <strong>{{ simulacion.tasa_aplicada }}</strong>
+        </div>
+      </div>
+
+      <div class="operation-summary-box">
+        <div class="operation-summary-block">
+          <span class="operation-summary-label">Usted entrega</span>
+          <strong class="operation-summary-amount">
+            {{ simulacion.monto_origen }} {{ simulacion.moneda_origen }}
+          </strong>
         </div>
 
-        <div>
-            {{ form.monto.label_tag }}
-            {{ form.monto }}
-            {{ form.monto.errors }}
+        <div class="operation-summary-block">
+          <span class="operation-summary-label">Usted recibe</span>
+          <strong class="operation-summary-amount operation-summary-receive">
+            {{ simulacion.monto_destino }} {{ simulacion.moneda_destino }}
+          </strong>
         </div>
+      </div>
 
-        <div>
-            {{ form.medio_pago.label_tag }}
-            {{ form.medio_pago }}
-            {{ form.medio_pago.errors }}
-        </div>
+      <input
+        type="hidden"
+        name="tasa_id_simulada"
+        value="{{ simulacion.tasa_id }}"
+      >
 
-        <button
-            type="submit"
-            name="accion"
-            value="simular"
-        >
-            Simular operación
-        </button>
-
-        {% if simulacion %}
-
-            <hr>
-
-            <h3>Resumen de la operación</h3>
-
-            <p>
-                Tipo:
-                {{ form.tipo_operacion.value }}
-            </p>
-
-            <p>
-                Tasa aplicada:
-                {{ simulacion.tasa_aplicada }}
-            </p>
-
-            <p>
-                Comisión:
-                {{ simulacion.porcentaje_comision }} %
-            </p>
-
-            <p>
-                Monto de comisión:
-                {{ simulacion.monto_comision }}
-                {{ simulacion.moneda_comision }}
-            </p>
-
-            <p>
-                Monto final:
-                <strong>
-                    {{ simulacion.monto_destino }}
-                </strong>
-            </p>
-
-            <input
-                type="hidden"
-                name="tasa_id_simulada"
-                value="{{ simulacion.tasa_id }}"
-            >
-
-            <button
-                type="submit"
-                name="accion"
-                value="confirmar"
-            >
-                Confirmar operación
-            </button>
-
-        {% endif %}
-
-    </form>
+      <button
+        type="submit"
+        name="accion"
+        value="confirmar"
+        class="operation-button operation-button-success"
+      >
+        Confirmar operación
+      </button>
+    {% endif %}
+  </form>
 
 </div>
-
 {% endblock %}

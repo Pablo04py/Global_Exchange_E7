@@ -9,76 +9,715 @@ Detalle de Operación
 {% endblock %}
 
 {% block content %}
+<style>
+  .detail-page {
+    max-width: 760px;
+    margin: 0 auto;
+  }
 
-<div>
+  .detail-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E9F0;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  }
 
-    <h2>Operación registrada correctamente</h2>
+  .detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
 
-    <p>
-        <strong>ID:</strong>
-        {{ transaccion.id }}
-    </p>
+  .detail-header h2 {
+    margin: 0 0 5px;
+    color: #1A2840;
+    font-size: 20px;
+  }
 
-    <p>
-        <strong>Cliente:</strong>
-        {{ transaccion.cliente.nombre_o_denominacion }}
-    </p>
+  .detail-header p {
+    margin: 0;
+    color: #64748B;
+    font-size: 13px;
+  }
 
-    <p>
-        <strong>Usuario:</strong>
-        {{ transaccion.usuario.username }}
-    </p>
+  .detail-status {
+    flex-shrink: 0;
+    border-radius: 999px;
+    padding: 6px 11px;
+    font-size: 12px;
+    font-weight: 700;
+  }
 
-    <p>
-        <strong>Tipo de operación:</strong>
-        {{ transaccion.get_tipo_operacion_display }}
-    </p>
+  .detail-status-pending {
+    background: #FEF3C7;
+    color: #92400E;
+  }
 
-    <p>
-        <strong>Moneda:</strong>
-        {{ transaccion.moneda.codigo }}
-    </p>
+  .detail-status-paid {
+    background: #D1FAE5;
+    color: #065F46;
+  }
 
-    <p>
-        <strong>Monto ingresado:</strong>
-        {{ transaccion.monto_origen }}
-    </p>
+  .detail-status-cancelled {
+    background: #FEE2E2;
+    color: #991B1B;
+  }
 
-    <p>
-        <strong>Tasa aplicada:</strong>
-        {{ transaccion.tasa_aplicada }}
-    </p>
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
 
-    <p>
-        <strong>Comisión:</strong>
-        {{ transaccion.porcentaje_comision }} %
-    </p>
+  .detail-item {
+    background: #F8FAFC;
+    border: 1px solid #E5E9F0;
+    border-radius: 10px;
+    padding: 13px 14px;
+  }
 
-    <p>
-        <strong>Monto de comisión:</strong>
-        {{ transaccion.monto_comision }}
-        {{ transaccion.moneda_comision }}
-    </p>
+  .detail-item-full {
+    grid-column: 1 / -1;
+  }
 
-    <p>
-        <strong>Monto final:</strong>
-        {{ transaccion.monto_destino }}
-    </p>
+  .detail-label {
+    display: block;
+    margin-bottom: 4px;
+    color: #64748B;
+    font-size: 12px;
+  }
 
-    <p>
-        <strong>Medio de pago:</strong>
-        {{ transaccion.medio_pago }}
-    </p>
+  .detail-value {
+    display: block;
+    color: #1E293B;
+    font-size: 14px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
 
-    <p>
-        <strong>Estado:</strong>
-        {{ transaccion.get_estado_display }}
-    </p>
+  .detail-value-money {
+    font-size: 18px;
+  }
 
-    <a href="{% url 'operar' %}">
+  .detail-value-received {
+    color: #059669;
+  }
+
+  .detail-divider {
+    margin: 24px 0;
+    border: 0;
+    border-top: 1px solid #E5E9F0;
+  }
+
+  .payment-card {
+    background: #F8FAFC;
+    border: 1px solid #E5E9F0;
+    border-radius: 12px;
+    padding: 18px;
+  }
+
+  .payment-card h3 {
+    margin: 0 0 12px;
+    color: #1A2840;
+    font-size: 16px;
+  }
+
+  .payment-card p {
+    margin: 8px 0;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .payment-note {
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 8px;
+    padding: 11px 13px;
+    color: #1E3A8A !important;
+  }
+
+  .payment-warning {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-radius: 8px;
+    padding: 11px 13px;
+    color: #991B1B !important;
+  }
+
+  .payment-success {
+    background: #ECFDF5;
+    border: 1px solid #A7F3D0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: #065F46;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .payment-cancelled {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: #991B1B;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .payment-label {
+    display: block;
+    margin: 14px 0 6px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  #card-cvc-element {
+    max-width: 190px;
+    padding: 11px 12px;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    background: #FFFFFF;
+    margin-bottom: 12px;
+  }
+
+  #stripe-payment-error {
+    display: none;
+    margin-bottom: 10px;
+    color: #DC2626;
+    font-size: 13px;
+  }
+
+  .payment-button {
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .payment-button-primary {
+    background: #2563EB;
+  }
+
+  .payment-button-success {
+    background: #059669;
+  }
+
+  .payment-button:disabled {
+    cursor: not-allowed;
+    opacity: .65;
+  }
+
+  .detail-footer {
+    margin-top: 20px;
+  }
+
+  .detail-back-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    background: #FFFFFF;
+  }
+
+  .detail-back-link:hover {
+    background: #F8FAFC;
+  }
+
+  @media (max-width: 640px) {
+    .detail-card {
+      padding: 18px;
+    }
+
+    .detail-header {
+      flex-direction: column;
+    }
+
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .detail-item-full {
+      grid-column: auto;
+    }
+  }
+</style>
+
+<div class="detail-page">
+  <div class="detail-card">
+
+    <div class="detail-header">
+      <div>
+        <h2>Detalle de la operación</h2>
+        <p>Información y estado actual de la transacción.</p>
+      </div>
+
+      {% if transaccion.estado == 'PENDIENTE' %}
+        <span class="detail-status detail-status-pending">Pendiente</span>
+      {% elif transaccion.estado == 'PAGADA' %}
+        <span class="detail-status detail-status-paid">Pagada</span>
+      {% elif transaccion.estado == 'CANCELADA' %}
+        <span class="detail-status detail-status-cancelled">Cancelada</span>
+      {% else %}
+        <span class="detail-status">{{ transaccion.get_estado_display }}</span>
+      {% endif %}
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item detail-item-full">
+        <span class="detail-label">ID de operación</span>
+        <span class="detail-value">{{ transaccion.id }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Cliente</span>
+        <span class="detail-value">{{ transaccion.cliente.nombre_o_denominacion }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Usuario</span>
+        <span class="detail-value">
+          {% if transaccion.usuario.email %}
+            {{ transaccion.usuario.email }}
+          {% else %}
+            {{ transaccion.usuario.username }}
+          {% endif %}
+        </span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Tipo de operación</span>
+        <span class="detail-value">{{ transaccion.get_tipo_display }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Moneda</span>
+        <span class="detail-value">{{ transaccion.moneda.codigo }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Usted paga</span>
+        <span class="detail-value detail-value-money">
+          {{ transaccion.monto_pagado }} {{ transaccion.moneda_pagada }}
+        </span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Usted recibe</span>
+        <span class="detail-value detail-value-money detail-value-received">
+          {{ transaccion.monto_recibido }} {{ transaccion.moneda_recibida }}
+        </span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Tasa aplicada</span>
+        <span class="detail-value">{{ transaccion.tasa_aplicada }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Medio de pago</span>
+        <span class="detail-value">
+          {% if transaccion.medio_pago.tipo == 'TARJETA' %}
+            {% if transaccion.medio_pago.marca_tarjeta %}
+              {{ transaccion.medio_pago.marca_tarjeta|title }}
+            {% else %}
+              Tarjeta
+            {% endif %}
+            {{ transaccion.medio_pago.numero_enmascarado }}
+          {% elif transaccion.medio_pago.tipo == 'SIPAP' %}
+            SIPAP {{ transaccion.medio_pago.numero_enmascarado }}
+          {% elif transaccion.medio_pago.tipo == 'EFECTIVO' %}
+            Efectivo en caja
+          {% else %}
+            {{ transaccion.medio_pago }}
+          {% endif %}
+        </span>
+      </div>
+    </div>
+
+    {% if transaccion.estado == 'PENDIENTE' %}
+      <hr class="detail-divider">
+
+      {% if transaccion.medio_pago.tipo == 'TARJETA' %}
+        {% if transaccion.medio_pago.stripe_payment_method_id %}
+          <div class="payment-card">
+            <h3>Confirmar pago con tarjeta</h3>
+
+            <p>
+              <strong>Tarjeta:</strong>
+              {% if transaccion.medio_pago.marca_tarjeta %}
+                {{ transaccion.medio_pago.marca_tarjeta|title }}
+              {% endif %}
+              {{ transaccion.medio_pago.numero_enmascarado }}
+            </p>
+
+            <p>
+              <strong>Vencimiento:</strong>
+              {{ transaccion.medio_pago.exp_mes }}/{{ transaccion.medio_pago.exp_anio }}
+            </p>
+
+            <p class="payment-note">
+              Por seguridad, ingrese nuevamente el código de seguridad de la tarjeta.
+            </p>
+
+            <form id="stripe-payment-form">
+              {% csrf_token %}
+
+              <label for="card-cvc-element" class="payment-label">
+                Código de seguridad (CVC)
+              </label>
+
+              <div id="card-cvc-element"></div>
+              <div id="stripe-payment-error"></div>
+
+              <button
+                type="submit"
+                id="stripe-payment-button"
+                class="payment-button payment-button-primary"
+              >
+                Pagar {{ transaccion.monto_pagado }} {{ transaccion.moneda_pagada }}
+              </button>
+            </form>
+          </div>
+        {% else %}
+          <div class="payment-card">
+            <h3>Tarjeta no disponible para Stripe</h3>
+            <p class="payment-warning">
+              Esta tarjeta fue registrada con el sistema anterior y no puede procesarse mediante Stripe.
+              Regístrela nuevamente desde Medios de Pago.
+            </p>
+          </div>
+        {% endif %}
+
+      {% elif transaccion.medio_pago.tipo == 'SIPAP' %}
+        <div class="payment-card">
+          <h3>Confirmación de pago SIPAP</h3>
+
+          <p>
+            <strong>Medio:</strong>
+            {{ transaccion.medio_pago }}
+          </p>
+
+          <p class="payment-note">
+            Esta operación utiliza una simulación de confirmación mediante SIPAP.
+          </p>
+
+          <form
+            method="post"
+            action="{% url 'confirmar_pago_sipap' transaccion.id %}"
+            onsubmit="return confirm('¿Confirmar la recepción del pago mediante SIPAP?');"
+          >
+            {% csrf_token %}
+
+            <button type="submit" class="payment-button payment-button-primary">
+              Confirmar pago SIPAP
+            </button>
+          </form>
+        </div>
+
+      {% elif transaccion.medio_pago.tipo == 'EFECTIVO' %}
+        <div class="payment-card">
+          <h3>Confirmación de pago en efectivo</h3>
+
+          <p><strong>Medio:</strong> Efectivo</p>
+
+          <p class="payment-note">
+            Confirme únicamente cuando el dinero haya sido recibido.
+          </p>
+
+          <form
+            method="post"
+            action="{% url 'confirmar_pago_efectivo' transaccion.id %}"
+            onsubmit="return confirm('¿Confirma que recibió el pago en efectivo?');"
+          >
+            {% csrf_token %}
+
+            <button type="submit" class="payment-button payment-button-success">
+              Confirmar recepción de efectivo
+            </button>
+          </form>
+        </div>
+      {% endif %}
+
+    {% elif transaccion.estado == 'PAGADA' %}
+      <hr class="detail-divider">
+      <div class="payment-success">
+        Pago confirmado correctamente.
+      </div>
+
+    {% elif transaccion.estado == 'CANCELADA' %}
+      <hr class="detail-divider">
+      <div class="payment-cancelled">
+        Esta operación fue cancelada.
+      </div>
+    {% endif %}
+
+    <div class="detail-footer">
+      <a href="{% url 'operar' %}" class="detail-back-link">
         Realizar otra operación
-    </a>
+      </a>
+    </div>
 
+  </div>
 </div>
+
+{% if transaccion.estado == 'PENDIENTE' and transaccion.medio_pago.tipo == 'TARJETA' and transaccion.medio_pago.stripe_payment_method_id %}
+
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const stripe = Stripe(
+            "{{ stripe_publishable_key|escapejs }}"
+        );
+
+        const elements = stripe.elements();
+
+        const cvcElement = elements.create(
+            "cardCvc"
+        );
+
+        cvcElement.mount(
+            "#card-cvc-element"
+        );
+
+        const form = document.getElementById(
+            "stripe-payment-form"
+        );
+
+        const button = document.getElementById(
+            "stripe-payment-button"
+        );
+
+        const errorBox = document.getElementById(
+            "stripe-payment-error"
+        );
+
+
+        function esperar(ms) {
+            return new Promise(
+                resolve => setTimeout(resolve, ms)
+            );
+        }
+
+
+        async function esperarConfirmacionWebhook() {
+
+            const urlEstado =
+                "{% url 'estado_pago_stripe' transaccion.id %}";
+
+            // 20 intentos × 500 ms = 10 segundos
+            for (
+                let intento = 0;
+                intento < 20;
+                intento++
+            ) {
+
+                try {
+
+                    const response = await fetch(
+                        urlEstado,
+                        {
+                            method: "GET",
+                            headers: {
+                                "X-Requested-With":
+                                    "XMLHttpRequest"
+                            }
+                        }
+                    );
+
+                    if (response.ok) {
+
+                        const data =
+                            await response.json();
+
+                        if (data.pagada) {
+                            return true;
+                        }
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "Error verificando pago:",
+                        error
+                    );
+                }
+
+                await esperar(500);
+            }
+
+            return false;
+        }
+
+
+        async function finalizarPago() {
+
+            button.disabled = true;
+
+            button.textContent =
+                "Pago recibido. Verificando...";
+
+            const confirmado =
+                await esperarConfirmacionWebhook();
+
+            if (confirmado) {
+
+                window.location.replace(
+                    "{% url 'detalle_transaccion' transaccion.id %}"
+                );
+
+                return;
+            }
+
+            button.textContent =
+                "Pago recibido";
+
+            errorBox.textContent =
+                "Stripe recibió el pago, pero la "
+                + "confirmación todavía se está "
+                + "procesando.";
+
+            errorBox.style.display = "block";
+        }
+
+
+        form.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                button.disabled = true;
+                button.textContent =
+                    "Procesando...";
+
+                errorBox.style.display = "none";
+                errorBox.textContent = "";
+
+                try {
+
+                    const csrfToken =
+                        document.querySelector(
+                            "[name=csrfmiddlewaretoken]"
+                        ).value;
+
+                    const response = await fetch(
+                        "{% url 'iniciar_pago_stripe' transaccion.id %}",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "X-CSRFToken":
+                                    csrfToken
+                            }
+                        }
+                    );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.error
+                            || "No se pudo iniciar el pago."
+                        );
+                    }
+
+                    const result =
+                        await stripe.confirmCardPayment(
+                            data.client_secret,
+                            {
+                                payment_method:
+                                    "{{ transaccion.medio_pago.stripe_payment_method_id|escapejs }}",
+
+                                payment_method_options: {
+                                    card: {
+                                        cvc: cvcElement
+                                    }
+                                }
+                            }
+                        );
+
+                    if (result.error) {
+
+                        throw new Error(
+                            result.error.message
+                            || "No se pudo confirmar el pago."
+                        );
+                    }
+
+                    if (
+                        result.paymentIntent
+                        &&
+                        result.paymentIntent.status
+                            === "succeeded"
+                    ) {
+
+                        await finalizarPago();
+
+                        return;
+                    }
+
+                    throw new Error(
+                        "Stripe no confirmó el pago."
+                    );
+
+                } catch (error) {
+
+                    errorBox.textContent =
+                        error.message;
+
+                    errorBox.style.display =
+                        "block";
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "Pagar";
+                }
+            }
+        );
+
+
+        /*
+         * Si Stripe ya confirmó el pago y el navegador
+         * llegó antes que el webhook, seguimos esperando
+         * automáticamente.
+         */
+        const parametros =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        if (
+            parametros.get("stripe")
+            === "success"
+        ) {
+            finalizarPago();
+        }
+    }
+);
+</script>
+
+{% endif %}
 
 {% endblock %}

@@ -30,4 +30,8 @@ urlpatterns = [
     path('operaciones/', include('operaciones.urls')),
     #ruta a arqueos (cierre de caja, SCRUM-40)
     path('arqueos/', include('arqueos.urls')),
+    #ruta a caja
+    path('caja/', include('caja.urls', namespace='caja')),
+    path('notificaciones/', include('notificaciones.urls', namespace='notificaciones')),
+
 ]

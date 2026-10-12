@@ -14,6 +14,27 @@ class MedioPagoForm(forms.ModelForm):
     Formulario MVT para la creación y edición de Medios de Pago.
     """
 
+    tipo = forms.ChoiceField(
+        choices=[
+            (
+                'TARJETA',
+                'Tarjeta de Crédito / Débito'
+            ),
+            (
+                'SIPAP',
+                'Transferencia Bancaria (SIPAP)'
+            ),
+        ],
+        label='Tipo de Medio de Pago',
+        widget=forms.Select(
+            attrs={
+                'class': 'form-select',
+                'aria-label':
+                    'Seleccione el tipo de medio de pago'
+            }
+        )
+    )
+
     class Meta:
         """Campos, etiquetas y widgets del formulario de medios de pago."""
         model = MedioPago

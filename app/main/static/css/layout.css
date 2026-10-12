@@ -103,6 +103,8 @@ body.sidebar-collapsed .logo-text { opacity: 0; pointer-events: none; }
   flex-direction: column;
   gap: 2px;
 }
+/* Los ítems y títulos no se achican: si no entran, el menú se desplaza (scroll) en vez de recortarlos */
+.sidebar-nav > * { flex-shrink: 0; }
 .sidebar-nav::-webkit-scrollbar { width: 4px; }
 .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
@@ -242,6 +244,7 @@ body.sidebar-collapsed .nav-label { opacity: 0; }
   align-items: center;
   gap: 8px;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 /* ─── SELECTOR DE CLIENTE ACTIVO (RF9, RF26) ─────────────────── */
@@ -470,4 +473,431 @@ body.sidebar-collapsed .main-wrapper {
 
 body.sidebar-collapsed .sidebar-back-btn {
   justify-content: center;
+}
+
+
+/* ─── NOTIFICACIONES ─────────────────────────────────────────── */
+
+.notification-menu {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.notif-count {
+  position: absolute;
+  top: 0;
+  right: -2px;
+
+  min-width: 17px;
+  height: 17px;
+
+  padding: 0 4px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #EF4444;
+  color: #ffffff;
+
+  border: 2px solid #ffffff;
+  border-radius: 20px;
+
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+
+.notification-dropdown {
+  position: absolute;
+
+  top: calc(100% + 10px);
+  right: 0;
+
+  width: 370px;
+
+  background: #ffffff;
+
+  border: 1px solid var(--topbar-border);
+  border-radius: 12px;
+
+  box-shadow:
+    0 18px 35px -10px
+    rgba(15, 39, 68, 0.20);
+
+  display: none;
+
+  overflow: hidden;
+
+  z-index: 250;
+}
+
+
+.notification-dropdown.open {
+  display: block;
+}
+
+
+.notification-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 16px;
+
+  border-bottom: 1px solid #E5E9F0;
+}
+
+
+.notification-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1A2840;
+}
+
+
+.notification-subtitle {
+  margin-top: 2px;
+
+  font-size: 11px;
+  color: #6B7A99;
+}
+
+
+.notification-read-all {
+  border: none;
+  background: transparent;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+
+  color: #2563EB;
+
+  cursor: pointer;
+}
+
+
+.notification-read-all:hover {
+  text-decoration: underline;
+}
+
+
+.notification-list {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+
+.notification-item {
+  display: flex;
+
+  gap: 12px;
+
+  padding: 14px 16px;
+
+  border-bottom: 1px solid #F1F5F9;
+
+  position: relative;
+
+  transition: background var(--transition);
+}
+
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+
+.notification-item:hover {
+  background: #F8FAFC;
+}
+
+
+.notification-item.unread {
+  background: #EFF6FF;
+}
+
+
+.notification-item.unread:hover {
+  background: #DBEAFE;
+}
+
+
+.notification-icon {
+  width: 34px;
+  height: 34px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #DBEAFE;
+  color: #2563EB;
+
+  font-size: 17px;
+}
+
+
+.notification-content {
+  min-width: 0;
+  flex: 1;
+}
+
+
+.notification-item-title {
+  font-size: 12px;
+  font-weight: 700;
+
+  color: #1A2840;
+
+  margin-bottom: 4px;
+}
+
+
+.notification-message {
+  font-size: 11px;
+  color: #475569;
+
+  line-height: 1.5;
+}
+
+
+.notification-time {
+  margin-top: 6px;
+
+  font-size: 10px;
+  color: #94A3B8;
+}
+
+
+.notification-mark-read {
+  width: 18px;
+  height: 18px;
+
+  flex-shrink: 0;
+
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.notification-mark-read span {
+  width: 8px;
+  height: 8px;
+
+  display: block;
+
+  border-radius: 50%;
+
+  background: #2563EB;
+}
+
+
+.notification-empty {
+  padding: 32px 20px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 8px;
+
+  color: #94A3B8;
+
+  font-size: 12px;
+  text-align: center;
+}
+
+
+.notification-empty i {
+  font-size: 26px;
+}
+
+
+@media (max-width: 768px) {
+
+  .notification-dropdown {
+    width: min(
+      360px,
+      calc(100vw - 24px)
+    );
+
+    right: -65px;
+  }
+
+}
+
+/* ─── TOAST DE NOTIFICACIÓN ──────────────────────────────────── */
+
+.notification-toast {
+  position: fixed;
+
+  top: 78px;
+  right: 24px;
+
+  width: min(390px, calc(100vw - 32px));
+
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  padding: 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #DCE6F5;
+  border-radius: 12px;
+
+  box-shadow:
+    0 18px 40px -12px
+    rgba(15, 39, 68, 0.25);
+
+  z-index: 300;
+
+  animation: notificationToastIn 0.3s ease;
+}
+
+
+.notification-toast.hide {
+  animation: notificationToastOut 0.25s ease forwards;
+}
+
+
+.notification-toast-icon {
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #DBEAFE;
+  color: #2563EB;
+
+  border-radius: 9px;
+
+  font-size: 19px;
+}
+
+
+.notification-toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+
+.notification-toast-label {
+  margin-bottom: 2px;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  color: #2563EB;
+
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+
+.notification-toast-title {
+  margin-bottom: 5px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color: #1A2840;
+}
+
+
+.notification-toast-message {
+  font-size: 11px;
+  line-height: 1.5;
+
+  color: #475569;
+}
+
+
+.notification-toast-close {
+  width: 26px;
+  height: 26px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 6px;
+
+  background: transparent;
+  color: #94A3B8;
+
+  cursor: pointer;
+
+  font-size: 16px;
+}
+
+
+.notification-toast-close:hover {
+  background: #F1F5F9;
+  color: #475569;
+}
+
+
+@keyframes notificationToastIn {
+
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+
+@keyframes notificationToastOut {
+
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+}
+
+
+@media (max-width: 768px) {
+
+  .notification-toast {
+    top: 72px;
+    right: 16px;
+    left: 16px;
+
+    width: auto;
+  }
+
 }

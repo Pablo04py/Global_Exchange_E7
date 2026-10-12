@@ -168,6 +168,53 @@
 
 {# ── 3. USUARIO OPERATIVO (Cliente, Cajero, Admin, etc.) ── #}
 {% else %}
+  {% if notificacion_inicio %}
+
+  <div
+    class="notification-toast"
+    id="notificationToast"
+  >
+
+    <div class="notification-toast-icon">
+
+      {% if notificacion_inicio.notificacion.tipo == 'TASA_CAMBIO' %}
+        <i class="ti ti-arrows-exchange"></i>
+      {% else %}
+        <i class="ti ti-bell"></i>
+      {% endif %}
+
+    </div>
+
+
+    <div class="notification-toast-content">
+
+      <div class="notification-toast-label">
+        Nueva actualización
+      </div>
+
+      <div class="notification-toast-title">
+        {{ notificacion_inicio.notificacion.titulo }}
+      </div>
+
+      <div class="notification-toast-message">
+        {{ notificacion_inicio.notificacion.mensaje|linebreaksbr }}
+      </div>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="notification-toast-close"
+      id="notificationToastClose"
+      aria-label="Cerrar notificación"
+    >
+      <i class="ti ti-x"></i>
+    </button>
+
+  </div>
+
+  {% endif %}
 
   {% if active_client %}
   <div style="background:#fff; border:1px solid #E5E9F0; border-radius:10px; padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between">

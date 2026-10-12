@@ -32,12 +32,12 @@ INSTALLED_APPS = [
     'cotizaciones',
     'operaciones',
     'arqueos',
-
-    
+    'caja',
+    'notificaciones',
+    'main',
     
     # Librerías de terceros
     'mozilla_django_oidc',
-    'main',
 ]
 
 MIDDLEWARE = [
@@ -63,6 +63,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'notificaciones.context_processors.notificaciones_context',
                 #Removido de mientras 'main.menu_procesos.menu_context',
             ],
         },
@@ -133,3 +134,14 @@ OIDC_STORE_ID_TOKEN = True
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = 'oidc_authentication_init'
+
+# Cierre de caja (SCRUM-40): función que devuelve el saldo registrado por moneda
+# de un turno de caja (ver `arqueos.integracion` y `arqueos.saldos`).
+ARQUEO_FUNCION_SALDO = config('ARQUEO_FUNCION_SALDO', default='arqueos.saldos.saldo_registrado')
+
+
+# Stripe Sandbox
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+STRIPE_CURRENCY = config('STRIPE_CURRENCY', default='pyg').lower()

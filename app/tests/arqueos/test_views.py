@@ -10,23 +10,25 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from arqueos.models import ArqueoCaja
-from .apoyo import CONFIG_SUSTITUTA, CajaDePruebaMixin
+from caja.models import EstadoCaja, EstadoSesionCaja
+from .apoyo import CONFIG_PRUEBA, CajaDePruebaMixin
 
 URL_CIERRE = reverse('cerrar_caja')
 
 
+@override_settings(ARQUEO_FUNCION_SALDO='no_existe.saldo')
 class CierreSinModuloTestCase(CajaDePruebaMixin, TestCase):
-    """Con la configuración por defecto: el módulo de caja aún no está integrado."""
+    """Cuando la función de saldo registrado (otra historia) todavía no existe."""
 
     def test_muestra_aviso_de_modulo_no_disponible(self):
-        """El cajero ve un aviso en lugar de un error."""
+        """El cajero con turno abierto ve un aviso en lugar de un error."""
         self.client.force_login(self.cajero)
         response = self.client.get(URL_CIERRE)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'El módulo de caja todavía no está disponible')
 
 
-@override_settings(**CONFIG_SUSTITUTA)
+@override_settings(**CONFIG_PRUEBA)
 class CierreCajaViewTestCase(CajaDePruebaMixin, TestCase):
     """Pruebas de la pantalla de cierre con la integración configurada."""
 
@@ -44,7 +46,7 @@ class CierreCajaViewTestCase(CajaDePruebaMixin, TestCase):
         self.assertEqual(self.client.get(URL_CIERRE).status_code, 403)
 
     def test_cajero_sin_caja_abierta(self):
-        """Un cajero sin caja abierta asignada ve el aviso correspondiente."""
+        """Un cajero sin turno abierto ve el aviso correspondiente."""
         self.client.force_login(self.otro_cajero)
         response = self.client.get(URL_CIERRE)
         self.assertContains(response, 'No tenés una caja abierta asignada')
@@ -59,16 +61,22 @@ class CierreCajaViewTestCase(CajaDePruebaMixin, TestCase):
         for registrado in ['5740000', '5\xa0740\xa0000', '900,00']:
             self.assertNotContains(response, registrado)
 
+    def test_muestra_la_caja_del_turno(self):
+        """La pantalla indica qué caja se va a cerrar."""
+        self.client.force_login(self.cajero)
+        self.assertContains(self.client.get(URL_CIERRE), 'Caja 1 (C1)')
+
     def test_cierre_registra_arqueo_y_bloquea_la_caja(self):
-        """Un cierre válido guarda el arqueo, bloquea la caja y redirige al resultado."""
+        """Un cierre válido guarda el arqueo, cierra el turno, bloquea la caja y redirige al resultado."""
         self.client.force_login(self.cajero)
         response = self.client.post(URL_CIERRE, self._datos_validos())
 
         arqueo = ArqueoCaja.objects.get()
         self.assertRedirects(response, reverse('detalle_arqueo', kwargs={'arqueo_id': arqueo.id}))
         self.assertEqual(arqueo.detalles.get(moneda='USD').resultado, 'FALTANTE')
-        self.caja.refresh_from_db()
-        self.assertEqual(self.caja.tipo, 'BLOQUEADA')
+        self.refrescar()
+        self.assertEqual(self.turno.estado, EstadoSesionCaja.CERRADA)
+        self.assertEqual(self.caja.estado, EstadoCaja.INACTIVA)
 
     def test_despues_de_cerrar_no_hay_caja_para_cerrar(self):
         """Tras el cierre, la caja bloqueada ya no aparece para cerrar de nuevo."""
@@ -86,11 +94,12 @@ class CierreCajaViewTestCase(CajaDePruebaMixin, TestCase):
                 self.assertEqual(response.status_code, 200)
                 self.assertTrue(response.context['form'].errors)
         self.assertEqual(ArqueoCaja.objects.count(), 0)
-        self.caja.refresh_from_db()
-        self.assertEqual(self.caja.tipo, 'EFECTIVO')
+        self.refrescar()
+        self.assertEqual(self.turno.estado, EstadoSesionCaja.ABIERTA)
+        self.assertEqual(self.caja.estado, EstadoCaja.EN_USO)
 
 
-@override_settings(**CONFIG_SUSTITUTA)
+@override_settings(**CONFIG_PRUEBA)
 class DetalleArqueoViewTestCase(CajaDePruebaMixin, TestCase):
     """Pruebas de la pantalla con el resultado del arqueo."""
 
@@ -105,7 +114,7 @@ class DetalleArqueoViewTestCase(CajaDePruebaMixin, TestCase):
     def test_muestra_la_comparacion(self):
         """Después del cierre se ven registrado, declarado, diferencia y resultado."""
         response = self.client.get(self.url)
-        for texto in ['Casa Central', 'María González', 'Cuadra', 'Sobrante', '950,00', '900,00', '50,00']:
+        for texto in ['Caja 1 (C1)', 'María González', 'Cuadra', 'Sobrante', '950,00', '900,00', '50,00']:
             with self.subTest(texto=texto):
                 self.assertContains(response, texto)
 
