@@ -63,16 +63,11 @@ def listar_asignaciones_view(request):
 @login_required
 def apertura_caja_view(request):
     """
-    SCRUM-37 / SCRUM-40: Pantalla única de apertura y cierre de la caja del cajero.
+    SCRUM-37: Permite al cajero autenticado registrar el saldo inicial
+    para todas las monedas habilitadas mediante Movimientos de Caja de APERTURA.
 
-    Según el turno del cajero autenticado muestra:
-
-    - Turno ASIGNADA: el formulario de apertura, que registra el saldo inicial
-      de cada moneda habilitada mediante Movimientos de Caja de APERTURA.
-    - Turno ABIERTA: el cierre con arqueo ciego (SCRUM-40); al confirmar se
-      registra el arqueo y la caja queda bloqueada.
-    - Recién cerrado (`?arqueo=<id>`): el resultado del arqueo.
-    - Sin turno: un aviso.
+    Si la caja ya está abierta, avisa y ofrece ir al cierre; tras una apertura
+    exitosa (`?abierta=1`) muestra la confirmación dentro de la pantalla.
     """
     contexto = {'menu_sections': _menu(request)}
 
@@ -81,25 +76,47 @@ def apertura_caja_view(request):
         estado=EstadoSesionCaja.ASIGNADA
     ).select_related('caja').first()
 
-    if sesion:
-        if request.method == 'POST':
-            form = AperturaCajaForm(request.POST)
-            if form.is_valid():
-                try:
-                    sesion = apertura_caja(request.user, form.montos_por_moneda())
-                except ValidationError as e:
-                    form.add_error(None, e.messages)
-                else:
-                    messages.success(
-                        request,
-                        f"Apertura de la caja '{sesion.caja.nombre}' realizada exitosamente. "
-                        "Al terminar tu turno, cerrala desde esta misma pantalla."
-                    )
-                    return redirect('caja:apertura_caja')
-        else:
-            form = AperturaCajaForm()
-        contexto.update({'modo': 'apertura', 'form': form, 'sesion': sesion})
+    if not sesion:
+        abierta = SesionCaja.objects.filter(
+            cajero=request.user,
+            estado=EstadoSesionCaja.ABIERTA
+        ).select_related('caja', 'cajero').first()
+        contexto.update({
+            'modo': 'ya_abierta' if abierta else 'sin_caja_apertura',
+            'sesion': abierta,
+            'recien_abierta': bool(abierta) and request.GET.get('abierta') == '1',
+        })
         return render(request, 'caja/apertura_caja.html', contexto)
+
+    if request.method == 'POST':
+        form = AperturaCajaForm(request.POST)
+        if form.is_valid():
+            try:
+                apertura_caja(request.user, form.montos_por_moneda())
+            except ValidationError as e:
+                form.add_error(None, e.messages)
+            else:
+                return redirect(f"{reverse('caja:apertura_caja')}?abierta=1")
+    else:
+        form = AperturaCajaForm()
+
+    contexto.update({'modo': 'apertura', 'form': form, 'sesion': sesion})
+    return render(request, 'caja/apertura_caja.html', contexto)
+
+
+@login_required
+def cierre_caja_view(request):
+    """
+    SCRUM-40: Cierre de caja con arqueo ciego del cajero autenticado.
+
+    - Turno ABIERTA: pide el saldo contado de cada moneda sin mostrar el
+      registrado; al confirmar registra el arqueo y la caja queda bloqueada.
+    - Recién cerrado (`?arqueo=<id>`, solo el propio): muestra el resultado.
+    - Sin caja abierta: aviso con acceso a la apertura.
+
+    La lógica del arqueo pertenece a la app `arqueos` y se reutiliza aquí.
+    """
+    contexto = {'menu_sections': _menu(request)}
 
     arqueo = _arqueo_del_cajero(request)
     if arqueo:
@@ -114,7 +131,7 @@ def apertura_caja_view(request):
         return render(request, 'caja/apertura_caja.html', contexto)
 
     if turno is None:
-        contexto['modo'] = 'sin_caja'
+        contexto['modo'] = 'sin_caja_cierre'
         return render(request, 'caja/apertura_caja.html', contexto)
 
     form = CierreCajaForm(request.POST or None, monedas=monedas)
@@ -127,7 +144,7 @@ def apertura_caja_view(request):
             contexto['modo'] = 'modulo_no_disponible'
             return render(request, 'caja/apertura_caja.html', contexto)
         else:
-            return redirect(f"{reverse('caja:apertura_caja')}?arqueo={arqueo.id}")
+            return redirect(f"{reverse('caja:cierre_caja')}?arqueo={arqueo.id}")
 
     contexto.update({'modo': 'cierre', 'form': form, 'sesion': turno})
     return render(request, 'caja/apertura_caja.html', contexto)

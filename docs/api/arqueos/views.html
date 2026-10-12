@@ -113,18 +113,18 @@
 </span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>
 </span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>
 </span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a><span class="k">def</span><span class="w"> </span><span class="nf">cerrar_caja</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="w">    </span><span class="sd">"""Ruta histórica del cierre de caja: redirige a la pantalla única de apertura y cierre.</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="w">    </span><span class="sd">"""Ruta histórica del cierre de caja: redirige al cierre de la app caja.</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="sd">    El cierre con arqueo ciego se hace en `caja:apertura_caja`; esta ruta se</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="sd">    El cierre con arqueo ciego se hace en `caja:cierre_caja`; esta ruta se</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="sd">    mantiene para no romper enlaces anteriores.</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
 </span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="sd">    Args:</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">        request: Petición HTTP.</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>
 </span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">    Returns:</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">        HttpResponseRedirect: Redirección a `caja:apertura_caja`.</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">        HttpResponseRedirect: Redirección a `caja:cierre_caja`.</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="sd">    """</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">'caja:apertura_caja'</span><span class="p">)</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">'caja:cierre_caja'</span><span class="p">)</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>
 </span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="nd">@requiere_rol</span><span class="p">(</span><span class="s1">'Cajero'</span><span class="p">,</span> <span class="s1">'Administrador General'</span><span class="p">)</span>
@@ -301,24 +301,24 @@
     </div>
     <a class="headerlink" href="#cerrar_caja"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="cerrar_caja-36"><a href="#cerrar_caja-36"><span class="linenos">36</span></a><span class="k">def</span><span class="w"> </span><span class="nf">cerrar_caja</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-</span><span id="cerrar_caja-37"><a href="#cerrar_caja-37"><span class="linenos">37</span></a><span class="w">    </span><span class="sd">"""Ruta histórica del cierre de caja: redirige a la pantalla única de apertura y cierre.</span>
+</span><span id="cerrar_caja-37"><a href="#cerrar_caja-37"><span class="linenos">37</span></a><span class="w">    </span><span class="sd">"""Ruta histórica del cierre de caja: redirige al cierre de la app caja.</span>
 </span><span id="cerrar_caja-38"><a href="#cerrar_caja-38"><span class="linenos">38</span></a>
-</span><span id="cerrar_caja-39"><a href="#cerrar_caja-39"><span class="linenos">39</span></a><span class="sd">    El cierre con arqueo ciego se hace en `caja:apertura_caja`; esta ruta se</span>
+</span><span id="cerrar_caja-39"><a href="#cerrar_caja-39"><span class="linenos">39</span></a><span class="sd">    El cierre con arqueo ciego se hace en `caja:cierre_caja`; esta ruta se</span>
 </span><span id="cerrar_caja-40"><a href="#cerrar_caja-40"><span class="linenos">40</span></a><span class="sd">    mantiene para no romper enlaces anteriores.</span>
 </span><span id="cerrar_caja-41"><a href="#cerrar_caja-41"><span class="linenos">41</span></a>
 </span><span id="cerrar_caja-42"><a href="#cerrar_caja-42"><span class="linenos">42</span></a><span class="sd">    Args:</span>
 </span><span id="cerrar_caja-43"><a href="#cerrar_caja-43"><span class="linenos">43</span></a><span class="sd">        request: Petición HTTP.</span>
 </span><span id="cerrar_caja-44"><a href="#cerrar_caja-44"><span class="linenos">44</span></a>
 </span><span id="cerrar_caja-45"><a href="#cerrar_caja-45"><span class="linenos">45</span></a><span class="sd">    Returns:</span>
-</span><span id="cerrar_caja-46"><a href="#cerrar_caja-46"><span class="linenos">46</span></a><span class="sd">        HttpResponseRedirect: Redirección a `caja:apertura_caja`.</span>
+</span><span id="cerrar_caja-46"><a href="#cerrar_caja-46"><span class="linenos">46</span></a><span class="sd">        HttpResponseRedirect: Redirección a `caja:cierre_caja`.</span>
 </span><span id="cerrar_caja-47"><a href="#cerrar_caja-47"><span class="linenos">47</span></a><span class="sd">    """</span>
-</span><span id="cerrar_caja-48"><a href="#cerrar_caja-48"><span class="linenos">48</span></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">'caja:apertura_caja'</span><span class="p">)</span>
+</span><span id="cerrar_caja-48"><a href="#cerrar_caja-48"><span class="linenos">48</span></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">'caja:cierre_caja'</span><span class="p">)</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Ruta histórica del cierre de caja: redirige a la pantalla única de apertura y cierre.</p>
+            <div class="docstring"><p>Ruta histórica del cierre de caja: redirige al cierre de la app caja.</p>
 
-<p>El cierre con arqueo ciego se hace en <code>caja:apertura_caja</code>; esta ruta se
+<p>El cierre con arqueo ciego se hace en <code>caja:cierre_caja</code>; esta ruta se
 mantiene para no romper enlaces anteriores.</p>
 
 <h6 id="arguments">Parámetros:</h6>
@@ -330,7 +330,7 @@ mantiene para no romper enlaces anteriores.</p>
 <h6 id="returns">Retorna:</h6>
 
 <blockquote>
-  <p>HttpResponseRedirect: Redirección a <code>caja:apertura_caja</code>.</p>
+  <p>HttpResponseRedirect: Redirección a <code>caja:cierre_caja</code>.</p>
 </blockquote>
 </div>
 

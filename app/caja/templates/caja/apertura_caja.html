@@ -1,7 +1,7 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Apertura y Cierre de Caja · Global Exchange{% endblock %}
-{% block page_title %}Apertura y Cierre de Caja{% endblock %}
+{% block title %}{% if request.resolver_match.url_name == 'cierre_caja' %}Cierre{% else %}Apertura{% endif %} de Caja · Global Exchange{% endblock %}
+{% block page_title %}{% if request.resolver_match.url_name == 'cierre_caja' %}Cierre{% else %}Apertura{% endif %} de Caja{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -392,7 +392,7 @@
   color: var(--caja-muted);
 }
 
-.caja-aviso i {
+.caja-aviso > i {
   font-size: 36px;
 }
 
@@ -466,6 +466,29 @@
   border-radius: 8px;
 }
 
+.caja-success {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 24px 0;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1E7B45;
+  background: #E3F5EA;
+  border: 1px solid #BFE5CC;
+  border-radius: 8px;
+}
+
+.caja-success i {
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.caja-aviso .caja-btn {
+  margin-top: 18px;
+}
+
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 860px) {
   .caja-layout {
@@ -505,7 +528,11 @@
         </a>
         <a href="{% url 'caja:apertura_caja' %}"
            class="caja-sidebar-link {% if current == 'apertura_caja' %}is-active{% endif %}">
-          <i class="ti ti-cash-register"></i> Apertura y cierre de caja
+          <i class="ti ti-cash"></i> Apertura de caja
+        </a>
+        <a href="{% url 'caja:cierre_caja' %}"
+           class="caja-sidebar-link {% if current == 'cierre_caja' %}is-active{% endif %}">
+          <i class="ti ti-lock"></i> Cierre de caja
         </a>
         <a href="{% url 'caja:listar_asignaciones' %}"
            class="caja-sidebar-link {% if current == 'listar_asignaciones' %}is-active{% endif %}">
@@ -552,7 +579,7 @@
       <div class="caja-card-header">
         <div class="caja-card-heading">
           <div class="caja-card-icon">
-            <i class="ti {% if modo == 'cierre' or modo == 'resultado' %}ti-lock{% else %}ti-cash-register{% endif %}"></i>
+            <i class="ti {% if modo == 'cierre' or modo == 'resultado' %}ti-lock{% else %}ti-cash{% endif %}"></i>
           </div>
           <div>
             {% if modo == 'apertura' %}
@@ -564,9 +591,12 @@
             {% elif modo == 'resultado' %}
               <h2 class="caja-card-title">Resultado del cierre</h2>
               <p class="caja-card-subtitle">Saldo registrado por el sistema frente al saldo declarado. No se puede modificar.</p>
+            {% elif request.resolver_match.url_name == 'cierre_caja' %}
+              <h2 class="caja-card-title">Cierre de caja</h2>
+              <p class="caja-card-subtitle">Cerrá tu caja al terminar el turno.</p>
             {% else %}
-              <h2 class="caja-card-title">Apertura y cierre de caja</h2>
-              <p class="caja-card-subtitle">Abrí tu caja al empezar el turno y cerrala al terminar.</p>
+              <h2 class="caja-card-title">Apertura de caja</h2>
+              <p class="caja-card-subtitle">Abrí tu caja al empezar el turno.</p>
             {% endif %}
           </div>
         </div>
@@ -688,6 +718,32 @@
         <span>La caja quedó bloqueada y no admite nuevos cierres hasta que un Administrador General la habilite nuevamente.</span>
       </div>
 
+      {% elif modo == 'ya_abierta' %}
+      {% if recien_abierta %}
+      <div class="caja-success">
+        <i class="ti ti-circle-check"></i>
+        <span>Apertura de la caja <strong>{{ sesion.caja.nombre }}</strong> realizada exitosamente.</span>
+      </div>
+      {% endif %}
+      <div class="caja-aviso">
+        <i class="ti ti-lock-open"></i>
+        <h4>Tu caja {{ sesion.caja.nombre }} ({{ sesion.caja.codigo }}) está abierta</h4>
+        <p>Cuando termines tu turno, hacé el cierre y el arqueo de la caja.</p>
+        <a href="{% url 'caja:cierre_caja' %}" class="caja-btn caja-btn--primary">
+          <i class="ti ti-lock"></i> Ir a cierre de caja
+        </a>
+      </div>
+
+      {% elif modo == 'sin_caja_cierre' %}
+      <div class="caja-aviso">
+        <i class="ti ti-lock"></i>
+        <h4>No tenés una caja abierta para cerrar</h4>
+        <p>Para cerrar una caja primero tiene que estar asignada a vos y abierta.</p>
+        <a href="{% url 'caja:apertura_caja' %}" class="caja-btn caja-btn--primary">
+          <i class="ti ti-cash"></i> Ir a apertura de caja
+        </a>
+      </div>
+
       {% elif modo == 'modulo_no_disponible' %}
       <div class="caja-aviso">
         <i class="ti ti-plug-connected-x"></i>
@@ -697,8 +753,8 @@
 
       {% else %}
       <div class="caja-aviso">
-        <i class="ti ti-cash-register"></i>
-        <h4>No tenés una caja asignada para abrir ni una caja abierta para cerrar</h4>
+        <i class="ti ti-cash"></i>
+        <h4>No tenés ninguna caja asignada pendiente de apertura</h4>
         <p>Un administrador tiene que asignarte una caja antes de empezar el turno.</p>
       </div>
       {% endif %}

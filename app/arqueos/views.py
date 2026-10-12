@@ -33,18 +33,18 @@ def _menu(request):
 
 
 def cerrar_caja(request):
-    """Ruta histórica del cierre de caja: redirige a la pantalla única de apertura y cierre.
+    """Ruta histórica del cierre de caja: redirige al cierre de la app caja.
 
-    El cierre con arqueo ciego se hace en `caja:apertura_caja`; esta ruta se
+    El cierre con arqueo ciego se hace en `caja:cierre_caja`; esta ruta se
     mantiene para no romper enlaces anteriores.
 
     Args:
         request: Petición HTTP.
 
     Returns:
-        HttpResponseRedirect: Redirección a `caja:apertura_caja`.
+        HttpResponseRedirect: Redirección a `caja:cierre_caja`.
     """
-    return redirect('caja:apertura_caja')
+    return redirect('caja:cierre_caja')
 
 
 @requiere_rol('Cajero', 'Administrador General')
