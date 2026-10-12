@@ -22,5 +22,7 @@ urlpatterns = [
     path('caja/', views_caja.buscar_cliente_caja, name='caja_buscar_cliente'),
     path('caja/historial/', views_caja.historial_caja_dia, name='caja_historial_dia'),
     path('caja/ticket/<uuid:transaccion_id>/', views_caja.ticket_caja, name='caja_ticket'),
+    path('caja/saldo/', views_caja.saldo_caja, name='caja_saldo'),
     path('caja/<uuid:cliente_id>/operar/', views_caja.operar_en_caja_view, name='caja_operar'),
+
 ]

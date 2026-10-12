@@ -12,19 +12,7 @@
       <div style="font-size: 26px; font-weight: 700; color: #1A2840;">{{ total }}</div>
       <div style="font-size: 12px; color: #6B7A99;">{{ hoy|date:"d/m/Y" }}</div>
     </div>
-    {% for moneda, saldo in saldos.items %}
-    <div style="flex: 1; min-width: 180px; background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 16px;">
-      <div style="font-size: 11px; color: #6B7A99; text-transform: uppercase;">Efectivo en caja · {{ moneda }}</div>
-      <div style="font-size: 26px; font-weight: 700; color: #059669;">{{ saldo }}</div>
-    </div>
-    {% endfor %}
   </div>
-
-  {% if not sesion %}
-  <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 14px 18px; color: #92400E; font-size: 13px; margin-bottom: 20px;">
-    No tiene una sesión de caja abierta, por eso no se muestra el saldo.
-  </div>
-  {% endif %}
 
   <div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
     <div style="overflow-x: auto;">

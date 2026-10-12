@@ -1,9 +1,13 @@
+
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q, Sum
 from django.utils import timezone
+
+
+from operaciones.models import Moneda
 
 from .models import (
     Caja, EstadoCaja, EstadoSesionCaja, MovimientoCaja,
@@ -20,6 +24,8 @@ def nombre_usuario(user):
     return user.get_full_name() or user.email or user.username
 
 
+
+
 def saldo_por_moneda(sesion):
     """Devuelve {'PYG': Decimal, 'USD': Decimal, ...} con el efectivo actual de la sesión."""
     filas = sesion.movimientos.values('moneda').annotate(
@@ -27,6 +33,68 @@ def saldo_por_moneda(sesion):
         salidas=Sum('monto', filter=Q(sentido=SentidoMovimiento.SALIDA)),
     )
     return {f['moneda']: (f['entradas'] or CERO) - (f['salidas'] or CERO) for f in filas}
+
+
+def resumen_por_moneda(sesion):
+    """Resumen de la sesión por moneda, listo para mostrar.
+
+    Devuelve una lista (PYG primero) con un dict por moneda habilitada:
+    {'moneda', 'apertura', 'entradas', 'salidas', 'saldo'}.
+    - apertura: lo que se contó al abrir la caja.
+    - entradas: lo recibido de clientes durante la sesión.
+    - salidas: lo entregado a clientes durante la sesión.
+    """
+    es_entrada = Q(sentido=SentidoMovimiento.ENTRADA)
+    es_apertura = Q(tipo=TipoMovimiento.APERTURA)
+    filas = sesion.movimientos.values('moneda').annotate(
+        apertura=Sum('monto', filter=es_entrada & es_apertura),
+        entradas=Sum('monto', filter=es_entrada & ~es_apertura),
+        salidas=Sum('monto', filter=Q(sentido=SentidoMovimiento.SALIDA)),
+    )
+    por_moneda = {f['moneda']: f for f in filas}
+
+    codigos = set(por_moneda) | set(
+        Moneda.objects.filter(habilitada=True).values_list('codigo', flat=True)
+    )
+    resumen = []
+    for codigo in sorted(codigos, key=lambda c: (c != MONEDA_LOCAL, c)):
+        f = por_moneda.get(codigo, {})
+        apertura = f.get('apertura') or CERO
+        entradas = f.get('entradas') or CERO
+        salidas = f.get('salidas') or CERO
+        resumen.append({
+            'moneda': codigo,
+            'apertura': apertura,
+            'entradas': entradas,
+            'salidas': salidas,
+            'saldo': apertura + entradas - salidas,
+        })
+    return resumen
+
+
+@transaction.atomic
+def registrar_apertura(sesion, montos):
+    """Crea un movimiento APERTURA/ENTRADA por cada moneda con monto > 0.
+
+    Args:
+        sesion: SesionCaja que se está abriendo.
+        montos: dict {'PYG': Decimal, 'USD': Decimal, ...}.
+
+    Es idempotente: si la sesión ya tiene movimientos de apertura, no duplica.
+    """
+    if sesion.movimientos.filter(tipo=TipoMovimiento.APERTURA).exists():
+        return []
+
+    creados = []
+    for moneda, monto in montos.items():
+        if monto is None or Decimal(monto) <= 0:
+            continue
+        creados.append(MovimientoCaja.objects.create(
+            sesion=sesion, tipo=TipoMovimiento.APERTURA,
+            sentido=SentidoMovimiento.ENTRADA, moneda=moneda, monto=monto,
+            justificacion="Fondo inicial de apertura",
+        ))
+    return creados
 
 
 @transaction.atomic

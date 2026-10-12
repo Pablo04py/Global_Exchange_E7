@@ -1,0 +1,100 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Saldo de caja | Global Exchange{% endblock %}
+{% block page_title %}Saldo de caja{% endblock %}
+
+{% block content %}
+<div style="max-width: 960px; margin: 0 auto;">
+
+  {% if not sesion %}
+  <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 16px 20px; color: #92400E; font-size: 14px;">
+    No tiene una sesión de caja abierta.
+  </div>
+  {% else %}
+
+  <p style="font-size: 13px; color: #6B7A99; margin: 0 0 16px 0;">
+    Caja: <strong>{{ sesion.caja }}</strong> · Abierta desde {{ sesion.fecha_apertura|date:"d/m/Y H:i" }}
+  </p>
+
+  {# ---- Saldo actual por moneda ---- #}
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px;">
+    {% for r in resumen %}
+    <div style="flex: 1; min-width: 280px; background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 20px;">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-size: 12px; font-weight: 700; color: #6B7A99; text-transform: uppercase; letter-spacing: .04em;">
+          Efectivo en caja
+        </span>
+        <span style="font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: #EEF2FF; color: #3730A3;">
+          {{ r.moneda }}
+        </span>
+      </div>
+
+      <div style="font-size: 32px; font-weight: 800; margin: 8px 0 14px 0; color: {% if r.saldo > 0 %}#059669{% else %}#6B7A99{% endif %};">
+        {% if r.moneda == 'PYG' %}{{ r.saldo|floatformat:"0g" }}{% else %}{{ r.saldo|floatformat:"2g" }}{% endif %}
+        <span style="font-size: 14px; font-weight: 600; color: #6B7A99;">{{ r.moneda }}</span>
+      </div>
+
+      <div style="border-top: 1px solid #E5E9F0; padding-top: 12px; font-size: 13px; color: #475569;">
+        <div style="display: flex; justify-content: space-between; padding: 3px 0;">
+          <span>Fondo de apertura</span>
+          <span>{% if r.moneda == 'PYG' %}{{ r.apertura|floatformat:"0g" }}{% else %}{{ r.apertura|floatformat:"2g" }}{% endif %}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 3px 0; color: #059669;">
+          <span>+ Recibido de clientes</span>
+          <span>{% if r.moneda == 'PYG' %}{{ r.entradas|floatformat:"0g" }}{% else %}{{ r.entradas|floatformat:"2g" }}{% endif %}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 3px 0; color: #DC2626;">
+          <span>− Entregado a clientes</span>
+          <span>{% if r.moneda == 'PYG' %}{{ r.salidas|floatformat:"0g" }}{% else %}{{ r.salidas|floatformat:"2g" }}{% endif %}</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {# ---- Últimos movimientos ---- #}
+  <div style="background: #fff; border: 1px solid #E5E9F0; border-radius: 12px; padding: 24px;">
+    <h3 style="font-size: 15px; font-weight: 700; color: #1A2840; margin: 0 0 12px 0;">Últimos movimientos</h3>
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+        <thead>
+          <tr style="border-bottom: 2px solid #E5E9F0; color: #6B7A99; text-transform: uppercase; font-size: 11px;">
+            <th style="padding: 10px;">Fecha y hora</th>
+            <th style="padding: 10px;">Detalle</th>
+            <th style="padding: 10px;">Moneda</th>
+            <th style="padding: 10px; text-align: right;">Entrada</th>
+            <th style="padding: 10px; text-align: right;">Salida</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in movimientos %}
+          <tr style="border-bottom: 1px solid #E5E9F0;">
+            <td style="padding: 10px; color: #475569; white-space: nowrap;">{{ m.fecha|date:"d/m/Y H:i" }}</td>
+            <td style="padding: 10px; color: #475569;">
+              {{ m.get_tipo_display }}
+              {% if m.transaccion %}
+                <div style="font-size: 12px; color: #6B7A99;">
+                  {{ m.transaccion.cliente }} · {{ m.transaccion.get_tipo_display }}
+                </div>
+              {% endif %}
+            </td>
+            <td style="padding: 10px;">
+              <span style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #EEF2FF; color: #3730A3;">{{ m.moneda }}</span>
+            </td>
+            <td style="padding: 10px; text-align: right; font-weight: 700; color: #059669;">
+              {% if m.sentido == 'ENTRADA' %}+{% if m.moneda == 'PYG' %}{{ m.monto|floatformat:"0g" }}{% else %}{{ m.monto|floatformat:"2g" }}{% endif %}{% endif %}
+            </td>
+            <td style="padding: 10px; text-align: right; font-weight: 700; color: #DC2626;">
+              {% if m.sentido == 'SALIDA' %}−{% if m.moneda == 'PYG' %}{{ m.monto|floatformat:"0g" }}{% else %}{{ m.monto|floatformat:"2g" }}{% endif %}{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" style="padding: 20px; text-align: center; color: #6B7A99;">Todavía no hay movimientos en esta caja.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
