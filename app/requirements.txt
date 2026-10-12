@@ -5,3 +5,4 @@ mozilla-django-oidc
 python-decouple
 pdoc>=16
 gunicorn
+stripe==16.0.0

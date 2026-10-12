@@ -146,7 +146,7 @@ class Transaccion(models.Model):
     class Estado(models.TextChoices):
         """Estados de la transacción (la lógica de cambio de estado es de otra historia)."""
         PENDIENTE = 'PENDIENTE', 'Pendiente'
-        CONFIRMADA = 'CONFIRMADA', 'Confirmada'
+        PAGADA = 'PAGADA', 'Pagada'
         CANCELADA = 'CANCELADA', 'Cancelada'
 
     MONEDA_LOCAL = 'PYG'

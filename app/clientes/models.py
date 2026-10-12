@@ -34,6 +34,7 @@ class Cliente (models.Model):
     categoria = models.CharField(max_length=20, choices=Categoria.choices, default=Categoria.MINORISTA)
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
+    stripe_customer_id = models.CharField(max_length=255,blank=True,null=True,unique=True,help_text="Identificador del cliente asociado en Stripe.")
 
     def __str__(self):
         """Devuelve el nombre o denominación del cliente."""

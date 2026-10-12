@@ -139,22 +139,31 @@
       <p>Completá la información de tu cuenta bancaria o tarjeta.</p>
     </div>
     <div class="mp-form-body">
-      <form method="post" novalidate>
+      <form method="post" novalidate id="medio-pago-form">
         {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          {% for error in form.non_field_errors %}
+            <div class="field-error">
+              {{ error }}
+            </div>
+          {% endfor %}
+        {% endif %}
 
         {% for field in form %}
           {% if field.name == 'es_predeterminado' %}
-            <div class="mp-switch-row">
+            <div class="mp-switch-row" id="field-{{ field.name }}">
               {{ field }}
               <label for="{{ field.id_for_label }}">{{ field.label }}</label>
             </div>
           {% else %}
-            <div class="mp-field">
+            <div class="mp-field"  id="field-{{ field.name }}">
               <label for="{{ field.id_for_label }}">{{ field.label }}</label>
               {{ field }}
               {% if field.help_text %}
                 <div class="form-text">{{ field.help_text }}</div>
               {% endif %}
+
               {% for error in field.errors %}
                 <div class="field-error">{{ error }}</div>
               {% endfor %}
@@ -162,9 +171,18 @@
           {% endif %}
         {% endfor %}
 
+        <div id="stripe-card-section" class="mp-field" style="display: none;">
+          <label>Datos de la tarjeta</label>
+          <div id="payment-element" style="border: 1px solid var(--topbar-border);border-radius: var(--radius);padding: 14px;background: #fff;"></div>  
+          <div id="stripe-error" class="field-error" style="display: none; margin-top: 10px;"></div>
+          <div class="form-text">
+            Los datos de la tarjeta son procesados directamente por Stripe y no se almacenan en Global Exchange
+          </div>
+        </div>
+
         <div class="mp-form-actions">
           <a href="{% url 'mpagos:listar' %}" class="mp-btn mp-btn-light">Cancelar</a>
-          <button type="submit" class="mp-btn mp-btn-primary">
+          <button type="submit" class="mp-btn mp-btn-primary" id="submit-medio">
             {% if object %}Guardar Cambios{% else %}Registrar Medio{% endif %}
           </button>
         </div>
@@ -172,4 +190,255 @@
     </div>
   </div>
 </div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const form = document.getElementById(
+      "medio-pago-form"
+    );
+
+    const tipo = document.getElementById(
+      "id_tipo"
+    );
+
+    const titular = document.getElementById(
+      "id_nombre_titular"
+    );
+
+    const banco = document.getElementById(
+      "id_banco_emisor"
+    );
+
+    const numero = document.getElementById(
+      "id_numero_enmascarado"
+    );
+
+    const predeterminado = document.getElementById(
+      "id_es_predeterminado"
+    );
+
+    const bancoContainer = document.getElementById(
+      "field-banco_emisor"
+    );
+
+    const numeroContainer = document.getElementById(
+      "field-numero_enmascarado"
+    );
+
+    const stripeSection = document.getElementById(
+      "stripe-card-section"
+    );
+
+    const errorBox = document.getElementById(
+      "stripe-error"
+    );
+
+    const submitButton = document.getElementById(
+      "submit-medio"
+    );
+
+    const stripe = Stripe(
+      "{{ stripe_publishable_key|escapejs }}"
+    );
+
+    let elements = null;
+    let paymentElement = null;
+    let stripeInicializado = false;
+
+
+    async function inicializarStripe() {
+
+      if (stripeInicializado) {
+        return;
+      }
+
+      errorBox.style.display = "none";
+      errorBox.textContent = "";
+
+      try {
+
+        const csrfToken = document.querySelector(
+          "[name=csrfmiddlewaretoken]"
+        ).value;
+
+        const response = await fetch(
+          "{% url 'mpagos:stripe_setup_intent' %}",
+          {
+            method: "POST",
+            headers: {
+              "X-CSRFToken": csrfToken,
+              "Content-Type": "application/json"
+            }
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error
+            || "No se pudo iniciar Stripe."
+          );
+        }
+
+        elements = stripe.elements({
+          clientSecret: data.client_secret
+        });
+
+        paymentElement = elements.create(
+          "payment"
+        );
+
+        paymentElement.mount(
+          "#payment-element"
+        );
+
+        stripeInicializado = true;
+
+      } catch (error) {
+
+        errorBox.textContent = error.message;
+        errorBox.style.display = "block";
+
+      }
+    }
+
+
+    async function actualizarFormulario() {
+
+      const esTarjeta = (
+        tipo.value === "TARJETA"
+      );
+
+      if (esTarjeta) {
+
+        bancoContainer.style.display = "none";
+        numeroContainer.style.display = "none";
+
+        banco.disabled = true;
+        numero.disabled = true;
+
+        stripeSection.style.display = "block";
+
+        submitButton.textContent = (
+          "Registrar Tarjeta"
+        );
+
+        await inicializarStripe();
+
+      } else {
+
+        bancoContainer.style.display = "";
+        numeroContainer.style.display = "";
+
+        banco.disabled = false;
+        numero.disabled = false;
+
+        stripeSection.style.display = "none";
+
+        submitButton.textContent = (
+          "Registrar Medio"
+        );
+
+      }
+    }
+
+
+    tipo.addEventListener(
+      "change",
+      actualizarFormulario
+    );
+
+
+    form.addEventListener(
+      "submit",
+      async function (event) {
+
+        if (tipo.value !== "TARJETA") {
+          return;
+        }
+
+        event.preventDefault();
+
+        errorBox.style.display = "none";
+        errorBox.textContent = "";
+
+        if (!titular.value.trim()) {
+
+          errorBox.textContent = (
+            "Ingrese el nombre del titular."
+          );
+
+          errorBox.style.display = "block";
+
+          return;
+        }
+
+        if (!elements) {
+
+          errorBox.textContent = (
+            "Stripe todavía no está listo."
+          );
+
+          errorBox.style.display = "block";
+
+          return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = (
+          "Registrando..."
+        );
+
+        const retorno = new URL(
+          "{% url 'mpagos:stripe_registro_retorno' %}",
+          window.location.origin
+        );
+
+        retorno.searchParams.set(
+          "predeterminado",
+          predeterminado.checked ? "1" : "0"
+        );
+
+        const result = await stripe.confirmSetup({
+          elements: elements,
+
+          confirmParams: {
+
+            return_url: retorno.toString(),
+
+            payment_method_data: {
+              billing_details: {
+                name: titular.value.trim()
+              }
+            }
+          }
+        });
+
+        if (result.error) {
+
+          errorBox.textContent = (
+            result.error.message
+            || "No se pudo registrar la tarjeta."
+          );
+
+          errorBox.style.display = "block";
+
+          submitButton.disabled = false;
+          submitButton.textContent = (
+            "Registrar Tarjeta"
+          );
+        }
+      }
+    );
+
+
+    actualizarFormulario();
+  }
+);
+</script>
 {% endblock %}

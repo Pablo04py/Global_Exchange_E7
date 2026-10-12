@@ -10,6 +10,8 @@ from .models import (
     ConfiguracionComision
 )
 
+from mpagos.models import MedioPago
+
 CUATRO_DECIMALES = Decimal('0.0001')
 
 class CotizacionDesactualizada(Exception):
@@ -164,6 +166,65 @@ def simular_operacion(
 
     return resultado
 
+def obtener_o_crear_medio_efectivo(cliente, usuario):
+    """
+    Obtiene el medio técnico de efectivo del cliente
+    o lo crea automáticamente.
+
+    Este registro no representa una cuenta del cliente.
+    Solo permite asociar una transacción al tipo EFECTIVO.
+    """
+    medio = (
+        MedioPago.objects
+        .filter(
+            cliente=cliente,
+            tipo='EFECTIVO'
+        )
+        .order_by('-activo', '-creado_en')
+        .first()
+    )
+
+    if medio:
+        cambios = []
+
+        if not medio.activo:
+            medio.activo = True
+            cambios.append('activo')
+
+        if medio.nombre_titular != 'Efectivo en caja':
+            medio.nombre_titular = 'Efectivo en caja'
+            cambios.append('nombre_titular')
+
+        if medio.numero_enmascarado != 'CAJA':
+            medio.numero_enmascarado = 'CAJA'
+            cambios.append('numero_enmascarado')
+
+        if medio.banco_emisor is not None:
+            medio.banco_emisor = None
+            cambios.append('banco_emisor')
+
+        if medio.es_predeterminado:
+            medio.es_predeterminado = False
+            cambios.append('es_predeterminado')
+
+        if cambios:
+            medio.save(
+                update_fields=cambios
+            )
+
+        return medio
+
+    return MedioPago.objects.create(
+        usuario=usuario,
+        cliente=cliente,
+        tipo='EFECTIVO',
+        nombre_titular='Efectivo en caja',
+        banco_emisor=None,
+        numero_enmascarado='CAJA',
+        es_predeterminado=False,
+        activo=True,
+    )
+
 @transaction.atomic
 def crear_transaccion(
     usuario,
@@ -295,9 +356,9 @@ def cambiar_estado_transaccion(transaccion, nuevo_estado, usuario, motivo=""):
 
     # Reglas de transición para el Sprint 3
     TRANSICIONES_PERMITIDAS = {
-        Transaccion.Estado.PENDIENTE: [Transaccion.Estado.CANCELADA],
-        Transaccion.Estado.CANCELADA: [],   # Estado terminal: no se puede reabrir
-        Transaccion.Estado.CONFIRMADA: [],  # Estado terminal
+        Transaccion.Estado.PENDIENTE: [Transaccion.Estado.PAGADA, Transaccion.Estado.CANCELADA],
+        Transaccion.Estado.PAGADA: [],   # Estado terminal: no se puede reabrir
+        Transaccion.Estado.CANCELADA: [],  # Estado terminal
     }
 
     if nuevo_estado not in TRANSICIONES_PERMITIDAS.get(estado_anterior, []):

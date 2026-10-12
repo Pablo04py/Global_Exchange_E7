@@ -14,4 +14,9 @@ urlpatterns = [
     path('historial/', views.historial_transacciones, name='historial_transacciones'),
     path('operar/', views.operar, name='operar'),
     path('operar/<uuid:transaccion_id>/', views.detalle_transaccion, name='detalle_transaccion'),
+    path('operar/<uuid:transaccion_id>/pagar/stripe/',views.iniciar_pago_stripe,name='iniciar_pago_stripe'),
+    path('pagos/stripe/webhook/', views.stripe_webhook, name='stripe_webhook'),
+    path('operar/<uuid:transaccion_id>/pago/estado/', views.estado_pago_stripe, name='estado_pago_stripe'),
+    path('operar/<uuid:transaccion_id>/pagar/sipap/', views.confirmar_pago_sipap, name='confirmar_pago_sipap'),
+    path('operar/<uuid:transaccion_id>/pagar/efectivo/', views.confirmar_pago_efectivo, name='confirmar_pago_efectivo'),
 ]
