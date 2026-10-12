@@ -236,3 +236,34 @@ from 'operaciones.services'
      > **Decisión**: Se actualizó la aserción extrayendo la instancia del formulario enlazado directamente desde el contexto de la respuesta (`response.context['form']`), garantizando el chequeo correcto de los mensajes de error.
 
 - **Resultado / Decisión**: Ejecución exitosa de la suite con resultado **`OK` (4/4 tests pasados)** y plantilla `asignar_cajero.html` integrada correctamente al diseño base del sistema.
+
+
+## Interacción con IA - SCRUM-37: Apertura de Caja (Multimoneda Dinámica)
+
+**Fecha:** 12 de Octubre de 2026  
+**Desarrollador:** Fabio Cesar Rodriguez Vazquez  
+**Rama:** `feature/SCRUM-37`  
+
+### 1. Contexto y Objetivos
+- **Objetivo:** Implementar la funcionalidad de Apertura de Caja (SCRUM-37) permitiendo al cajero autenticado declarar el fondo inicial en efectivo desglosado por moneda antes de iniciar operaciones.
+- **Clarificación del Modelo de Negocio:** Se estableció y alineó la abstracción de flujos entre la realidad bancaria y los requerimientos del ERS (operaciones electrónicas en PYG e inventario físico de divisas en ventanilla).
+
+### 2. Decisiones Técnicas y Arquitectura
+- **Integración con Módulo de Operaciones:** En lugar de hardcodear monedas estáticas mediante `TextChoices`, se vinculó `SaldoInicialCaja` mediante una `ForeignKey` al modelo dinámico `operaciones.Moneda`.
+- **Formulario Dinámico:** Se adaptó `AperturaCajaForm` para instanciar dinámicamente un campo de entrada decimal por cada moneda que esté en estado `habilitada=True` en la base de datos.
+- **Flujo de Estados:**
+  - La `SesionCaja` transiciona de `ASIGNADA` a `ABIERTA`.
+  - La `Caja` pasa de `DISPONIBLE` a `EN_USO`.
+  - Se persisten las entradas en `SaldoInicialCaja` por cada divisa.
+
+### 3. Archivos Modificados / Creados
+- `caja/models.py`: Incorporación del modelo `SaldoInicialCaja` relacionado a `SesionCaja` y `operaciones.Moneda`.
+- `caja/forms.py`: Implementación de `AperturaCajaForm` con iteración dinámica sobre `Moneda.objects.filter(habilitada=True)`.
+- `caja/views.py`: Implementación de `aperturar_caja_view` con validaciones de sesión pendiente y guardado de saldos iniciales.
+- `caja/urls.py`: Adición del endpoint `aperturar/` bajo el namespace `caja`.
+- `caja/templates/caja/aperturar_caja.html`: Plantilla base funcional con bucle para renderizar el formulario dinámico.
+- `tests/caja/test_apertura.py`: Test unitarios que verifican la creación de saldos, cambio de estado de sesión/caja y casos borde.
+
+### 4. Resultado de Verificación
+- **Migraciones:** Regenerada la migración `0002_saldoinicialcaja.py` para reflejar la relación FK con `operaciones.Moneda`.
+- **Tests Unitarios:** Ejecución exitosa de la suite completa con `docker compose exec web python manage.py test tests.caja`.
