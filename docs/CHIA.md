@@ -230,7 +230,22 @@ from 'operaciones.services'
      >
      > **Decisión**: El cajero declara un total por moneda en un **arqueo ciego** (no ve el saldo registrado hasta cerrar). `arqueos.services.registrar_cierre` calcula la diferencia (`declarado - registrado`) y el resultado (cuadra, sobrante o faltante) por moneda, guarda `ArqueoCaja` + `DetalleArqueo` y bloquea la caja dentro de una sola transacción con `SELECT ... FOR UPDATE`. Los arqueos son inmutables (`save` rechaza modificaciones; admin de solo lectura). Desbloquear la caja, crearla, asignarla y abrirla quedan en las historias de los compañeros.
 
-* **Resultado / Decisión**: 35 pruebas nuevas en `app/tests/arqueos/` (cálculo, registro, bloqueo, inmutabilidad, integración configurable con un modelo sustituto y vistas). Suite completa del proyecto: 144 pruebas en verde.
+  3. **Conexión con la app `caja` de SCRUM-36 y modo demostración:**
+     > *"puedes revisar el github para ver si fabio subió el scrum [...] no hay una forma de ver como quedaría mientras no está la función?"*
+     >
+     > **Decisión**: Se mergeó `develop` en `feature/SCRUM-40` para trabajar sobre los modelos reales (`Caja` y `SesionCaja`). El turno que se cierra es `caja.SesionCaja` en estado `ABIERTA`; al cerrar, el turno pasa a `CERRADA` (con `fecha_cierre`) y la caja a `INACTIVA` (bloqueo que un Administrador revierte en otra historia). Los montos únicos de `SesionCaja` quedan vacíos porque el arqueo, por moneda, es el registro oficial; la sucursal queda vacía hasta que exista en el modelo. Para probar en el navegador sin la función real de saldo se agregó un modo demostración solo para `DEBUG`: `arqueos.demo.saldo_de_demostracion` (activable con `ARQUEO_FUNCION_SALDO` en el `.env`) y el comando `preparar_demo_cierre <usuario>`, que simula la apertura (SCRUM-37).
+
+  4. **Habilitación de la caja bloqueada:**
+     > *"pusiste para que el admin general o equivalente pueda habilitar la caja que quedó bloqueada? si no, ponlo"*
+     >
+     > **Decisión**: Se agregó la pantalla `/arqueos/cajas-bloqueadas/` (solo `Administrador General`, constante `ROLES_HABILITAR`) que lista únicamente las cajas `INACTIVA` con un arqueo registrado (para no habilitar cajas desactivadas por otros motivos) y un botón "Habilitar" (solo POST, con confirmación) que las pasa a `DISPONIBLE`, quedando nuevamente asignables desde SCRUM-36. El arqueo no se modifica.
+
+  5. **Menú para usuarios con varios roles:**
+     > *"puedes hacer que al ser admin y cajero a la vez, puedas ver las opciones de cajero?"*
+     >
+     > **Decisión**: El menú elegía un único rol por prioridad. Se agregó `main.views.resolve_user_roles` (todos los roles reconocidos, en orden de prioridad) y el parámetro opcional `roles` de `get_menu_sections`, que agrega la sección de cada rol sin repetir ítems entre secciones de rol. Con un solo rol el menú no cambia; el rol principal (etiqueta y tarjetas del dashboard) tampoco. Se agregó el ítem "Cajas Bloqueadas" en la sección Administración.
+
+* **Resultado / Decisión**: 56 pruebas en `app/tests/arqueos/` (cálculo, registro, cierre del turno y bloqueo con los modelos reales de `caja`, inmutabilidad, integración, vistas y modo demostración). Suite completa del proyecto: 176 pruebas en verde (incluye `tests/main/test_menu_varios_roles.py`). Cierre y habilitación verificados de punta a punta en el navegador con el modo demostración.
 
 
 ### Registro #9 - 11/10/2026

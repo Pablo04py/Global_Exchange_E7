@@ -1,9 +1,8 @@
 """
 Pruebas del punto de conexión con el módulo de caja (`arqueos.integracion`).
 
-Evalúa que el arqueo funcione con el modelo de caja configurado, que avise
-cuando las otras historias aún no están disponibles y que normalice el saldo
-registrado.
+Evalúa la conexión con los modelos reales de la app `caja` (SCRUM-36), el
+aviso cuando una pieza no está disponible y la normalización del saldo.
 """
 
 from decimal import Decimal
@@ -11,16 +10,18 @@ from decimal import Decimal
 from django.test import TestCase, override_settings
 
 from arqueos import integracion
-from .apoyo import CONFIG_SUSTITUTA, CajaDePruebaMixin
+from caja.models import EstadoCaja, EstadoSesionCaja
+from .apoyo import CONFIG_PRUEBA, CajaDePruebaMixin
 
 
 class ModuloNoDisponibleTestCase(TestCase):
-    """Con la configuración por defecto (módulo de caja aún no integrado)."""
+    """Cuando alguna pieza de otra historia no existe."""
 
-    def test_modelo_de_caja_no_disponible(self):
-        """Si el modelo `caja.Caja` no existe, se informa en lugar de fallar."""
+    @override_settings(ARQUEO_MODELO_TURNO='no_existe.Turno')
+    def test_modelo_de_turno_no_disponible(self):
+        """Si el modelo de turno no existe, se informa en lugar de fallar."""
         with self.assertRaises(integracion.ModuloCajaNoDisponible):
-            integracion.modelo_caja()
+            integracion.modelo_turno()
 
     @override_settings(ARQUEO_FUNCION_SALDO='no_existe.saldo')
     def test_funcion_de_saldo_no_disponible(self):
@@ -29,42 +30,50 @@ class ModuloNoDisponibleTestCase(TestCase):
             integracion.obtener_saldo_registrado(object())
 
 
-@override_settings(**CONFIG_SUSTITUTA)
-class IntegracionConfiguradaTestCase(CajaDePruebaMixin, TestCase):
-    """Con la integración apuntando al modelo sustituto."""
+@override_settings(**CONFIG_PRUEBA)
+class IntegracionConCajaTestCase(CajaDePruebaMixin, TestCase):
+    """Con los modelos reales de la app caja."""
 
-    def test_obtiene_solo_la_caja_abierta_asignada(self):
-        """Devuelve la caja abierta del cajero y nada para quien no tiene caja."""
-        self.assertEqual(integracion.obtener_caja_abierta(self.cajero), self.caja)
-        self.assertIsNone(integracion.obtener_caja_abierta(self.otro_cajero))
+    def test_usa_la_sesion_de_caja_por_defecto(self):
+        """Por defecto el turno es `caja.SesionCaja`."""
+        self.assertEqual(integracion.modelo_turno()._meta.label, 'caja.SesionCaja')
 
-    def test_caja_no_abierta_no_se_obtiene(self):
-        """Una caja en otro estado no se considera abierta."""
-        self.caja.tipo = 'BLOQUEADA'
-        self.caja.save()
-        self.assertIsNone(integracion.obtener_caja_abierta(self.cajero))
+    def test_obtiene_solo_el_turno_abierto_del_cajero(self):
+        """Devuelve el turno ABIERTO del cajero y nada para quien no tiene turno."""
+        self.assertEqual(integracion.obtener_turno_abierto(self.cajero), self.turno)
+        self.assertIsNone(integracion.obtener_turno_abierto(self.otro_cajero))
+
+    def test_turno_no_abierto_no_se_obtiene(self):
+        """Un turno ASIGNADO o CERRADO no se considera abierto."""
+        for estado in [EstadoSesionCaja.ASIGNADA, EstadoSesionCaja.CERRADA]:
+            with self.subTest(estado=estado):
+                self.turno.estado = estado
+                self.turno.save()
+                self.assertIsNone(integracion.obtener_turno_abierto(self.cajero))
 
     @override_settings(ARQUEO_CAMPO_CAJERO='campo_inexistente')
     def test_campo_mal_configurado(self):
         """Un nombre de campo incorrecto se informa como módulo no disponible."""
         with self.assertRaises(integracion.ModuloCajaNoDisponible):
-            integracion.obtener_caja_abierta(self.cajero)
+            integracion.obtener_turno_abierto(self.cajero)
 
     def test_saldo_registrado_normalizado(self):
         """Los códigos se pasan a mayúscula y los montos a Decimal."""
         self.assertEqual(
-            integracion.obtener_saldo_registrado(self.caja),
+            integracion.obtener_saldo_registrado(self.turno),
             {'PYG': Decimal('5740000'), 'USD': Decimal('900')},
         )
 
     def test_datos_de_caja(self):
-        """La foto de la caja incluye identificador, nombre y sucursal."""
-        datos = integracion.datos_de_caja(self.caja)
-        self.assertEqual(datos['caja_id'], str(self.caja.pk))
-        self.assertEqual(datos['sucursal_nombre'], 'Casa Central')
+        """La foto toma la caja del turno; la sucursal queda vacía mientras no exista."""
+        self.assertEqual(integracion.datos_de_caja(self.turno), {
+            'caja_id': str(self.caja.pk), 'caja_nombre': 'Caja 1 (C1)', 'sucursal_nombre': '',
+        })
 
-    def test_bloquear_caja(self):
-        """Cambia el estado de la caja al valor de bloqueo configurado."""
-        integracion.bloquear_caja(self.caja)
-        self.caja.refresh_from_db()
-        self.assertEqual(self.caja.tipo, 'BLOQUEADA')
+    def test_cerrar_turno_y_bloquear_caja(self):
+        """El turno pasa a CERRADA con fecha de cierre y la caja a INACTIVA."""
+        integracion.cerrar_turno_y_bloquear_caja(self.turno)
+        self.refrescar()
+        self.assertEqual(self.turno.estado, EstadoSesionCaja.CERRADA)
+        self.assertIsNotNone(self.turno.fecha_cierre)
+        self.assertEqual(self.caja.estado, EstadoCaja.INACTIVA)

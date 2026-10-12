@@ -134,3 +134,9 @@ OIDC_STORE_ID_TOKEN = True
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = 'oidc_authentication_init'
+
+# Cierre de caja (SCRUM-40): función que devuelve el saldo registrado por moneda
+# de un turno de caja (ver `arqueos.integracion`). En desarrollo, mientras no
+# exista la función real, puede apuntarse a `arqueos.demo.saldo_de_demostracion`
+# desde el `.env`.
+ARQUEO_FUNCION_SALDO = config('ARQUEO_FUNCION_SALDO', default='caja.services.saldo_registrado')

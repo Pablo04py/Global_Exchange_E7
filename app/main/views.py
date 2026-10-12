@@ -59,7 +59,35 @@ def resolve_user_role(request):
         role = resolve_keycloak_role(user_roles)
     return role
 
-def get_menu_sections(role, active_client, is_authenticated=False):
+def resolve_user_roles(request):
+    """Devuelve todos los roles funcionales reconocidos del usuario autenticado.
+
+    Usa las mismas fuentes que `resolve_user_role` (override de desarrollo
+    `ge_role`, grupos de Django y roles del token OIDC), pero conserva todos
+    los roles en orden de prioridad para que un usuario con varios roles
+    (por ejemplo, Administrador General y Cajero) vea las opciones de cada uno.
+
+    Args:
+        request: Petición HTTP.
+
+    Returns:
+        list[str]: Roles reconocidos en orden de `ROLE_PRIORITY`; vacía si no
+        inició sesión o no tiene ninguno.
+    """
+    if not request.user.is_authenticated:
+        return []
+
+    override = request.session.get('ge_role')
+    if override:
+        return [override] if override in ROLE_PRIORITY else []
+
+    user_roles = list(request.user.groups.values_list('name', flat=True))
+    if not user_roles:
+        oidc_payload = request.session.get('oidc_access_token_payload', {})
+        user_roles = oidc_payload.get('realm_access', {}).get('roles', [])
+    return [role for role in ROLE_PRIORITY if role in user_roles]
+
+def get_menu_sections(role, active_client, is_authenticated=False, roles=None):
     """
     Construye las secciones del menú lateral según el contexto del usuario.
 
@@ -80,6 +108,11 @@ def get_menu_sections(role, active_client, is_authenticated=False):
 
         is_authenticated:
             Indica si existe un usuario autenticado.
+
+        roles:
+            Todos los roles del usuario (ver `resolve_user_roles`). Si se
+            omite, se usa solo `role`. Con varios roles se agregan las
+            secciones de cada uno, sin repetir ítems entre ellas.
 
     Returns:
         list:
@@ -148,8 +181,11 @@ def get_menu_sections(role, active_client, is_authenticated=False):
             ]
         })
 
+    roles = roles if roles is not None else [role]
+    primera_seccion_de_rol = len(sections)
+
     # RF30-RF35: Funciones del Cajero
-    if role == "Cajero":
+    if "Cajero" in roles:
         sections.append({
             "label": "Gestión de Caja",
             "items": [
@@ -161,7 +197,7 @@ def get_menu_sections(role, active_client, is_authenticated=False):
         })
 
     # RF10, RF42-RF44, RF47: Funciones del Analista Cambiario
-    if role == "Analista Cambiario":
+    if "Analista Cambiario" in roles:
         sections.append({
             "label": "Análisis Cambiario",
             "items": [
@@ -173,7 +209,7 @@ def get_menu_sections(role, active_client, is_authenticated=False):
         })
 
     # RF7, RF11, RF46-RF48: Funciones de Administración
-    if role == "Administrador General":
+    if "Administrador General" in roles:
         sections.append({
             "label": "Administración",
             "items": [
@@ -184,10 +220,17 @@ def get_menu_sections(role, active_client, is_authenticated=False):
                 {"name": "Ajuste de Tasas", "url": "/operaciones/tasas/", "icon": "ti-currency-dollar"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
                 {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-currency-dollar"},
+                {"name": "Cajas Bloqueadas", "url": reverse("cajas_bloqueadas"), "icon": "ti-lock"},
                 {"name": "Parámetros del Sistema", "url": "/admin/parametros/", "icon": "ti-settings"},
                 {"name": "Auditoría de Logs", "url": "/admin/auditoria/", "icon": "ti-shield-check"},
             ]
         })
+
+    # Con varios roles, no repetir en una sección de rol un ítem que ya mostró otra
+    urls_de_roles = set()
+    for seccion in sections[primera_seccion_de_rol:]:
+        seccion["items"] = [item for item in seccion["items"] if item["url"] not in urls_de_roles]
+        urls_de_roles.update(item["url"] for item in seccion["items"])
 
     return sections
 
@@ -294,7 +337,8 @@ def dashboard(request):
         "menu_sections": get_menu_sections(
             role,
             active_client,
-            is_authenticated=is_auth
+            is_authenticated=is_auth,
+            roles=resolve_user_roles(request),
         ),
         "associated_clients": associated_clients,
         "active_client": active_client,
