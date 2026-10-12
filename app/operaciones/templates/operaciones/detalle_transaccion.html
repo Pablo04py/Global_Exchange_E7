@@ -31,7 +31,7 @@ Detalle de Operación
 
     <p>
         <strong>Tipo de operación:</strong>
-        {{ transaccion.get_tipo_operacion_display }}
+        {{ transaccion.get_tipo_display }}
     </p>
 
     <p>
@@ -40,8 +40,9 @@ Detalle de Operación
     </p>
 
     <p>
-        <strong>Monto ingresado:</strong>
-        {{ transaccion.monto_origen }}
+        <strong>Monto pagado:</strong>
+        {{ transaccion.monto_pagado }}
+        {{ transaccion.moneda_pagada }}
     </p>
 
     <p>
@@ -50,19 +51,9 @@ Detalle de Operación
     </p>
 
     <p>
-        <strong>Comisión:</strong>
-        {{ transaccion.porcentaje_comision }} %
-    </p>
-
-    <p>
-        <strong>Monto de comisión:</strong>
-        {{ transaccion.monto_comision }}
-        {{ transaccion.moneda_comision }}
-    </p>
-
-    <p>
-        <strong>Monto final:</strong>
-        {{ transaccion.monto_destino }}
+        <strong>Monto recibido:</strong>
+        {{ transaccion.monto_recibido }}
+        {{ transaccion.moneda_recibida }}
     </p>
 
     <p>
@@ -75,10 +66,394 @@ Detalle de Operación
         {{ transaccion.get_estado_display }}
     </p>
 
+    {% if transaccion.estado == 'PENDIENTE' %}
+
+        {% if transaccion.medio_pago.tipo == 'TARJETA' %}
+
+            {% if transaccion.medio_pago.stripe_payment_method_id %}
+
+                <hr>
+                <h3>Confirmar pago</h3>
+
+                <p>
+                    <strong>Tarjeta:</strong>
+
+                    {% if transaccion.medio_pago.marca_tarjeta %}
+                        {{ transaccion.medio_pago.marca_tarjeta|title }}
+                    {% endif %}
+
+                    {{ transaccion.medio_pago.numero_enmascarado }}
+                </p>
+                <p>
+                    <strong>Vencimiento:</strong>
+                    {{ transaccion.medio_pago.exp_mes }}
+                    /
+                    {{ transaccion.medio_pago.exp_anio }}
+                </p>
+                <p>
+                    Por seguridad, ingrese nuevamente
+                    el código de seguridad de la tarjeta.
+                </p>
+
+                <form id="stripe-payment-form">
+                    {% csrf_token %}
+
+                    <label for="card-cvc-element">
+                        Código de seguridad (CVC)
+                    </label>
+
+                    <div
+                        id="card-cvc-element"
+                        style="
+                            max-width: 180px;
+                            padding: 10px;
+                            border: 1px solid #ccc;
+                            border-radius: 6px;
+                            margin: 8px 0 12px;"
+                    ></div>
+                    <div
+                        id="stripe-payment-error"
+                        style="
+                            color: #DC2626;
+                            margin-bottom: 10px;
+                            display: none;"
+                    ></div>
+
+                    <button type="submit" id="stripe-payment-button">
+                        Pagar
+                        {{ transaccion.monto_pagado }}
+                        {{ transaccion.moneda_pagada }}
+                    </button>
+
+                </form>
+            {% else %}   
+                <p>
+                    Esta tarjeta fue registrada con
+                    el sistema anterior y no puede
+                    procesarse mediante Stripe.
+                </p>
+
+                <p>
+                    Registre nuevamente la tarjeta
+                    desde Medios de Pago.
+                </p>
+            {% endif %}
+
+        {% elif transaccion.medio_pago.tipo == 'SIPAP' %}
+            
+            <hr>
+            <h3>Confirmacion de pago SIPAP</h3>
+
+            <p>
+                <strong>Medio:</strong>
+                {{ transaccion.medio_pago }}
+            </p>
+            <p>
+                Esta operación utiliza una simulación
+                de confirmación mediante SIPAP.
+            </p>
+            
+            <form method="post" action="{% url 'confirmar_pago_sipap' transaccion.id %}" onsubmit="return confirm('¿Confirmar la recepción del pago mediante SIPAP?');">
+                {% csrf_token %}
+
+                <button type="submit">
+                    Confirmar pago SIPAP
+                </button>
+
+            </form>
+
+        {% elif transaccion.medio_pago.tipo == 'EFECTIVO' %}
+
+            <hr>
+
+            <h3>Confirmación de pago en efectivo</h3>
+
+            <p>
+                <strong>Medio:</strong>
+                Efectivo
+            </p>
+
+            <p>
+                Confirme únicamente cuando el dinero
+                haya sido recibido.
+            </p>
+
+            <form method="post" action="{% url 'confirmar_pago_efectivo' transaccion.id %}" onsubmit="return confirm('¿Confirma que recibió el pago en efectivo?');">
+
+                {% csrf_token %}
+
+                <button type="submit">
+                    Confirmar recepción de efectivo
+                </button>
+
+            </form>
+
+        {% endif %}
+
+    {% elif transaccion.estado == 'PAGADA' %}
+
+        <p>
+            Pago confirmado correctamente.
+        </p>
+
+    {% elif transaccion.estado == 'CANCELADA' %}
+
+        <p>
+            Esta operación fue cancelada.
+        </p>
+
+    {% endif %}
+
+
     <a href="{% url 'operar' %}">
         Realizar otra operación
     </a>
 
+
 </div>
+{% if transaccion.estado == 'PENDIENTE' and transaccion.medio_pago.tipo == 'TARJETA' and transaccion.medio_pago.stripe_payment_method_id %}
+
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const stripe = Stripe(
+            "{{ stripe_publishable_key|escapejs }}"
+        );
+
+        const elements = stripe.elements();
+
+        const cvcElement = elements.create(
+            "cardCvc"
+        );
+
+        cvcElement.mount(
+            "#card-cvc-element"
+        );
+
+        const form = document.getElementById(
+            "stripe-payment-form"
+        );
+
+        const button = document.getElementById(
+            "stripe-payment-button"
+        );
+
+        const errorBox = document.getElementById(
+            "stripe-payment-error"
+        );
+
+
+        function esperar(ms) {
+            return new Promise(
+                resolve => setTimeout(resolve, ms)
+            );
+        }
+
+
+        async function esperarConfirmacionWebhook() {
+
+            const urlEstado =
+                "{% url 'estado_pago_stripe' transaccion.id %}";
+
+            // 20 intentos × 500 ms = 10 segundos
+            for (
+                let intento = 0;
+                intento < 20;
+                intento++
+            ) {
+
+                try {
+
+                    const response = await fetch(
+                        urlEstado,
+                        {
+                            method: "GET",
+                            headers: {
+                                "X-Requested-With":
+                                    "XMLHttpRequest"
+                            }
+                        }
+                    );
+
+                    if (response.ok) {
+
+                        const data =
+                            await response.json();
+
+                        if (data.pagada) {
+                            return true;
+                        }
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "Error verificando pago:",
+                        error
+                    );
+                }
+
+                await esperar(500);
+            }
+
+            return false;
+        }
+
+
+        async function finalizarPago() {
+
+            button.disabled = true;
+
+            button.textContent =
+                "Pago recibido. Verificando...";
+
+            const confirmado =
+                await esperarConfirmacionWebhook();
+
+            if (confirmado) {
+
+                window.location.replace(
+                    "{% url 'detalle_transaccion' transaccion.id %}"
+                );
+
+                return;
+            }
+
+            button.textContent =
+                "Pago recibido";
+
+            errorBox.textContent =
+                "Stripe recibió el pago, pero la "
+                + "confirmación todavía se está "
+                + "procesando.";
+
+            errorBox.style.display = "block";
+        }
+
+
+        form.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                button.disabled = true;
+                button.textContent =
+                    "Procesando...";
+
+                errorBox.style.display = "none";
+                errorBox.textContent = "";
+
+                try {
+
+                    const csrfToken =
+                        document.querySelector(
+                            "[name=csrfmiddlewaretoken]"
+                        ).value;
+
+                    const response = await fetch(
+                        "{% url 'iniciar_pago_stripe' transaccion.id %}",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "X-CSRFToken":
+                                    csrfToken
+                            }
+                        }
+                    );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.error
+                            || "No se pudo iniciar el pago."
+                        );
+                    }
+
+                    const result =
+                        await stripe.confirmCardPayment(
+                            data.client_secret,
+                            {
+                                payment_method:
+                                    "{{ transaccion.medio_pago.stripe_payment_method_id|escapejs }}",
+
+                                payment_method_options: {
+                                    card: {
+                                        cvc: cvcElement
+                                    }
+                                }
+                            }
+                        );
+
+                    if (result.error) {
+
+                        throw new Error(
+                            result.error.message
+                            || "No se pudo confirmar el pago."
+                        );
+                    }
+
+                    if (
+                        result.paymentIntent
+                        &&
+                        result.paymentIntent.status
+                            === "succeeded"
+                    ) {
+
+                        await finalizarPago();
+
+                        return;
+                    }
+
+                    throw new Error(
+                        "Stripe no confirmó el pago."
+                    );
+
+                } catch (error) {
+
+                    errorBox.textContent =
+                        error.message;
+
+                    errorBox.style.display =
+                        "block";
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "Pagar";
+                }
+            }
+        );
+
+
+        /*
+         * Si Stripe ya confirmó el pago y el navegador
+         * llegó antes que el webhook, seguimos esperando
+         * automáticamente.
+         */
+        const parametros =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        if (
+            parametros.get("stripe")
+            === "success"
+        ) {
+            finalizarPago();
+        }
+    }
+);
+</script>
+
+{% endif %}
 
 {% endblock %}
