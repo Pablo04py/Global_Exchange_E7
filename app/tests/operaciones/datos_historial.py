@@ -59,7 +59,7 @@ class HistorialDatosMixin:
         )
 
     def crear_transaccion(self, cliente=None, usuario=None, **campos):
-        """Crea una transacción; por defecto una compra confirmada de 100 USD de `cliente_a`.
+        """Crea una transacción; por defecto una compra pagada de 100 USD de `cliente_a`.
 
         Args:
             cliente: Cliente de la transacción (por defecto `cliente_a`).
@@ -84,7 +84,7 @@ class HistorialDatosMixin:
             'tasa_aplicada': Decimal('7650.0000'),
             'facturada': False,
             'dispositivo': Transaccion.Dispositivo.WINDOWS,
-            'estado': Transaccion.Estado.CONFIRMADA,
+            'estado': Transaccion.Estado.PAGADA,
             'fecha': fecha_local(2026, 9, 15),
         }
         valores.update(campos)
