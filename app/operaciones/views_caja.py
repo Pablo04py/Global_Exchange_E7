@@ -108,7 +108,7 @@ def ticket_caja(request, transaccion_id):
 
 @requiere_rol('Cajero')
 def historial_caja_dia(request):
-    """Operaciones que el cajero actual confirmó hoy, con el saldo de su caja."""
+    """Operaciones que el cajero actual confirmó hoy."""
     hoy = timezone.localdate()
     transacciones = (
         Transaccion.objects
@@ -116,17 +116,22 @@ def historial_caja_dia(request):
         .select_related('cliente', 'moneda', 'medio_pago')
         .order_by('-fecha')
     )
-
-    try:
-        sesion = caja_gateway.obtener_sesion_abierta(request.user)
-        saldos = caja_gateway.obtener_saldos(sesion)
-    except caja_gateway.SesionCajaNoAbierta:
-        sesion, saldos = None, {}
-
     return render(request, 'operaciones/caja_historial_dia.html', {
         'transacciones': transacciones,
         'total': transacciones.count(),
-        'saldos': saldos,
-        'sesion': sesion,
         'hoy': hoy,
+    })
+
+@requiere_rol('Cajero')
+def saldo_caja(request):
+    """Efectivo actual por moneda de la caja abierta del cajero, con sus últimos movimientos."""
+    try:
+        sesion = caja_gateway.obtener_sesion_abierta(request.user)
+    except caja_gateway.SesionCajaNoAbierta:
+        return render(request, 'operaciones/caja_saldo.html', {'sesion': None})
+
+    return render(request, 'operaciones/caja_saldo.html', {
+    'sesion': sesion,
+    'resumen': caja_gateway.obtener_resumen(sesion),
+    'movimientos': sesion.movimientos.select_related('transaccion__cliente')[:30],
     })

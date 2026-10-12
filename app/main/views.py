@@ -195,6 +195,7 @@ def get_menu_sections(role, active_client, is_authenticated=False, roles=None):
                 {"name": "Movimientos de Efectivo", "url": "/caja/movimientos/", "icon": "ti-file-spreadsheet"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
                 {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-currency-dollar"},
+                {"name": "Saldo de caja", "url": reverse("caja_saldo"), "icon": "ti-cash"},
             ]
         })
 

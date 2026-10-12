@@ -5,8 +5,11 @@ caja, solo se ajusta este archivo.
 """
 
 from caja.models import EstadoSesionCaja, SesionCaja
-from caja.services import registrar_movimiento_transaccion, saldo_por_moneda
-
+from caja.services import (
+    registrar_movimiento_transaccion,
+    saldo_por_moneda,
+    resumen_por_moneda,
+)
 
 class SesionCajaNoAbierta(Exception):
     """El cajero no tiene una sesión de caja en estado ABIERTA."""
@@ -47,7 +50,11 @@ def registrar_movimiento(sesion, transaccion):
     """
     return registrar_movimiento_transaccion(sesion, transaccion)
 
-
 def obtener_saldos(sesion):
     """Saldo de efectivo por moneda de la sesión: {'PYG': ..., 'USD': ...}."""
     return saldo_por_moneda(sesion)
+
+
+def obtener_resumen(sesion):
+    """Lista por moneda con apertura, entradas, salidas y saldo actual."""
+    return resumen_por_moneda(sesion)
