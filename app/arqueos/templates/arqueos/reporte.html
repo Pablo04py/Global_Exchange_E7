@@ -1,0 +1,168 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Reportes de Auditoría de Caja - Global Exchange{% endblock %}
+{% block page_title %}Reportes de Auditoría de Caja{% endblock %}
+
+{% block extra_css %}
+{% include 'arqueos/_estilos.html' %}
+<style>
+  .rp-wrap { width: 100%; }
+  .rp-filtros { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; align-items: end; }
+  .rp-campo label { display: block; font-size: 11.5px; color: var(--topbar-muted); margin-bottom: 4px; }
+  .rp-campo input, .rp-campo select {
+    width: 100%; font: inherit; font-size: 13px; padding: 7px 10px;
+    border: 1px solid var(--topbar-border); border-radius: 6px; background: #fff;
+  }
+  .rp-acciones { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 16px; }
+  .rp-btn {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; text-decoration: none;
+    border-radius: var(--radius); padding: 9px 16px; border: 1px solid var(--topbar-border);
+    background: #fff; color: var(--topbar-text); cursor: pointer;
+  }
+  .rp-btn:hover { background: #F4F6FB; }
+  .rp-btn-primario { background: #2563EB; border-color: #2563EB; color: #fff; }
+  .rp-btn-primario:hover { background: #1D4ED8; }
+
+  .rp-resumen { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .rp-dato { background: #fff; border: 1px solid var(--topbar-border); border-radius: var(--radius); padding: 14px 16px; }
+  .rp-dato span { display: block; font-size: 12px; color: var(--topbar-muted); }
+  .rp-dato strong { font-size: 22px; color: var(--topbar-text); }
+  .rp-dato.faltante strong { color: #991B1B; }
+  .rp-dato.sobrante strong { color: #92400E; }
+  .rp-dato.cuadra strong { color: #065F46; }
+
+  .rp-tabla-card { padding: 0; overflow: hidden; }
+  .rp-tabla-wrap { overflow-x: auto; }
+  .rp-tabla td.rp-grupo { border-right: 1px solid var(--topbar-border); }
+  .rp-generado { display: none; font-size: 12px; color: #555; margin-bottom: 10px; }
+
+  /* Impresión: solo el reporte, sin menú, filtros ni botones */
+  @media print {
+    .sidebar, .topbar, .rp-no-imprimir { display: none !important; }
+    .main-wrapper { margin-left: 0 !important; }
+    .page-content { padding: 0 !important; overflow: visible !important; }
+    body { background: #fff !important; }
+    .aq-header { background: none !important; padding: 0 0 8px !important; border-bottom: 2px solid #000; border-radius: 0; }
+    .aq-header h1, .aq-header p { color: #000 !important; }
+    .rp-generado { display: block; }
+    .aq-card, .rp-dato { border-color: #999 !important; box-shadow: none !important; }
+    .rp-tabla-wrap { overflow: visible !important; }
+    .aq-table th, .aq-table td { padding: 6px !important; font-size: 11px !important; }
+    .aq-badge { background: none !important; border: 1px solid #000; color: #000 !important; }
+    tr { page-break-inside: avoid; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rp-wrap">
+
+  <div class="aq-header">
+    <span class="aq-eyebrow rp-no-imprimir">Auditoría</span>
+    <h1>Reportes de Auditoría de Caja</h1>
+    <p>Cierres de caja con sus saldos registrados, declarados y discrepancias. Solo consulta.</p>
+  </div>
+  <div class="rp-generado">Generado el {{ generado|date:"d/m/Y H:i" }}{% if hay_filtros %} · con filtros aplicados{% endif %}</div>
+
+  {# ── Filtros (GET: no modifican datos) ── #}
+  <form method="get" class="aq-card rp-no-imprimir">
+    <div class="rp-filtros">
+      <div class="rp-campo">
+        <label for="{{ form.fecha_desde.id_for_label }}">Fecha desde</label>
+        {{ form.fecha_desde }}
+      </div>
+      <div class="rp-campo">
+        <label for="{{ form.fecha_hasta.id_for_label }}">Fecha hasta</label>
+        {{ form.fecha_hasta }}
+        {% for e in form.fecha_hasta.errors %}<div class="aq-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="rp-campo">
+        <label for="{{ form.sucursal.id_for_label }}">Sucursal</label>
+        {{ form.sucursal }}
+        {% for e in form.sucursal.errors %}<div class="aq-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="rp-campo">
+        <label for="{{ form.cajero.id_for_label }}">Cajero</label>
+        {{ form.cajero }}
+        {% for e in form.cajero.errors %}<div class="aq-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="rp-campo">
+        <label for="{{ form.nivel.id_for_label }}">Nivel de discrepancia</label>
+        {{ form.nivel }}
+      </div>
+    </div>
+    <div class="rp-acciones">
+      <a href="{% url 'reporte_arqueos' %}" class="rp-btn"><i class="ti ti-x"></i> Limpiar</a>
+      <button type="submit" class="rp-btn rp-btn-primario"><i class="ti ti-search"></i> Filtrar</button>
+      <button type="button" class="rp-btn" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir</button>
+      <a href="{% url 'exportar_reporte_arqueos' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="rp-btn">
+        <i class="ti ti-file-spreadsheet"></i> Exportar CSV
+      </a>
+    </div>
+  </form>
+
+  {# ── Resumen ── #}
+  <div class="rp-resumen">
+    <div class="rp-dato"><span>Cierres</span><strong>{{ resumen.total }}</strong></div>
+    <div class="rp-dato faltante"><span>Con faltante</span><strong>{{ resumen.con_faltante }}</strong></div>
+    <div class="rp-dato sobrante"><span>Con sobrante</span><strong>{{ resumen.con_sobrante }}</strong></div>
+    <div class="rp-dato cuadra"><span>Sin discrepancia</span><strong>{{ resumen.sin_discrepancia }}</strong></div>
+  </div>
+
+  {# ── Detalle: una fila por moneda, agrupada por arqueo ── #}
+  <div class="aq-card rp-tabla-card">
+    {% if arqueos %}
+      <div class="rp-tabla-wrap">
+        <table class="aq-table rp-tabla">
+          <thead>
+            <tr>
+              <th>Fecha y hora</th>
+              <th>Sucursal</th>
+              <th>Caja</th>
+              <th>Cajero</th>
+              <th>Moneda</th>
+              <th>Saldo registrado</th>
+              <th>Saldo declarado</th>
+              <th>Diferencia</th>
+              <th>Resultado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for arqueo in arqueos %}
+              {% with filas=arqueo.detalles.all|length %}
+              {% for d in arqueo.detalles.all %}
+              <tr>
+                {% if forloop.first %}
+                  <td class="rp-grupo" rowspan="{{ filas }}">{{ arqueo.fecha_cierre|date:"d/m/Y H:i" }}</td>
+                  <td class="rp-grupo" rowspan="{{ filas }}">{{ arqueo.sucursal_nombre|default:"—" }}</td>
+                  <td class="rp-grupo" rowspan="{{ filas }}">{{ arqueo.caja_nombre }}</td>
+                  <td class="rp-grupo" rowspan="{{ filas }}">{{ arqueo.cajero.get_full_name|default:arqueo.cajero.username }}</td>
+                {% endif %}
+                <td><strong>{{ d.moneda }}</strong></td>
+                <td>{{ d.saldo_registrado|floatformat:"2g" }}</td>
+                <td>{{ d.saldo_declarado|floatformat:"2g" }}</td>
+                <td>{{ d.diferencia|floatformat:"2g" }}</td>
+                <td><span class="aq-badge aq-badge-{{ d.resultado|lower }}">{{ d.get_resultado_display }}</span></td>
+              </tr>
+              {% endfor %}
+              {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="aq-aviso">
+        <i class="ti ti-report-search"></i>
+        {% if hay_filtros %}
+          <h4>No hay cierres que coincidan con los filtros</h4>
+          <p>Probá ampliar el rango de fechas o quitar algún filtro.</p>
+        {% else %}
+          <h4>Todavía no hay cierres de caja registrados</h4>
+          <p>Los arqueos aparecerán aquí a medida que los cajeros cierren sus cajas.</p>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

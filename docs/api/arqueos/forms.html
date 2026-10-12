@@ -54,6 +54,57 @@
                 </ul>
 
             </li>
+            <li>
+                    <a class="class" href="#FiltroReporteForm">FiltroReporteForm</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#FiltroReporteForm.__init__">FiltroReporteForm</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroReporteForm.NIVEL_SIN">NIVEL_SIN</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroReporteForm.NIVEL_SOBRANTE">NIVEL_SOBRANTE</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroReporteForm.NIVEL_FALTANTE">NIVEL_FALTANTE</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroReporteForm.NIVELES">NIVELES</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroReporteForm.fecha_desde">fecha_desde</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroReporteForm.fecha_hasta">fecha_hasta</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroReporteForm.sucursal">sucursal</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroReporteForm.cajero">cajero</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroReporteForm.nivel">nivel</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#FiltroReporteForm.clean">clean</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#FiltroReporteForm.filtrar">filtrar</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroReporteForm.media">media</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroReporteForm.declared_fields">declared_fields</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#FiltroReporteForm.base_fields">base_fields</a>
+                        </li>
+                </ul>
+
+            </li>
     </ul>
 
 
@@ -78,42 +129,130 @@
 
                         <label class="view-source-button" for="mod-forms-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">"""Formularios de la aplicación arqueos."""</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django</span><span class="w"> </span><span class="kn">import</span> <span class="n">forms</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="k">class</span><span class="w"> </span><span class="nc">CierreCajaForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="w">    </span><span class="sd">"""Saldo físico declarado por el cajero, un campo por moneda de la caja.</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="sd">    Es un arqueo ciego: el formulario no muestra el saldo registrado, solo</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">    pide lo que el cajero contó. Los campos se llaman `saldo_&lt;MONEDA&gt;`.</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">    """</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">monedas</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="w">        </span><span class="sd">"""Crea un campo de saldo por cada moneda de la caja.</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">        Args:</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">            monedas: Códigos de las monedas a declarar, ej. `['PYG', 'USD']`.</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">        """</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">monedas</span><span class="p">)</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>        <span class="k">for</span> <span class="n">moneda</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span><span class="p">:</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="sa">f</span><span class="s1">'saldo_</span><span class="si">{</span><span class="n">moneda</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>                <span class="n">label</span><span class="o">=</span><span class="n">moneda</span><span class="p">,</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>                <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>                <span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>                <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>                <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">NumberInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'step'</span><span class="p">:</span> <span class="s1">'0.01'</span><span class="p">,</span> <span class="s1">'min'</span><span class="p">:</span> <span class="s1">'0'</span><span class="p">}),</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>            <span class="p">)</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">saldos_declarados</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="w">        </span><span class="sd">"""Devuelve los saldos válidos por moneda.</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">        Returns:</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">            dict[str, Decimal]: Saldo declarado por código de moneda.</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">        """</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>        <span class="k">return</span> <span class="p">{</span><span class="n">moneda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'saldo_</span><span class="si">{</span><span class="n">moneda</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="k">for</span> <span class="n">moneda</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span><span class="p">}</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="sd">"""Formularios de la aplicación arqueos."""</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django</span><span class="w"> </span><span class="kn">import</span> <span class="n">forms</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_user_model</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="k">class</span><span class="w"> </span><span class="nc">CierreCajaForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="w">    </span><span class="sd">"""Saldo físico declarado por el cajero, un campo por moneda de la caja.</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">    Es un arqueo ciego: el formulario no muestra el saldo registrado, solo</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">    pide lo que el cajero contó. Los campos se llaman `saldo_&lt;MONEDA&gt;`.</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="sd">    """</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">monedas</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="w">        </span><span class="sd">"""Crea un campo de saldo por cada moneda de la caja.</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="sd">        Args:</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="sd">            monedas: Códigos de las monedas a declarar, ej. `['PYG', 'USD']`.</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="sd">        """</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">monedas</span><span class="p">)</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>        <span class="k">for</span> <span class="n">moneda</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span><span class="p">:</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="sa">f</span><span class="s1">'saldo_</span><span class="si">{</span><span class="n">moneda</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>                <span class="n">label</span><span class="o">=</span><span class="n">moneda</span><span class="p">,</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>                <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>                <span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>                <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>                <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">NumberInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'step'</span><span class="p">:</span> <span class="s1">'0.01'</span><span class="p">,</span> <span class="s1">'min'</span><span class="p">:</span> <span class="s1">'0'</span><span class="p">}),</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>            <span class="p">)</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">saldos_declarados</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a><span class="w">        </span><span class="sd">"""Devuelve los saldos válidos por moneda.</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="sd">        Returns:</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a><span class="sd">            dict[str, Decimal]: Saldo declarado por código de moneda.</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="sd">        """</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>        <span class="k">return</span> <span class="p">{</span><span class="n">moneda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'saldo_</span><span class="si">{</span><span class="n">moneda</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="k">for</span> <span class="n">moneda</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span><span class="p">}</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="k">class</span><span class="w"> </span><span class="nc">_CajeroChoiceField</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelChoiceField</span><span class="p">):</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="w">    </span><span class="sd">"""Muestra al cajero por su nombre completo o, si no lo tiene, por su `username`."""</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">label_from_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="w">        </span><span class="sd">"""Devuelve el nombre completo del cajero o su `username`."""</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_full_name</span><span class="p">()</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">username</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="k">class</span><span class="w"> </span><span class="nc">FiltroReporteForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="w">    </span><span class="sd">"""Filtros del reporte de auditoría de caja (vía GET, solo lectura).</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="sd">    Las opciones de sucursal y cajero salen de los arqueos registrados, de</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">    modo que el reporte no depende de los modelos de sucursal o caja de otras</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">    historias. Todos los campos son opcionales.</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">    """</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="n">NIVEL_SIN</span> <span class="o">=</span> <span class="s1">'SIN'</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>    <span class="n">NIVEL_SOBRANTE</span> <span class="o">=</span> <span class="s1">'SOBRANTE'</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="n">NIVEL_FALTANTE</span> <span class="o">=</span> <span class="s1">'FALTANTE'</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="n">NIVELES</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="p">(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todos'</span><span class="p">),</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>        <span class="p">(</span><span class="n">NIVEL_SIN</span><span class="p">,</span> <span class="s1">'Sin discrepancia'</span><span class="p">),</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>        <span class="p">(</span><span class="n">NIVEL_SOBRANTE</span><span class="p">,</span> <span class="s1">'Con sobrante'</span><span class="p">),</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="p">(</span><span class="n">NIVEL_FALTANTE</span><span class="p">,</span> <span class="s1">'Con faltante'</span><span class="p">),</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="p">]</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="n">fecha_desde</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">DateInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'date'</span><span class="p">}))</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="n">fecha_hasta</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">DateInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'date'</span><span class="p">}))</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="n">sucursal</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>    <span class="n">cajero</span> <span class="o">=</span> <span class="n">_CajeroChoiceField</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">empty_label</span><span class="o">=</span><span class="s1">'Todos'</span><span class="p">)</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>    <span class="n">nivel</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">NIVELES</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Nivel de discrepancia'</span><span class="p">)</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">arqueos</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="w">        </span><span class="sd">"""Carga las opciones de sucursal y cajero a partir de los arqueos registrados.</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">        Args:</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">            arqueos: QuerySet de `ArqueoCaja` disponibles para el reporte.</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">        """</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="n">sucursales</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>            <span class="n">arqueos</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">sucursal_nombre</span><span class="o">=</span><span class="s1">''</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">'sucursal_nombre'</span><span class="p">)</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">'sucursal_nombre'</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>        <span class="p">)</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'sucursal'</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todas'</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sucursales</span><span class="p">]</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'cajero'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">get_user_model</span><span class="p">()</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">arqueos__in</span><span class="o">=</span><span class="n">arqueos</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="w">        </span><span class="sd">"""Valida que la fecha "desde" no sea posterior a la fecha "hasta".</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">        Si el rango es inválido se descartan ambas fechas para no filtrar a medias.</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="sd">        Returns:</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="sd">            dict: Datos limpios del formulario.</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="sd">        """</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>        <span class="n">cleaned_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>        <span class="n">desde</span><span class="p">,</span> <span class="n">hasta</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fecha_desde'</span><span class="p">),</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fecha_hasta'</span><span class="p">)</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>        <span class="k">if</span> <span class="n">desde</span> <span class="ow">and</span> <span class="n">hasta</span> <span class="ow">and</span> <span class="n">desde</span> <span class="o">&gt;</span> <span class="n">hasta</span><span class="p">:</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span><span class="s1">'fecha_hasta'</span><span class="p">,</span> <span class="s1">'Debe ser mayor o igual que la fecha inicial.'</span><span class="p">)</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>            <span class="n">cleaned_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'fecha_desde'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="k">return</span> <span class="n">cleaned_data</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">filtrar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arqueos</span><span class="p">):</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="w">        </span><span class="sd">"""Aplica los filtros con valor válido.</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">        Args:</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">            arqueos: QuerySet devuelto por `reportes.arqueos_para_reporte`.</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">        Returns:</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">            QuerySet: Arqueos filtrados.</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">        """</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>        <span class="n">datos</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'cleaned_data'</span><span class="p">,</span> <span class="p">{})</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fecha_desde'</span><span class="p">):</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">fecha_cierre__date__gte</span><span class="o">=</span><span class="n">datos</span><span class="p">[</span><span class="s1">'fecha_desde'</span><span class="p">])</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fecha_hasta'</span><span class="p">):</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">fecha_cierre__date__lte</span><span class="o">=</span><span class="n">datos</span><span class="p">[</span><span class="s1">'fecha_hasta'</span><span class="p">])</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'sucursal'</span><span class="p">):</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">sucursal_nombre</span><span class="o">=</span><span class="n">datos</span><span class="p">[</span><span class="s1">'sucursal'</span><span class="p">])</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cajero'</span><span class="p">):</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cajero</span><span class="o">=</span><span class="n">datos</span><span class="p">[</span><span class="s1">'cajero'</span><span class="p">])</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="n">nivel</span> <span class="o">=</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'nivel'</span><span class="p">)</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>        <span class="k">if</span> <span class="n">nivel</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NIVEL_SIN</span><span class="p">:</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tiene_faltante</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tiene_sobrante</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>        <span class="k">elif</span> <span class="n">nivel</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NIVEL_SOBRANTE</span><span class="p">:</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tiene_sobrante</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="k">elif</span> <span class="n">nivel</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NIVEL_FALTANTE</span><span class="p">:</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tiene_faltante</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>        <span class="k">return</span> <span class="n">arqueos</span>
 </span></pre></div>
 
 
@@ -129,37 +268,37 @@
 
     </div>
     <a class="headerlink" href="#CierreCajaForm"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="CierreCajaForm-7"><a href="#CierreCajaForm-7"><span class="linenos"> 7</span></a><span class="k">class</span><span class="w"> </span><span class="nc">CierreCajaForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
-</span><span id="CierreCajaForm-8"><a href="#CierreCajaForm-8"><span class="linenos"> 8</span></a><span class="w">    </span><span class="sd">"""Saldo físico declarado por el cajero, un campo por moneda de la caja.</span>
-</span><span id="CierreCajaForm-9"><a href="#CierreCajaForm-9"><span class="linenos"> 9</span></a>
-</span><span id="CierreCajaForm-10"><a href="#CierreCajaForm-10"><span class="linenos">10</span></a><span class="sd">    Es un arqueo ciego: el formulario no muestra el saldo registrado, solo</span>
-</span><span id="CierreCajaForm-11"><a href="#CierreCajaForm-11"><span class="linenos">11</span></a><span class="sd">    pide lo que el cajero contó. Los campos se llaman `saldo_&lt;MONEDA&gt;`.</span>
-</span><span id="CierreCajaForm-12"><a href="#CierreCajaForm-12"><span class="linenos">12</span></a><span class="sd">    """</span>
-</span><span id="CierreCajaForm-13"><a href="#CierreCajaForm-13"><span class="linenos">13</span></a>
-</span><span id="CierreCajaForm-14"><a href="#CierreCajaForm-14"><span class="linenos">14</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">monedas</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="CierreCajaForm-15"><a href="#CierreCajaForm-15"><span class="linenos">15</span></a><span class="w">        </span><span class="sd">"""Crea un campo de saldo por cada moneda de la caja.</span>
-</span><span id="CierreCajaForm-16"><a href="#CierreCajaForm-16"><span class="linenos">16</span></a>
-</span><span id="CierreCajaForm-17"><a href="#CierreCajaForm-17"><span class="linenos">17</span></a><span class="sd">        Args:</span>
-</span><span id="CierreCajaForm-18"><a href="#CierreCajaForm-18"><span class="linenos">18</span></a><span class="sd">            monedas: Códigos de las monedas a declarar, ej. `['PYG', 'USD']`.</span>
-</span><span id="CierreCajaForm-19"><a href="#CierreCajaForm-19"><span class="linenos">19</span></a><span class="sd">        """</span>
-</span><span id="CierreCajaForm-20"><a href="#CierreCajaForm-20"><span class="linenos">20</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="CierreCajaForm-21"><a href="#CierreCajaForm-21"><span class="linenos">21</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">monedas</span><span class="p">)</span>
-</span><span id="CierreCajaForm-22"><a href="#CierreCajaForm-22"><span class="linenos">22</span></a>        <span class="k">for</span> <span class="n">moneda</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span><span class="p">:</span>
-</span><span id="CierreCajaForm-23"><a href="#CierreCajaForm-23"><span class="linenos">23</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="sa">f</span><span class="s1">'saldo_</span><span class="si">{</span><span class="n">moneda</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
-</span><span id="CierreCajaForm-24"><a href="#CierreCajaForm-24"><span class="linenos">24</span></a>                <span class="n">label</span><span class="o">=</span><span class="n">moneda</span><span class="p">,</span>
-</span><span id="CierreCajaForm-25"><a href="#CierreCajaForm-25"><span class="linenos">25</span></a>                <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-</span><span id="CierreCajaForm-26"><a href="#CierreCajaForm-26"><span class="linenos">26</span></a>                <span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span>
-</span><span id="CierreCajaForm-27"><a href="#CierreCajaForm-27"><span class="linenos">27</span></a>                <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-</span><span id="CierreCajaForm-28"><a href="#CierreCajaForm-28"><span class="linenos">28</span></a>                <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">NumberInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'step'</span><span class="p">:</span> <span class="s1">'0.01'</span><span class="p">,</span> <span class="s1">'min'</span><span class="p">:</span> <span class="s1">'0'</span><span class="p">}),</span>
-</span><span id="CierreCajaForm-29"><a href="#CierreCajaForm-29"><span class="linenos">29</span></a>            <span class="p">)</span>
-</span><span id="CierreCajaForm-30"><a href="#CierreCajaForm-30"><span class="linenos">30</span></a>
-</span><span id="CierreCajaForm-31"><a href="#CierreCajaForm-31"><span class="linenos">31</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">saldos_declarados</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="CierreCajaForm-32"><a href="#CierreCajaForm-32"><span class="linenos">32</span></a><span class="w">        </span><span class="sd">"""Devuelve los saldos válidos por moneda.</span>
-</span><span id="CierreCajaForm-33"><a href="#CierreCajaForm-33"><span class="linenos">33</span></a>
-</span><span id="CierreCajaForm-34"><a href="#CierreCajaForm-34"><span class="linenos">34</span></a><span class="sd">        Returns:</span>
-</span><span id="CierreCajaForm-35"><a href="#CierreCajaForm-35"><span class="linenos">35</span></a><span class="sd">            dict[str, Decimal]: Saldo declarado por código de moneda.</span>
-</span><span id="CierreCajaForm-36"><a href="#CierreCajaForm-36"><span class="linenos">36</span></a><span class="sd">        """</span>
-</span><span id="CierreCajaForm-37"><a href="#CierreCajaForm-37"><span class="linenos">37</span></a>        <span class="k">return</span> <span class="p">{</span><span class="n">moneda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'saldo_</span><span class="si">{</span><span class="n">moneda</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="k">for</span> <span class="n">moneda</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span><span class="p">}</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="CierreCajaForm-8"><a href="#CierreCajaForm-8"><span class="linenos"> 8</span></a><span class="k">class</span><span class="w"> </span><span class="nc">CierreCajaForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+</span><span id="CierreCajaForm-9"><a href="#CierreCajaForm-9"><span class="linenos"> 9</span></a><span class="w">    </span><span class="sd">"""Saldo físico declarado por el cajero, un campo por moneda de la caja.</span>
+</span><span id="CierreCajaForm-10"><a href="#CierreCajaForm-10"><span class="linenos">10</span></a>
+</span><span id="CierreCajaForm-11"><a href="#CierreCajaForm-11"><span class="linenos">11</span></a><span class="sd">    Es un arqueo ciego: el formulario no muestra el saldo registrado, solo</span>
+</span><span id="CierreCajaForm-12"><a href="#CierreCajaForm-12"><span class="linenos">12</span></a><span class="sd">    pide lo que el cajero contó. Los campos se llaman `saldo_&lt;MONEDA&gt;`.</span>
+</span><span id="CierreCajaForm-13"><a href="#CierreCajaForm-13"><span class="linenos">13</span></a><span class="sd">    """</span>
+</span><span id="CierreCajaForm-14"><a href="#CierreCajaForm-14"><span class="linenos">14</span></a>
+</span><span id="CierreCajaForm-15"><a href="#CierreCajaForm-15"><span class="linenos">15</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">monedas</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="CierreCajaForm-16"><a href="#CierreCajaForm-16"><span class="linenos">16</span></a><span class="w">        </span><span class="sd">"""Crea un campo de saldo por cada moneda de la caja.</span>
+</span><span id="CierreCajaForm-17"><a href="#CierreCajaForm-17"><span class="linenos">17</span></a>
+</span><span id="CierreCajaForm-18"><a href="#CierreCajaForm-18"><span class="linenos">18</span></a><span class="sd">        Args:</span>
+</span><span id="CierreCajaForm-19"><a href="#CierreCajaForm-19"><span class="linenos">19</span></a><span class="sd">            monedas: Códigos de las monedas a declarar, ej. `['PYG', 'USD']`.</span>
+</span><span id="CierreCajaForm-20"><a href="#CierreCajaForm-20"><span class="linenos">20</span></a><span class="sd">        """</span>
+</span><span id="CierreCajaForm-21"><a href="#CierreCajaForm-21"><span class="linenos">21</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="CierreCajaForm-22"><a href="#CierreCajaForm-22"><span class="linenos">22</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">monedas</span><span class="p">)</span>
+</span><span id="CierreCajaForm-23"><a href="#CierreCajaForm-23"><span class="linenos">23</span></a>        <span class="k">for</span> <span class="n">moneda</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span><span class="p">:</span>
+</span><span id="CierreCajaForm-24"><a href="#CierreCajaForm-24"><span class="linenos">24</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="sa">f</span><span class="s1">'saldo_</span><span class="si">{</span><span class="n">moneda</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
+</span><span id="CierreCajaForm-25"><a href="#CierreCajaForm-25"><span class="linenos">25</span></a>                <span class="n">label</span><span class="o">=</span><span class="n">moneda</span><span class="p">,</span>
+</span><span id="CierreCajaForm-26"><a href="#CierreCajaForm-26"><span class="linenos">26</span></a>                <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+</span><span id="CierreCajaForm-27"><a href="#CierreCajaForm-27"><span class="linenos">27</span></a>                <span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span>
+</span><span id="CierreCajaForm-28"><a href="#CierreCajaForm-28"><span class="linenos">28</span></a>                <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="CierreCajaForm-29"><a href="#CierreCajaForm-29"><span class="linenos">29</span></a>                <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">NumberInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'step'</span><span class="p">:</span> <span class="s1">'0.01'</span><span class="p">,</span> <span class="s1">'min'</span><span class="p">:</span> <span class="s1">'0'</span><span class="p">}),</span>
+</span><span id="CierreCajaForm-30"><a href="#CierreCajaForm-30"><span class="linenos">30</span></a>            <span class="p">)</span>
+</span><span id="CierreCajaForm-31"><a href="#CierreCajaForm-31"><span class="linenos">31</span></a>
+</span><span id="CierreCajaForm-32"><a href="#CierreCajaForm-32"><span class="linenos">32</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">saldos_declarados</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="CierreCajaForm-33"><a href="#CierreCajaForm-33"><span class="linenos">33</span></a><span class="w">        </span><span class="sd">"""Devuelve los saldos válidos por moneda.</span>
+</span><span id="CierreCajaForm-34"><a href="#CierreCajaForm-34"><span class="linenos">34</span></a>
+</span><span id="CierreCajaForm-35"><a href="#CierreCajaForm-35"><span class="linenos">35</span></a><span class="sd">        Returns:</span>
+</span><span id="CierreCajaForm-36"><a href="#CierreCajaForm-36"><span class="linenos">36</span></a><span class="sd">            dict[str, Decimal]: Saldo declarado por código de moneda.</span>
+</span><span id="CierreCajaForm-37"><a href="#CierreCajaForm-37"><span class="linenos">37</span></a><span class="sd">        """</span>
+</span><span id="CierreCajaForm-38"><a href="#CierreCajaForm-38"><span class="linenos">38</span></a>        <span class="k">return</span> <span class="p">{</span><span class="n">moneda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'saldo_</span><span class="si">{</span><span class="n">moneda</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="k">for</span> <span class="n">moneda</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span><span class="p">}</span>
 </span></pre></div>
 
 
@@ -180,22 +319,22 @@ pide lo que el cajero contó. Los campos se llaman <code>saldo_&lt;MONEDA&gt;</c
 
     </div>
     <a class="headerlink" href="#CierreCajaForm.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="CierreCajaForm.__init__-14"><a href="#CierreCajaForm.__init__-14"><span class="linenos">14</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">monedas</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="CierreCajaForm.__init__-15"><a href="#CierreCajaForm.__init__-15"><span class="linenos">15</span></a><span class="w">        </span><span class="sd">"""Crea un campo de saldo por cada moneda de la caja.</span>
-</span><span id="CierreCajaForm.__init__-16"><a href="#CierreCajaForm.__init__-16"><span class="linenos">16</span></a>
-</span><span id="CierreCajaForm.__init__-17"><a href="#CierreCajaForm.__init__-17"><span class="linenos">17</span></a><span class="sd">        Args:</span>
-</span><span id="CierreCajaForm.__init__-18"><a href="#CierreCajaForm.__init__-18"><span class="linenos">18</span></a><span class="sd">            monedas: Códigos de las monedas a declarar, ej. `['PYG', 'USD']`.</span>
-</span><span id="CierreCajaForm.__init__-19"><a href="#CierreCajaForm.__init__-19"><span class="linenos">19</span></a><span class="sd">        """</span>
-</span><span id="CierreCajaForm.__init__-20"><a href="#CierreCajaForm.__init__-20"><span class="linenos">20</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="CierreCajaForm.__init__-21"><a href="#CierreCajaForm.__init__-21"><span class="linenos">21</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">monedas</span><span class="p">)</span>
-</span><span id="CierreCajaForm.__init__-22"><a href="#CierreCajaForm.__init__-22"><span class="linenos">22</span></a>        <span class="k">for</span> <span class="n">moneda</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span><span class="p">:</span>
-</span><span id="CierreCajaForm.__init__-23"><a href="#CierreCajaForm.__init__-23"><span class="linenos">23</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="sa">f</span><span class="s1">'saldo_</span><span class="si">{</span><span class="n">moneda</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
-</span><span id="CierreCajaForm.__init__-24"><a href="#CierreCajaForm.__init__-24"><span class="linenos">24</span></a>                <span class="n">label</span><span class="o">=</span><span class="n">moneda</span><span class="p">,</span>
-</span><span id="CierreCajaForm.__init__-25"><a href="#CierreCajaForm.__init__-25"><span class="linenos">25</span></a>                <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-</span><span id="CierreCajaForm.__init__-26"><a href="#CierreCajaForm.__init__-26"><span class="linenos">26</span></a>                <span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span>
-</span><span id="CierreCajaForm.__init__-27"><a href="#CierreCajaForm.__init__-27"><span class="linenos">27</span></a>                <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-</span><span id="CierreCajaForm.__init__-28"><a href="#CierreCajaForm.__init__-28"><span class="linenos">28</span></a>                <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">NumberInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'step'</span><span class="p">:</span> <span class="s1">'0.01'</span><span class="p">,</span> <span class="s1">'min'</span><span class="p">:</span> <span class="s1">'0'</span><span class="p">}),</span>
-</span><span id="CierreCajaForm.__init__-29"><a href="#CierreCajaForm.__init__-29"><span class="linenos">29</span></a>            <span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="CierreCajaForm.__init__-15"><a href="#CierreCajaForm.__init__-15"><span class="linenos">15</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">monedas</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="CierreCajaForm.__init__-16"><a href="#CierreCajaForm.__init__-16"><span class="linenos">16</span></a><span class="w">        </span><span class="sd">"""Crea un campo de saldo por cada moneda de la caja.</span>
+</span><span id="CierreCajaForm.__init__-17"><a href="#CierreCajaForm.__init__-17"><span class="linenos">17</span></a>
+</span><span id="CierreCajaForm.__init__-18"><a href="#CierreCajaForm.__init__-18"><span class="linenos">18</span></a><span class="sd">        Args:</span>
+</span><span id="CierreCajaForm.__init__-19"><a href="#CierreCajaForm.__init__-19"><span class="linenos">19</span></a><span class="sd">            monedas: Códigos de las monedas a declarar, ej. `['PYG', 'USD']`.</span>
+</span><span id="CierreCajaForm.__init__-20"><a href="#CierreCajaForm.__init__-20"><span class="linenos">20</span></a><span class="sd">        """</span>
+</span><span id="CierreCajaForm.__init__-21"><a href="#CierreCajaForm.__init__-21"><span class="linenos">21</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="CierreCajaForm.__init__-22"><a href="#CierreCajaForm.__init__-22"><span class="linenos">22</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">monedas</span><span class="p">)</span>
+</span><span id="CierreCajaForm.__init__-23"><a href="#CierreCajaForm.__init__-23"><span class="linenos">23</span></a>        <span class="k">for</span> <span class="n">moneda</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span><span class="p">:</span>
+</span><span id="CierreCajaForm.__init__-24"><a href="#CierreCajaForm.__init__-24"><span class="linenos">24</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="sa">f</span><span class="s1">'saldo_</span><span class="si">{</span><span class="n">moneda</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
+</span><span id="CierreCajaForm.__init__-25"><a href="#CierreCajaForm.__init__-25"><span class="linenos">25</span></a>                <span class="n">label</span><span class="o">=</span><span class="n">moneda</span><span class="p">,</span>
+</span><span id="CierreCajaForm.__init__-26"><a href="#CierreCajaForm.__init__-26"><span class="linenos">26</span></a>                <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+</span><span id="CierreCajaForm.__init__-27"><a href="#CierreCajaForm.__init__-27"><span class="linenos">27</span></a>                <span class="n">max_digits</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span>
+</span><span id="CierreCajaForm.__init__-28"><a href="#CierreCajaForm.__init__-28"><span class="linenos">28</span></a>                <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="CierreCajaForm.__init__-29"><a href="#CierreCajaForm.__init__-29"><span class="linenos">29</span></a>                <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">NumberInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'step'</span><span class="p">:</span> <span class="s1">'0.01'</span><span class="p">,</span> <span class="s1">'min'</span><span class="p">:</span> <span class="s1">'0'</span><span class="p">}),</span>
+</span><span id="CierreCajaForm.__init__-30"><a href="#CierreCajaForm.__init__-30"><span class="linenos">30</span></a>            <span class="p">)</span>
 </span></pre></div>
 
 
@@ -232,13 +371,13 @@ pide lo que el cajero contó. Los campos se llaman <code>saldo_&lt;MONEDA&gt;</c
 
     </div>
     <a class="headerlink" href="#CierreCajaForm.saldos_declarados"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="CierreCajaForm.saldos_declarados-31"><a href="#CierreCajaForm.saldos_declarados-31"><span class="linenos">31</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">saldos_declarados</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="CierreCajaForm.saldos_declarados-32"><a href="#CierreCajaForm.saldos_declarados-32"><span class="linenos">32</span></a><span class="w">        </span><span class="sd">"""Devuelve los saldos válidos por moneda.</span>
-</span><span id="CierreCajaForm.saldos_declarados-33"><a href="#CierreCajaForm.saldos_declarados-33"><span class="linenos">33</span></a>
-</span><span id="CierreCajaForm.saldos_declarados-34"><a href="#CierreCajaForm.saldos_declarados-34"><span class="linenos">34</span></a><span class="sd">        Returns:</span>
-</span><span id="CierreCajaForm.saldos_declarados-35"><a href="#CierreCajaForm.saldos_declarados-35"><span class="linenos">35</span></a><span class="sd">            dict[str, Decimal]: Saldo declarado por código de moneda.</span>
-</span><span id="CierreCajaForm.saldos_declarados-36"><a href="#CierreCajaForm.saldos_declarados-36"><span class="linenos">36</span></a><span class="sd">        """</span>
-</span><span id="CierreCajaForm.saldos_declarados-37"><a href="#CierreCajaForm.saldos_declarados-37"><span class="linenos">37</span></a>        <span class="k">return</span> <span class="p">{</span><span class="n">moneda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'saldo_</span><span class="si">{</span><span class="n">moneda</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="k">for</span> <span class="n">moneda</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span><span class="p">}</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="CierreCajaForm.saldos_declarados-32"><a href="#CierreCajaForm.saldos_declarados-32"><span class="linenos">32</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">saldos_declarados</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="CierreCajaForm.saldos_declarados-33"><a href="#CierreCajaForm.saldos_declarados-33"><span class="linenos">33</span></a><span class="w">        </span><span class="sd">"""Devuelve los saldos válidos por moneda.</span>
+</span><span id="CierreCajaForm.saldos_declarados-34"><a href="#CierreCajaForm.saldos_declarados-34"><span class="linenos">34</span></a>
+</span><span id="CierreCajaForm.saldos_declarados-35"><a href="#CierreCajaForm.saldos_declarados-35"><span class="linenos">35</span></a><span class="sd">        Returns:</span>
+</span><span id="CierreCajaForm.saldos_declarados-36"><a href="#CierreCajaForm.saldos_declarados-36"><span class="linenos">36</span></a><span class="sd">            dict[str, Decimal]: Saldo declarado por código de moneda.</span>
+</span><span id="CierreCajaForm.saldos_declarados-37"><a href="#CierreCajaForm.saldos_declarados-37"><span class="linenos">37</span></a><span class="sd">        """</span>
+</span><span id="CierreCajaForm.saldos_declarados-38"><a href="#CierreCajaForm.saldos_declarados-38"><span class="linenos">38</span></a>        <span class="k">return</span> <span class="p">{</span><span class="n">moneda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'saldo_</span><span class="si">{</span><span class="n">moneda</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="k">for</span> <span class="n">moneda</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monedas</span><span class="p">}</span>
 </span></pre></div>
 
 
@@ -312,6 +451,411 @@ pide lo que el cajero contó. Los campos se llaman <code>saldo_&lt;MONEDA&gt;</c
         
     </div>
     <a class="headerlink" href="#CierreCajaForm.base_fields"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="FiltroReporteForm">
+                            <input id="FiltroReporteForm-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">FiltroReporteForm</span><wbr>(<span class="base">django.forms.forms.Form</span>):
+
+                <label class="view-source-button" for="FiltroReporteForm-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FiltroReporteForm-48"><a href="#FiltroReporteForm-48"><span class="linenos"> 48</span></a><span class="k">class</span><span class="w"> </span><span class="nc">FiltroReporteForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+</span><span id="FiltroReporteForm-49"><a href="#FiltroReporteForm-49"><span class="linenos"> 49</span></a><span class="w">    </span><span class="sd">"""Filtros del reporte de auditoría de caja (vía GET, solo lectura).</span>
+</span><span id="FiltroReporteForm-50"><a href="#FiltroReporteForm-50"><span class="linenos"> 50</span></a>
+</span><span id="FiltroReporteForm-51"><a href="#FiltroReporteForm-51"><span class="linenos"> 51</span></a><span class="sd">    Las opciones de sucursal y cajero salen de los arqueos registrados, de</span>
+</span><span id="FiltroReporteForm-52"><a href="#FiltroReporteForm-52"><span class="linenos"> 52</span></a><span class="sd">    modo que el reporte no depende de los modelos de sucursal o caja de otras</span>
+</span><span id="FiltroReporteForm-53"><a href="#FiltroReporteForm-53"><span class="linenos"> 53</span></a><span class="sd">    historias. Todos los campos son opcionales.</span>
+</span><span id="FiltroReporteForm-54"><a href="#FiltroReporteForm-54"><span class="linenos"> 54</span></a><span class="sd">    """</span>
+</span><span id="FiltroReporteForm-55"><a href="#FiltroReporteForm-55"><span class="linenos"> 55</span></a>    <span class="n">NIVEL_SIN</span> <span class="o">=</span> <span class="s1">'SIN'</span>
+</span><span id="FiltroReporteForm-56"><a href="#FiltroReporteForm-56"><span class="linenos"> 56</span></a>    <span class="n">NIVEL_SOBRANTE</span> <span class="o">=</span> <span class="s1">'SOBRANTE'</span>
+</span><span id="FiltroReporteForm-57"><a href="#FiltroReporteForm-57"><span class="linenos"> 57</span></a>    <span class="n">NIVEL_FALTANTE</span> <span class="o">=</span> <span class="s1">'FALTANTE'</span>
+</span><span id="FiltroReporteForm-58"><a href="#FiltroReporteForm-58"><span class="linenos"> 58</span></a>    <span class="n">NIVELES</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="FiltroReporteForm-59"><a href="#FiltroReporteForm-59"><span class="linenos"> 59</span></a>        <span class="p">(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todos'</span><span class="p">),</span>
+</span><span id="FiltroReporteForm-60"><a href="#FiltroReporteForm-60"><span class="linenos"> 60</span></a>        <span class="p">(</span><span class="n">NIVEL_SIN</span><span class="p">,</span> <span class="s1">'Sin discrepancia'</span><span class="p">),</span>
+</span><span id="FiltroReporteForm-61"><a href="#FiltroReporteForm-61"><span class="linenos"> 61</span></a>        <span class="p">(</span><span class="n">NIVEL_SOBRANTE</span><span class="p">,</span> <span class="s1">'Con sobrante'</span><span class="p">),</span>
+</span><span id="FiltroReporteForm-62"><a href="#FiltroReporteForm-62"><span class="linenos"> 62</span></a>        <span class="p">(</span><span class="n">NIVEL_FALTANTE</span><span class="p">,</span> <span class="s1">'Con faltante'</span><span class="p">),</span>
+</span><span id="FiltroReporteForm-63"><a href="#FiltroReporteForm-63"><span class="linenos"> 63</span></a>    <span class="p">]</span>
+</span><span id="FiltroReporteForm-64"><a href="#FiltroReporteForm-64"><span class="linenos"> 64</span></a>
+</span><span id="FiltroReporteForm-65"><a href="#FiltroReporteForm-65"><span class="linenos"> 65</span></a>    <span class="n">fecha_desde</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">DateInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'date'</span><span class="p">}))</span>
+</span><span id="FiltroReporteForm-66"><a href="#FiltroReporteForm-66"><span class="linenos"> 66</span></a>    <span class="n">fecha_hasta</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">DateInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'date'</span><span class="p">}))</span>
+</span><span id="FiltroReporteForm-67"><a href="#FiltroReporteForm-67"><span class="linenos"> 67</span></a>    <span class="n">sucursal</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="FiltroReporteForm-68"><a href="#FiltroReporteForm-68"><span class="linenos"> 68</span></a>    <span class="n">cajero</span> <span class="o">=</span> <span class="n">_CajeroChoiceField</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">empty_label</span><span class="o">=</span><span class="s1">'Todos'</span><span class="p">)</span>
+</span><span id="FiltroReporteForm-69"><a href="#FiltroReporteForm-69"><span class="linenos"> 69</span></a>    <span class="n">nivel</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">NIVELES</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Nivel de discrepancia'</span><span class="p">)</span>
+</span><span id="FiltroReporteForm-70"><a href="#FiltroReporteForm-70"><span class="linenos"> 70</span></a>
+</span><span id="FiltroReporteForm-71"><a href="#FiltroReporteForm-71"><span class="linenos"> 71</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">arqueos</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="FiltroReporteForm-72"><a href="#FiltroReporteForm-72"><span class="linenos"> 72</span></a><span class="w">        </span><span class="sd">"""Carga las opciones de sucursal y cajero a partir de los arqueos registrados.</span>
+</span><span id="FiltroReporteForm-73"><a href="#FiltroReporteForm-73"><span class="linenos"> 73</span></a>
+</span><span id="FiltroReporteForm-74"><a href="#FiltroReporteForm-74"><span class="linenos"> 74</span></a><span class="sd">        Args:</span>
+</span><span id="FiltroReporteForm-75"><a href="#FiltroReporteForm-75"><span class="linenos"> 75</span></a><span class="sd">            arqueos: QuerySet de `ArqueoCaja` disponibles para el reporte.</span>
+</span><span id="FiltroReporteForm-76"><a href="#FiltroReporteForm-76"><span class="linenos"> 76</span></a><span class="sd">        """</span>
+</span><span id="FiltroReporteForm-77"><a href="#FiltroReporteForm-77"><span class="linenos"> 77</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="FiltroReporteForm-78"><a href="#FiltroReporteForm-78"><span class="linenos"> 78</span></a>        <span class="n">sucursales</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="FiltroReporteForm-79"><a href="#FiltroReporteForm-79"><span class="linenos"> 79</span></a>            <span class="n">arqueos</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">sucursal_nombre</span><span class="o">=</span><span class="s1">''</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">'sucursal_nombre'</span><span class="p">)</span>
+</span><span id="FiltroReporteForm-80"><a href="#FiltroReporteForm-80"><span class="linenos"> 80</span></a>            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">'sucursal_nombre'</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="FiltroReporteForm-81"><a href="#FiltroReporteForm-81"><span class="linenos"> 81</span></a>        <span class="p">)</span>
+</span><span id="FiltroReporteForm-82"><a href="#FiltroReporteForm-82"><span class="linenos"> 82</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'sucursal'</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todas'</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sucursales</span><span class="p">]</span>
+</span><span id="FiltroReporteForm-83"><a href="#FiltroReporteForm-83"><span class="linenos"> 83</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'cajero'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">get_user_model</span><span class="p">()</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">arqueos__in</span><span class="o">=</span><span class="n">arqueos</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="FiltroReporteForm-84"><a href="#FiltroReporteForm-84"><span class="linenos"> 84</span></a>
+</span><span id="FiltroReporteForm-85"><a href="#FiltroReporteForm-85"><span class="linenos"> 85</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="FiltroReporteForm-86"><a href="#FiltroReporteForm-86"><span class="linenos"> 86</span></a><span class="w">        </span><span class="sd">"""Valida que la fecha "desde" no sea posterior a la fecha "hasta".</span>
+</span><span id="FiltroReporteForm-87"><a href="#FiltroReporteForm-87"><span class="linenos"> 87</span></a>
+</span><span id="FiltroReporteForm-88"><a href="#FiltroReporteForm-88"><span class="linenos"> 88</span></a><span class="sd">        Si el rango es inválido se descartan ambas fechas para no filtrar a medias.</span>
+</span><span id="FiltroReporteForm-89"><a href="#FiltroReporteForm-89"><span class="linenos"> 89</span></a>
+</span><span id="FiltroReporteForm-90"><a href="#FiltroReporteForm-90"><span class="linenos"> 90</span></a><span class="sd">        Returns:</span>
+</span><span id="FiltroReporteForm-91"><a href="#FiltroReporteForm-91"><span class="linenos"> 91</span></a><span class="sd">            dict: Datos limpios del formulario.</span>
+</span><span id="FiltroReporteForm-92"><a href="#FiltroReporteForm-92"><span class="linenos"> 92</span></a><span class="sd">        """</span>
+</span><span id="FiltroReporteForm-93"><a href="#FiltroReporteForm-93"><span class="linenos"> 93</span></a>        <span class="n">cleaned_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+</span><span id="FiltroReporteForm-94"><a href="#FiltroReporteForm-94"><span class="linenos"> 94</span></a>        <span class="n">desde</span><span class="p">,</span> <span class="n">hasta</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fecha_desde'</span><span class="p">),</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fecha_hasta'</span><span class="p">)</span>
+</span><span id="FiltroReporteForm-95"><a href="#FiltroReporteForm-95"><span class="linenos"> 95</span></a>        <span class="k">if</span> <span class="n">desde</span> <span class="ow">and</span> <span class="n">hasta</span> <span class="ow">and</span> <span class="n">desde</span> <span class="o">&gt;</span> <span class="n">hasta</span><span class="p">:</span>
+</span><span id="FiltroReporteForm-96"><a href="#FiltroReporteForm-96"><span class="linenos"> 96</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span><span class="s1">'fecha_hasta'</span><span class="p">,</span> <span class="s1">'Debe ser mayor o igual que la fecha inicial.'</span><span class="p">)</span>
+</span><span id="FiltroReporteForm-97"><a href="#FiltroReporteForm-97"><span class="linenos"> 97</span></a>            <span class="n">cleaned_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'fecha_desde'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="FiltroReporteForm-98"><a href="#FiltroReporteForm-98"><span class="linenos"> 98</span></a>        <span class="k">return</span> <span class="n">cleaned_data</span>
+</span><span id="FiltroReporteForm-99"><a href="#FiltroReporteForm-99"><span class="linenos"> 99</span></a>
+</span><span id="FiltroReporteForm-100"><a href="#FiltroReporteForm-100"><span class="linenos">100</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">filtrar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arqueos</span><span class="p">):</span>
+</span><span id="FiltroReporteForm-101"><a href="#FiltroReporteForm-101"><span class="linenos">101</span></a><span class="w">        </span><span class="sd">"""Aplica los filtros con valor válido.</span>
+</span><span id="FiltroReporteForm-102"><a href="#FiltroReporteForm-102"><span class="linenos">102</span></a>
+</span><span id="FiltroReporteForm-103"><a href="#FiltroReporteForm-103"><span class="linenos">103</span></a><span class="sd">        Args:</span>
+</span><span id="FiltroReporteForm-104"><a href="#FiltroReporteForm-104"><span class="linenos">104</span></a><span class="sd">            arqueos: QuerySet devuelto por `reportes.arqueos_para_reporte`.</span>
+</span><span id="FiltroReporteForm-105"><a href="#FiltroReporteForm-105"><span class="linenos">105</span></a>
+</span><span id="FiltroReporteForm-106"><a href="#FiltroReporteForm-106"><span class="linenos">106</span></a><span class="sd">        Returns:</span>
+</span><span id="FiltroReporteForm-107"><a href="#FiltroReporteForm-107"><span class="linenos">107</span></a><span class="sd">            QuerySet: Arqueos filtrados.</span>
+</span><span id="FiltroReporteForm-108"><a href="#FiltroReporteForm-108"><span class="linenos">108</span></a><span class="sd">        """</span>
+</span><span id="FiltroReporteForm-109"><a href="#FiltroReporteForm-109"><span class="linenos">109</span></a>        <span class="n">datos</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'cleaned_data'</span><span class="p">,</span> <span class="p">{})</span>
+</span><span id="FiltroReporteForm-110"><a href="#FiltroReporteForm-110"><span class="linenos">110</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fecha_desde'</span><span class="p">):</span>
+</span><span id="FiltroReporteForm-111"><a href="#FiltroReporteForm-111"><span class="linenos">111</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">fecha_cierre__date__gte</span><span class="o">=</span><span class="n">datos</span><span class="p">[</span><span class="s1">'fecha_desde'</span><span class="p">])</span>
+</span><span id="FiltroReporteForm-112"><a href="#FiltroReporteForm-112"><span class="linenos">112</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fecha_hasta'</span><span class="p">):</span>
+</span><span id="FiltroReporteForm-113"><a href="#FiltroReporteForm-113"><span class="linenos">113</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">fecha_cierre__date__lte</span><span class="o">=</span><span class="n">datos</span><span class="p">[</span><span class="s1">'fecha_hasta'</span><span class="p">])</span>
+</span><span id="FiltroReporteForm-114"><a href="#FiltroReporteForm-114"><span class="linenos">114</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'sucursal'</span><span class="p">):</span>
+</span><span id="FiltroReporteForm-115"><a href="#FiltroReporteForm-115"><span class="linenos">115</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">sucursal_nombre</span><span class="o">=</span><span class="n">datos</span><span class="p">[</span><span class="s1">'sucursal'</span><span class="p">])</span>
+</span><span id="FiltroReporteForm-116"><a href="#FiltroReporteForm-116"><span class="linenos">116</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cajero'</span><span class="p">):</span>
+</span><span id="FiltroReporteForm-117"><a href="#FiltroReporteForm-117"><span class="linenos">117</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cajero</span><span class="o">=</span><span class="n">datos</span><span class="p">[</span><span class="s1">'cajero'</span><span class="p">])</span>
+</span><span id="FiltroReporteForm-118"><a href="#FiltroReporteForm-118"><span class="linenos">118</span></a>        <span class="n">nivel</span> <span class="o">=</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'nivel'</span><span class="p">)</span>
+</span><span id="FiltroReporteForm-119"><a href="#FiltroReporteForm-119"><span class="linenos">119</span></a>        <span class="k">if</span> <span class="n">nivel</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NIVEL_SIN</span><span class="p">:</span>
+</span><span id="FiltroReporteForm-120"><a href="#FiltroReporteForm-120"><span class="linenos">120</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tiene_faltante</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tiene_sobrante</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="FiltroReporteForm-121"><a href="#FiltroReporteForm-121"><span class="linenos">121</span></a>        <span class="k">elif</span> <span class="n">nivel</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NIVEL_SOBRANTE</span><span class="p">:</span>
+</span><span id="FiltroReporteForm-122"><a href="#FiltroReporteForm-122"><span class="linenos">122</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tiene_sobrante</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="FiltroReporteForm-123"><a href="#FiltroReporteForm-123"><span class="linenos">123</span></a>        <span class="k">elif</span> <span class="n">nivel</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NIVEL_FALTANTE</span><span class="p">:</span>
+</span><span id="FiltroReporteForm-124"><a href="#FiltroReporteForm-124"><span class="linenos">124</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tiene_faltante</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="FiltroReporteForm-125"><a href="#FiltroReporteForm-125"><span class="linenos">125</span></a>        <span class="k">return</span> <span class="n">arqueos</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Filtros del reporte de auditoría de caja (vía GET, solo lectura).</p>
+
+<p>Las opciones de sucursal y cajero salen de los arqueos registrados, de
+modo que el reporte no depende de los modelos de sucursal o caja de otras
+historias. Todos los campos son opcionales.</p>
+</div>
+
+
+                            <div id="FiltroReporteForm.__init__" class="classattr">
+                                        <input id="FiltroReporteForm.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="name">FiltroReporteForm</span><span class="signature pdoc-code condensed">(<span class="param"><span class="o">*</span><span class="n">args</span>, </span><span class="param"><span class="n">arqueos</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span>)</span>
+
+                <label class="view-source-button" for="FiltroReporteForm.__init__-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.__init__"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FiltroReporteForm.__init__-71"><a href="#FiltroReporteForm.__init__-71"><span class="linenos">71</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">arqueos</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="FiltroReporteForm.__init__-72"><a href="#FiltroReporteForm.__init__-72"><span class="linenos">72</span></a><span class="w">        </span><span class="sd">"""Carga las opciones de sucursal y cajero a partir de los arqueos registrados.</span>
+</span><span id="FiltroReporteForm.__init__-73"><a href="#FiltroReporteForm.__init__-73"><span class="linenos">73</span></a>
+</span><span id="FiltroReporteForm.__init__-74"><a href="#FiltroReporteForm.__init__-74"><span class="linenos">74</span></a><span class="sd">        Args:</span>
+</span><span id="FiltroReporteForm.__init__-75"><a href="#FiltroReporteForm.__init__-75"><span class="linenos">75</span></a><span class="sd">            arqueos: QuerySet de `ArqueoCaja` disponibles para el reporte.</span>
+</span><span id="FiltroReporteForm.__init__-76"><a href="#FiltroReporteForm.__init__-76"><span class="linenos">76</span></a><span class="sd">        """</span>
+</span><span id="FiltroReporteForm.__init__-77"><a href="#FiltroReporteForm.__init__-77"><span class="linenos">77</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.__init__-78"><a href="#FiltroReporteForm.__init__-78"><span class="linenos">78</span></a>        <span class="n">sucursales</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="FiltroReporteForm.__init__-79"><a href="#FiltroReporteForm.__init__-79"><span class="linenos">79</span></a>            <span class="n">arqueos</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">sucursal_nombre</span><span class="o">=</span><span class="s1">''</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">'sucursal_nombre'</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.__init__-80"><a href="#FiltroReporteForm.__init__-80"><span class="linenos">80</span></a>            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">'sucursal_nombre'</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span><span id="FiltroReporteForm.__init__-81"><a href="#FiltroReporteForm.__init__-81"><span class="linenos">81</span></a>        <span class="p">)</span>
+</span><span id="FiltroReporteForm.__init__-82"><a href="#FiltroReporteForm.__init__-82"><span class="linenos">82</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'sucursal'</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'Todas'</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sucursales</span><span class="p">]</span>
+</span><span id="FiltroReporteForm.__init__-83"><a href="#FiltroReporteForm.__init__-83"><span class="linenos">83</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">'cajero'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">get_user_model</span><span class="p">()</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">arqueos__in</span><span class="o">=</span><span class="n">arqueos</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Carga las opciones de sucursal y cajero a partir de los arqueos registrados.</p>
+
+<h6 id="arguments">Parámetros:</h6>
+
+<ul>
+<li><strong>arqueos:</strong>  QuerySet de <code>ArqueoCaja</code> disponibles para el reporte.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="FiltroReporteForm.NIVEL_SIN" class="classattr">
+                                <div class="attr variable">
+            <span class="name">NIVEL_SIN</span>        =
+<span class="default_value">&#39;SIN&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.NIVEL_SIN"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroReporteForm.NIVEL_SOBRANTE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">NIVEL_SOBRANTE</span>        =
+<span class="default_value">&#39;SOBRANTE&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.NIVEL_SOBRANTE"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroReporteForm.NIVEL_FALTANTE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">NIVEL_FALTANTE</span>        =
+<span class="default_value">&#39;FALTANTE&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.NIVEL_FALTANTE"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroReporteForm.NIVELES" class="classattr">
+                                <div class="attr variable">
+            <span class="name">NIVELES</span>        =
+<input id="FiltroReporteForm.NIVELES-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="FiltroReporteForm.NIVELES-view-value"></label><span class="default_value">[(&#39;&#39;, &#39;Todos&#39;), (&#39;SIN&#39;, &#39;Sin discrepancia&#39;), (&#39;SOBRANTE&#39;, &#39;Con sobrante&#39;), (&#39;FALTANTE&#39;, &#39;Con faltante&#39;)]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.NIVELES"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroReporteForm.fecha_desde" class="classattr">
+                                <div class="attr variable">
+            <span class="name">fecha_desde</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.fecha_desde"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroReporteForm.fecha_hasta" class="classattr">
+                                <div class="attr variable">
+            <span class="name">fecha_hasta</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.fecha_hasta"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroReporteForm.sucursal" class="classattr">
+                                <div class="attr variable">
+            <span class="name">sucursal</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.sucursal"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroReporteForm.cajero" class="classattr">
+                                <div class="attr variable">
+            <span class="name">cajero</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.cajero"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroReporteForm.nivel" class="classattr">
+                                <div class="attr variable">
+            <span class="name">nivel</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.nivel"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroReporteForm.clean" class="classattr">
+                                        <input id="FiltroReporteForm.clean-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">clean</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="FiltroReporteForm.clean-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.clean"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FiltroReporteForm.clean-85"><a href="#FiltroReporteForm.clean-85"><span class="linenos">85</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="FiltroReporteForm.clean-86"><a href="#FiltroReporteForm.clean-86"><span class="linenos">86</span></a><span class="w">        </span><span class="sd">"""Valida que la fecha "desde" no sea posterior a la fecha "hasta".</span>
+</span><span id="FiltroReporteForm.clean-87"><a href="#FiltroReporteForm.clean-87"><span class="linenos">87</span></a>
+</span><span id="FiltroReporteForm.clean-88"><a href="#FiltroReporteForm.clean-88"><span class="linenos">88</span></a><span class="sd">        Si el rango es inválido se descartan ambas fechas para no filtrar a medias.</span>
+</span><span id="FiltroReporteForm.clean-89"><a href="#FiltroReporteForm.clean-89"><span class="linenos">89</span></a>
+</span><span id="FiltroReporteForm.clean-90"><a href="#FiltroReporteForm.clean-90"><span class="linenos">90</span></a><span class="sd">        Returns:</span>
+</span><span id="FiltroReporteForm.clean-91"><a href="#FiltroReporteForm.clean-91"><span class="linenos">91</span></a><span class="sd">            dict: Datos limpios del formulario.</span>
+</span><span id="FiltroReporteForm.clean-92"><a href="#FiltroReporteForm.clean-92"><span class="linenos">92</span></a><span class="sd">        """</span>
+</span><span id="FiltroReporteForm.clean-93"><a href="#FiltroReporteForm.clean-93"><span class="linenos">93</span></a>        <span class="n">cleaned_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+</span><span id="FiltroReporteForm.clean-94"><a href="#FiltroReporteForm.clean-94"><span class="linenos">94</span></a>        <span class="n">desde</span><span class="p">,</span> <span class="n">hasta</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fecha_desde'</span><span class="p">),</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fecha_hasta'</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.clean-95"><a href="#FiltroReporteForm.clean-95"><span class="linenos">95</span></a>        <span class="k">if</span> <span class="n">desde</span> <span class="ow">and</span> <span class="n">hasta</span> <span class="ow">and</span> <span class="n">desde</span> <span class="o">&gt;</span> <span class="n">hasta</span><span class="p">:</span>
+</span><span id="FiltroReporteForm.clean-96"><a href="#FiltroReporteForm.clean-96"><span class="linenos">96</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span><span class="s1">'fecha_hasta'</span><span class="p">,</span> <span class="s1">'Debe ser mayor o igual que la fecha inicial.'</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.clean-97"><a href="#FiltroReporteForm.clean-97"><span class="linenos">97</span></a>            <span class="n">cleaned_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'fecha_desde'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.clean-98"><a href="#FiltroReporteForm.clean-98"><span class="linenos">98</span></a>        <span class="k">return</span> <span class="n">cleaned_data</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Valida que la fecha "desde" no sea posterior a la fecha "hasta".</p>
+
+<p>Si el rango es inválido se descartan ambas fechas para no filtrar a medias.</p>
+
+<h6 id="returns">Retorna:</h6>
+
+<blockquote>
+  <p>dict: Datos limpios del formulario.</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="FiltroReporteForm.filtrar" class="classattr">
+                                        <input id="FiltroReporteForm.filtrar-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">filtrar</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">arqueos</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="FiltroReporteForm.filtrar-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.filtrar"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FiltroReporteForm.filtrar-100"><a href="#FiltroReporteForm.filtrar-100"><span class="linenos">100</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">filtrar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arqueos</span><span class="p">):</span>
+</span><span id="FiltroReporteForm.filtrar-101"><a href="#FiltroReporteForm.filtrar-101"><span class="linenos">101</span></a><span class="w">        </span><span class="sd">"""Aplica los filtros con valor válido.</span>
+</span><span id="FiltroReporteForm.filtrar-102"><a href="#FiltroReporteForm.filtrar-102"><span class="linenos">102</span></a>
+</span><span id="FiltroReporteForm.filtrar-103"><a href="#FiltroReporteForm.filtrar-103"><span class="linenos">103</span></a><span class="sd">        Args:</span>
+</span><span id="FiltroReporteForm.filtrar-104"><a href="#FiltroReporteForm.filtrar-104"><span class="linenos">104</span></a><span class="sd">            arqueos: QuerySet devuelto por `reportes.arqueos_para_reporte`.</span>
+</span><span id="FiltroReporteForm.filtrar-105"><a href="#FiltroReporteForm.filtrar-105"><span class="linenos">105</span></a>
+</span><span id="FiltroReporteForm.filtrar-106"><a href="#FiltroReporteForm.filtrar-106"><span class="linenos">106</span></a><span class="sd">        Returns:</span>
+</span><span id="FiltroReporteForm.filtrar-107"><a href="#FiltroReporteForm.filtrar-107"><span class="linenos">107</span></a><span class="sd">            QuerySet: Arqueos filtrados.</span>
+</span><span id="FiltroReporteForm.filtrar-108"><a href="#FiltroReporteForm.filtrar-108"><span class="linenos">108</span></a><span class="sd">        """</span>
+</span><span id="FiltroReporteForm.filtrar-109"><a href="#FiltroReporteForm.filtrar-109"><span class="linenos">109</span></a>        <span class="n">datos</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'cleaned_data'</span><span class="p">,</span> <span class="p">{})</span>
+</span><span id="FiltroReporteForm.filtrar-110"><a href="#FiltroReporteForm.filtrar-110"><span class="linenos">110</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fecha_desde'</span><span class="p">):</span>
+</span><span id="FiltroReporteForm.filtrar-111"><a href="#FiltroReporteForm.filtrar-111"><span class="linenos">111</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">fecha_cierre__date__gte</span><span class="o">=</span><span class="n">datos</span><span class="p">[</span><span class="s1">'fecha_desde'</span><span class="p">])</span>
+</span><span id="FiltroReporteForm.filtrar-112"><a href="#FiltroReporteForm.filtrar-112"><span class="linenos">112</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fecha_hasta'</span><span class="p">):</span>
+</span><span id="FiltroReporteForm.filtrar-113"><a href="#FiltroReporteForm.filtrar-113"><span class="linenos">113</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">fecha_cierre__date__lte</span><span class="o">=</span><span class="n">datos</span><span class="p">[</span><span class="s1">'fecha_hasta'</span><span class="p">])</span>
+</span><span id="FiltroReporteForm.filtrar-114"><a href="#FiltroReporteForm.filtrar-114"><span class="linenos">114</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'sucursal'</span><span class="p">):</span>
+</span><span id="FiltroReporteForm.filtrar-115"><a href="#FiltroReporteForm.filtrar-115"><span class="linenos">115</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">sucursal_nombre</span><span class="o">=</span><span class="n">datos</span><span class="p">[</span><span class="s1">'sucursal'</span><span class="p">])</span>
+</span><span id="FiltroReporteForm.filtrar-116"><a href="#FiltroReporteForm.filtrar-116"><span class="linenos">116</span></a>        <span class="k">if</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cajero'</span><span class="p">):</span>
+</span><span id="FiltroReporteForm.filtrar-117"><a href="#FiltroReporteForm.filtrar-117"><span class="linenos">117</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cajero</span><span class="o">=</span><span class="n">datos</span><span class="p">[</span><span class="s1">'cajero'</span><span class="p">])</span>
+</span><span id="FiltroReporteForm.filtrar-118"><a href="#FiltroReporteForm.filtrar-118"><span class="linenos">118</span></a>        <span class="n">nivel</span> <span class="o">=</span> <span class="n">datos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'nivel'</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.filtrar-119"><a href="#FiltroReporteForm.filtrar-119"><span class="linenos">119</span></a>        <span class="k">if</span> <span class="n">nivel</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NIVEL_SIN</span><span class="p">:</span>
+</span><span id="FiltroReporteForm.filtrar-120"><a href="#FiltroReporteForm.filtrar-120"><span class="linenos">120</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tiene_faltante</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tiene_sobrante</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.filtrar-121"><a href="#FiltroReporteForm.filtrar-121"><span class="linenos">121</span></a>        <span class="k">elif</span> <span class="n">nivel</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NIVEL_SOBRANTE</span><span class="p">:</span>
+</span><span id="FiltroReporteForm.filtrar-122"><a href="#FiltroReporteForm.filtrar-122"><span class="linenos">122</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tiene_sobrante</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.filtrar-123"><a href="#FiltroReporteForm.filtrar-123"><span class="linenos">123</span></a>        <span class="k">elif</span> <span class="n">nivel</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NIVEL_FALTANTE</span><span class="p">:</span>
+</span><span id="FiltroReporteForm.filtrar-124"><a href="#FiltroReporteForm.filtrar-124"><span class="linenos">124</span></a>            <span class="n">arqueos</span> <span class="o">=</span> <span class="n">arqueos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tiene_faltante</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.filtrar-125"><a href="#FiltroReporteForm.filtrar-125"><span class="linenos">125</span></a>        <span class="k">return</span> <span class="n">arqueos</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Aplica los filtros con valor válido.</p>
+
+<h6 id="arguments">Parámetros:</h6>
+
+<ul>
+<li><strong>arqueos:</strong>  QuerySet devuelto por <code>reportes.arqueos_para_reporte</code>.</li>
+</ul>
+
+<h6 id="returns">Retorna:</h6>
+
+<blockquote>
+  <p>QuerySet: Arqueos filtrados.</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="FiltroReporteForm.media" class="classattr">
+                                        <input id="FiltroReporteForm.media-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
+            <span class="name">media</span>
+
+                <label class="view-source-button" for="FiltroReporteForm.media-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.media"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FiltroReporteForm.media-281"><a href="#FiltroReporteForm.media-281"><span class="linenos">281</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_media</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="FiltroReporteForm.media-282"><a href="#FiltroReporteForm.media-282"><span class="linenos">282</span></a>        <span class="c1"># Get the media property of the superclass, if it exists</span>
+</span><span id="FiltroReporteForm.media-283"><a href="#FiltroReporteForm.media-283"><span class="linenos">283</span></a>        <span class="n">sup_cls</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.media-284"><a href="#FiltroReporteForm.media-284"><span class="linenos">284</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="FiltroReporteForm.media-285"><a href="#FiltroReporteForm.media-285"><span class="linenos">285</span></a>            <span class="n">base</span> <span class="o">=</span> <span class="n">sup_cls</span><span class="o">.</span><span class="n">media</span>
+</span><span id="FiltroReporteForm.media-286"><a href="#FiltroReporteForm.media-286"><span class="linenos">286</span></a>        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+</span><span id="FiltroReporteForm.media-287"><a href="#FiltroReporteForm.media-287"><span class="linenos">287</span></a>            <span class="n">base</span> <span class="o">=</span> <span class="n">Media</span><span class="p">()</span>
+</span><span id="FiltroReporteForm.media-288"><a href="#FiltroReporteForm.media-288"><span class="linenos">288</span></a>
+</span><span id="FiltroReporteForm.media-289"><a href="#FiltroReporteForm.media-289"><span class="linenos">289</span></a>        <span class="c1"># Get the media definition for this class</span>
+</span><span id="FiltroReporteForm.media-290"><a href="#FiltroReporteForm.media-290"><span class="linenos">290</span></a>        <span class="n">definition</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">"Media"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.media-291"><a href="#FiltroReporteForm.media-291"><span class="linenos">291</span></a>        <span class="k">if</span> <span class="n">definition</span><span class="p">:</span>
+</span><span id="FiltroReporteForm.media-292"><a href="#FiltroReporteForm.media-292"><span class="linenos">292</span></a>            <span class="n">extend</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">definition</span><span class="p">,</span> <span class="s2">"extend"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.media-293"><a href="#FiltroReporteForm.media-293"><span class="linenos">293</span></a>            <span class="k">if</span> <span class="n">extend</span><span class="p">:</span>
+</span><span id="FiltroReporteForm.media-294"><a href="#FiltroReporteForm.media-294"><span class="linenos">294</span></a>                <span class="k">if</span> <span class="n">extend</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+</span><span id="FiltroReporteForm.media-295"><a href="#FiltroReporteForm.media-295"><span class="linenos">295</span></a>                    <span class="n">m</span> <span class="o">=</span> <span class="n">base</span>
+</span><span id="FiltroReporteForm.media-296"><a href="#FiltroReporteForm.media-296"><span class="linenos">296</span></a>                <span class="k">else</span><span class="p">:</span>
+</span><span id="FiltroReporteForm.media-297"><a href="#FiltroReporteForm.media-297"><span class="linenos">297</span></a>                    <span class="n">m</span> <span class="o">=</span> <span class="n">Media</span><span class="p">()</span>
+</span><span id="FiltroReporteForm.media-298"><a href="#FiltroReporteForm.media-298"><span class="linenos">298</span></a>                    <span class="k">for</span> <span class="n">medium</span> <span class="ow">in</span> <span class="n">extend</span><span class="p">:</span>
+</span><span id="FiltroReporteForm.media-299"><a href="#FiltroReporteForm.media-299"><span class="linenos">299</span></a>                        <span class="n">m</span> <span class="o">+=</span> <span class="n">base</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span>
+</span><span id="FiltroReporteForm.media-300"><a href="#FiltroReporteForm.media-300"><span class="linenos">300</span></a>                <span class="k">return</span> <span class="n">m</span> <span class="o">+</span> <span class="n">Media</span><span class="p">(</span><span class="n">definition</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.media-301"><a href="#FiltroReporteForm.media-301"><span class="linenos">301</span></a>            <span class="k">return</span> <span class="n">Media</span><span class="p">(</span><span class="n">definition</span><span class="p">)</span>
+</span><span id="FiltroReporteForm.media-302"><a href="#FiltroReporteForm.media-302"><span class="linenos">302</span></a>        <span class="k">return</span> <span class="n">base</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Return all media required to render the widgets on this form.</p>
+</div>
+
+
+                            </div>
+                            <div id="FiltroReporteForm.declared_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">declared_fields</span>        =
+<input id="FiltroReporteForm.declared_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="FiltroReporteForm.declared_fields-view-value"></label><span class="default_value">{&#39;fecha_desde&#39;: &lt;django.forms.fields.DateField object&gt;, &#39;fecha_hasta&#39;: &lt;django.forms.fields.DateField object&gt;, &#39;sucursal&#39;: &lt;django.forms.fields.ChoiceField object&gt;, &#39;cajero&#39;: &lt;arqueos.forms._CajeroChoiceField object&gt;, &#39;nivel&#39;: &lt;django.forms.fields.ChoiceField object&gt;}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.declared_fields"></a>
+    
+    
+
+                            </div>
+                            <div id="FiltroReporteForm.base_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">base_fields</span>        =
+<input id="FiltroReporteForm.base_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="FiltroReporteForm.base_fields-view-value"></label><span class="default_value">{&#39;fecha_desde&#39;: &lt;django.forms.fields.DateField object&gt;, &#39;fecha_hasta&#39;: &lt;django.forms.fields.DateField object&gt;, &#39;sucursal&#39;: &lt;django.forms.fields.ChoiceField object&gt;, &#39;cajero&#39;: &lt;arqueos.forms._CajeroChoiceField object&gt;, &#39;nivel&#39;: &lt;django.forms.fields.ChoiceField object&gt;}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#FiltroReporteForm.base_fields"></a>
     
     
 
