@@ -124,7 +124,7 @@ class Transaccion(models.Model):
         facturada: Si se emitió factura de la operación.
         dispositivo: Tipo de dispositivo desde el que se realizó
             (ver `operaciones.utils.detectar_dispositivo`).
-        estado: `PENDIENTE`, `CONFIRMADA` o `CANCELADA`.
+        estado: `PENDIENTE`, `PAGADA` o `CANCELADA`.
         fecha: Fecha y hora de la operación.
     """
 

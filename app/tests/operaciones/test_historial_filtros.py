@@ -81,7 +81,7 @@ class HistorialFiltrosTestCase(BaseHistorialTestCase):
             tipo=Transaccion.Tipo.COMPRA, moneda=self.usd, medio_pago=self.tarjeta_a,
             monto_pagado=Decimal('765000'), monto_recibido=Decimal('100'), facturada=True,
             dispositivo=Transaccion.Dispositivo.IPHONE, cajero=self.cajero,
-            estado=Transaccion.Estado.CONFIRMADA, fecha=fecha_local(2026, 9, 1, 9, 0),
+            estado=Transaccion.Estado.PAGADA, fecha=fecha_local(2026, 9, 1, 9, 0),
         )
         self.t2 = self.crear_transaccion(
             tipo=Transaccion.Tipo.VENTA, moneda=self.eur,
@@ -156,7 +156,7 @@ class HistorialFiltrosTestCase(BaseHistorialTestCase):
 
     def test_filtro_estado(self):
         """Filtra por estado de la transacción."""
-        self.assertEqual(self._resultado(estado='CONFIRMADA'), [self.t1])
+        self.assertEqual(self._resultado(estado='PAGADA'), [self.t1])
         self.assertEqual(self._resultado(estado='PENDIENTE'), [])
 
     def test_filtros_combinados(self):

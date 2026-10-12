@@ -38,9 +38,9 @@ CAJEROS_PRUEBA = [
     ('cajero_demo2', 'Carlos', 'Benítez'),
 ]
 
-# Pesos para que la mayoría de las transacciones de prueba estén confirmadas
+# Pesos para que la mayoría de las transacciones de prueba estén pagadas
 PESOS_ESTADO = {
-    Transaccion.Estado.CONFIRMADA: 7,
+    Transaccion.Estado.PAGADA: 7,
     Transaccion.Estado.PENDIENTE: 2,
     Transaccion.Estado.CANCELADA: 1,
 }
@@ -120,7 +120,7 @@ class Command(BaseCommand):
                 monto_pagado=monto_pagado,
                 monto_recibido=monto_recibido,
                 tasa_aplicada=tasa,
-                facturada=estado == Transaccion.Estado.CONFIRMADA and rng.random() < 0.6,
+                facturada=estado == Transaccion.Estado.PAGADA and rng.random() < 0.6,
                 dispositivo=rng.choice(Transaccion.Dispositivo.values),
                 estado=estado,
                 fecha=min(fecha, ahora),

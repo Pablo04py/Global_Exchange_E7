@@ -290,7 +290,7 @@ class HistorialListadoTestCase(BaseHistorialTestCase):
         response = self.client.get(URL)
 
         for texto in ['15/09/2026', '14:30', 'Compra USD', '**** 1234', '765\xa0000,00', 'PYG',
-                      '100,00', '<th>Operado por</th>', 'cliente_a', 'María González', 'Confirmada', 'iPhone']:
+                      '100,00', '<th>Operado por</th>', 'cliente_a', 'María González', 'Pagada', 'iPhone']:
             with self.subTest(texto=texto):
                 self.assertContains(response, texto)
 
