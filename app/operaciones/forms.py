@@ -217,3 +217,12 @@ class OperacionForm(forms.Form):
                     '-creado_en'
                 )
             )
+class CajaOperacionForm(OperacionForm):
+    """Operación presencial: no se elige un medio guardado, solo la forma de pago."""
+    forma_pago = forms.ChoiceField(
+        choices=MedioPago.TIPO_CHOICES, initial='EFECTIVO', label="Forma de pago"
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.fields['medio_pago']

@@ -233,7 +233,8 @@ def crear_transaccion(
     moneda,
     monto,
     medio_pago,
-    tasa_id_simulada
+    tasa_id_simulada,
+    canal=Transaccion.Canal.WEB
 ):
     """
     Crea una transacción PENDIENTE utilizando la tasa
@@ -276,7 +277,7 @@ def crear_transaccion(
         cliente=cliente,
         moneda=moneda,
         tipo=tipo_operacion,
-
+        canal=canal,
         monto_pagado = resultado['monto_origen'],
         monto_recibido = resultado['monto_destino'],
 

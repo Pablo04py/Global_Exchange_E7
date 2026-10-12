@@ -152,7 +152,9 @@ def get_menu_sections(role, active_client, is_authenticated=False):
     if role == "Cajero":
         sections.append({
             "label": "Gestión de Caja",
-            "items": [
+            "items": [                
+                {"name": "Operar en caja", "url": reverse("caja_buscar_cliente"), "icon": "ti-user-search"},
+                {"name": "Historial del día", "url": reverse("caja_historial_dia"), "icon": "ti-history"},
                 {"name": "Apertura / Cierre", "url": "/caja/gestion/", "icon": "ti-cash-register"},
                 {"name": "Movimientos de Efectivo", "url": "/caja/movimientos/", "icon": "ti-file-spreadsheet"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
