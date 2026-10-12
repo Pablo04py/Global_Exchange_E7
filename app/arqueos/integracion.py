@@ -7,7 +7,8 @@ El cierre de caja (SCRUM-40) necesita datos que implementan otras historias:
   `CERRADA`) y `fecha_cierre`. `Caja` tiene `estado` (`DISPONIBLE`, `EN_USO`,
   `INACTIVA`, `MANTENIMIENTO`).
 - SCRUM-37 (apertura): pone el turno en `ABIERTA`.
-- Saldo registrado (otra historia): cuánto debería haber en la caja por moneda.
+- SCRUM-39 (operación de cajeros): los movimientos de efectivo del turno.
+  El saldo registrado se calcula en `arqueos.saldos.saldo_registrado`.
 
 Este módulo concentra esa dependencia. Al cerrar, el turno pasa a `CERRADA`
 (con su fecha de cierre) y la caja a `INACTIVA`, que es el bloqueo. El
@@ -31,7 +32,7 @@ tocar la lógica del arqueo:
 | `ARQUEO_ESTADO_CAJA_BLOQUEADA`  | `'INACTIVA'`                       | Estado que se asigna a la caja al cerrar      |
 | `ARQUEO_ESTADO_CAJA_HABILITADA` | `'DISPONIBLE'`                     | Estado que se asigna a la caja al habilitarla |
 | `ARQUEO_CAMPO_SUCURSAL`         | `'sucursal'`                       | Campo de la caja con su sucursal (si existe)  |
-| `ARQUEO_FUNCION_SALDO`          | `'caja.services.saldo_registrado'` | Función `f(turno) -> {codigo_moneda: monto}`  |
+| `ARQUEO_FUNCION_SALDO`          | `'arqueos.saldos.saldo_registrado'`| Función `f(turno) -> {codigo_moneda: monto}`  |
 
 Mientras alguna pieza no exista, las funciones lanzan `ModuloCajaNoDisponible`
 y la vista de cierre muestra un aviso en lugar de fallar.
@@ -57,7 +58,7 @@ CONFIGURACION_POR_DEFECTO = {
     'ARQUEO_ESTADO_CAJA_BLOQUEADA': 'INACTIVA',
     'ARQUEO_ESTADO_CAJA_HABILITADA': 'DISPONIBLE',
     'ARQUEO_CAMPO_SUCURSAL': 'sucursal',
-    'ARQUEO_FUNCION_SALDO': 'caja.services.saldo_registrado',
+    'ARQUEO_FUNCION_SALDO': 'arqueos.saldos.saldo_registrado',
 }
 
 

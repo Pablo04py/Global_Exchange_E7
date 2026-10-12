@@ -3,10 +3,11 @@
 Uso (desde la raíz del repositorio):
     docker compose exec web python manage.py preparar_demo_cierre <username>
 
-Simula lo que hará la apertura de caja (SCRUM-37): crea una caja de
-demostración y un turno (`SesionCaja`) en estado `ABIERTA` para el cajero
-indicado. Junto con `ARQUEO_FUNCION_SALDO=arqueos.demo.saldo_de_demostracion`
-en el `.env`, permite cerrar la caja desde `/arqueos/cerrar/`.
+Hace lo mismo que la apertura de caja (SCRUM-37) para probar el cierre sin
+pasar por esa pantalla: crea una caja de demostración y un turno
+(`SesionCaja`) en estado `ABIERTA` para el cajero indicado, con un fondo
+inicial en guaraníes y en cada moneda habilitada (`SaldoInicialCaja`). Después
+la caja puede cerrarse desde `/arqueos/cerrar/` con el saldo registrado real.
 """
 
 from decimal import Decimal
@@ -16,9 +17,11 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
-from caja.models import Caja, EstadoCaja, EstadoSesionCaja, SesionCaja
+from caja.models import Caja, EstadoCaja, EstadoSesionCaja, SaldoInicialCaja, SesionCaja
+from operaciones.models import Moneda
 
-MONTO_INICIAL_DEMO = Decimal('5000000')
+MONTO_INICIAL_DEMO = Decimal('5000000')  # guaraníes
+FONDO_DIVISA_DEMO = Decimal('1000')      # por cada moneda habilitada
 
 
 class Command(BaseCommand):
@@ -60,7 +63,7 @@ class Command(BaseCommand):
         caja = Caja.objects.create(
             nombre=f"Caja Demo {numero}", codigo=f"DEMO-{numero}", estado=EstadoCaja.EN_USO
         )
-        SesionCaja.objects.create(
+        turno = SesionCaja.objects.create(
             caja=caja,
             cajero=cajero,
             asignado_por=cajero,
@@ -68,6 +71,8 @@ class Command(BaseCommand):
             monto_inicial=MONTO_INICIAL_DEMO,
             fecha_apertura=timezone.now(),
         )
+        for moneda in Moneda.objects.filter(habilitada=True):
+            SaldoInicialCaja.objects.create(sesion=turno, moneda=moneda, monto=FONDO_DIVISA_DEMO)
         self.stdout.write(self.style.SUCCESS(
             f"Turno ABIERTO en '{caja}' para '{cajero.username}'. Ya puede cerrarse en /arqueos/cerrar/."
         ))

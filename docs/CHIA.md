@@ -245,6 +245,11 @@ from 'operaciones.services'
      >
      > **Decisión**: El menú elegía un único rol por prioridad. Se agregó `main.views.resolve_user_roles` (todos los roles reconocidos, en orden de prioridad) y el parámetro opcional `roles` de `get_menu_sections`, que agrega la sección de cada rol sin repetir ítems entre secciones de rol. Con un solo rol el menú no cambia; el rol principal (etiqueta y tarjetas del dashboard) tampoco. Se agregó el ítem "Cajas Bloqueadas" en la sección Administración.
 
+  6. **Saldo registrado real (apertura SCRUM-37 + movimientos SCRUM-39):**
+     > *"podemos cambiar algo de nuestro scrum para resolver eso sin tocar sus ramas?"*
+     >
+     > **Decisión**: La apertura guarda el fondo inicial en `SaldoInicialCaja` pero no registra un `MovimientoCaja` de tipo `APERTURA`, y `caja.services.saldo_por_moneda` solo suma movimientos. Sin tocar el código de los compañeros, se creó `arqueos.saldos.saldo_registrado` (fondo inicial + entradas - salidas) como función por defecto del arqueo; suma el fondo inicial solo si el turno no tiene movimientos `APERTURA`, para no contarlo dos veces cuando la apertura los registre. El guaraní siempre se incluye (la apertura solo pide las monedas de la tabla `Moneda`). Se eliminó el saldo de demostración y el comando `preparar_demo_cierre` ahora crea el fondo inicial como la apertura real.
+
 * **Resultado / Decisión**: 56 pruebas en `app/tests/arqueos/` (cálculo, registro, cierre del turno y bloqueo con los modelos reales de `caja`, inmutabilidad, integración, vistas y modo demostración). Suite completa del proyecto: 176 pruebas en verde (incluye `tests/main/test_menu_varios_roles.py`). Cierre y habilitación verificados de punta a punta en el navegador con el modo demostración.
 
 
