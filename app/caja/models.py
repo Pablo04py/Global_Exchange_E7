@@ -164,33 +164,3 @@ class MovimientoCaja(RegistroInmutable):
 
     def __str__(self):
         return f"{self.sentido} {self.monto} {self.moneda} ({self.tipo})"
-
-
-class ArqueoCaja(RegistroInmutable):
-    """Resultado del cierre: una fila por moneda comparando lo declarado contra el sistema."""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    sesion = models.ForeignKey(SesionCaja, on_delete=models.PROTECT, related_name='arqueos')
-    moneda = models.CharField(max_length=3)
-    monto_sistema = models.DecimalField(max_digits=18, decimal_places=2)
-    monto_declarado = models.DecimalField(max_digits=18, decimal_places=2)
-    # declarado - sistema: positivo = sobrante, negativo = faltante
-    diferencia = models.DecimalField(max_digits=18, decimal_places=2)
-    fecha = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        db_table = 'arqueo_caja'
-        ordering = ['sesion', 'moneda']
-        constraints = [
-            models.UniqueConstraint(fields=['sesion', 'moneda'], name='uniq_arqueo_por_sesion_y_moneda'),
-        ]
-
-    @property
-    def resultado(self):
-        if self.diferencia > 0:
-            return 'sobrante'
-        if self.diferencia < 0:
-            return 'faltante'
-        return 'cuadrado'
-
-    def __str__(self):
-        return f"Arqueo {self.moneda}: {self.resultado} ({self.diferencia})"

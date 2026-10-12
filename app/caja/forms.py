@@ -95,8 +95,3 @@ class MontosPorMonedaForm(forms.Form):
 class AperturaCajaForm(MontosPorMonedaForm):
     etiqueta = "Fondo Inicial en {nombre} ({codigo})"
     valor_inicial = Decimal('0.00')
-
-
-class CierreCajaForm(MontosPorMonedaForm):
-    """El cajero declara lo que contó, sin ver el saldo del sistema (arqueo ciego)."""
-    etiqueta = "Efectivo contado en {nombre} ({codigo})"

@@ -4,9 +4,9 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
 
 from .models import SesionCaja, EstadoSesionCaja
-from .forms import AsignarCajeroForm, AperturaCajaForm, CierreCajaForm
+from .forms import AsignarCajeroForm, AperturaCajaForm
 from .services import (
-    asignar_cajero, apertura_caja, cerrar_caja, saldo_por_moneda, nombre_usuario,
+    asignar_cajero, apertura_caja, nombre_usuario,
 )
 
 PERMISO_ADMIN_CAJAS = 'caja.add_sesioncaja'
@@ -83,49 +83,6 @@ def apertura_caja_view(request):
         form = AperturaCajaForm()
 
     return render(request, 'caja/apertura_caja.html', {
-        'form': form,
-        'sesion': sesion,
-    })
-
-
-@login_required
-def cerrar_caja_view(request):
-    """
-    Cierre/arqueo: el cajero declara lo que contó por moneda y el sistema
-    lo compara contra el saldo calculado desde MovimientoCaja.
-    """
-    sesion = SesionCaja.objects.filter(
-        cajero=request.user,
-        estado=EstadoSesionCaja.ABIERTA
-    ).select_related('caja').first()
-
-    if not sesion:
-        messages.error(request, "No tienes ninguna caja abierta para cerrar.")
-        return redirect('caja:listar_asignaciones')
-
-    codigos = list(saldo_por_moneda(sesion).keys())
-
-    if request.method == 'POST':
-        form = CierreCajaForm(request.POST, codigos_extra=codigos)
-        if form.is_valid():
-            try:
-                sesion, arqueos = cerrar_caja(request.user, form.montos_por_moneda())
-            except ValidationError as e:
-                messages.error(request, ' '.join(e.messages))
-                return redirect('caja:listar_asignaciones')
-
-            messages.success(request, f"Caja '{sesion.caja.nombre}' cerrada correctamente.")
-            for arqueo in arqueos:
-                if arqueo.diferencia != 0:
-                    messages.warning(
-                        request,
-                        f"{arqueo.moneda}: {arqueo.resultado} de {abs(arqueo.diferencia)}."
-                    )
-            return redirect('caja:listar_asignaciones')
-    else:
-        form = CierreCajaForm(codigos_extra=codigos)
-
-    return render(request, 'caja/cerrar_caja.html', {
         'form': form,
         'sesion': sesion,
     })
