@@ -271,6 +271,11 @@ from 'operaciones.services'
      >
      > **Decisión**: Impresión con CSS `@media print` (oculta menú, filtros y botones) y botón `window.print()`. Exportación a CSV con el módulo estándar `csv`: separador `;`, coma decimal, hora local y BOM UTF-8 para que Excel en español lo abra correctamente; respeta los mismos filtros que la pantalla. Se corrigió además el uso de hora UTC en `ArqueoCaja.__str__` (ahora `timezone.localtime`).
 
+  3. **Acceso desde el menú del administrador:**
+     > *"tengo entendido que debía haber un menu para revisar reportes de auditorías en el rol de administrador"*
+     >
+     > **Decisión**: Se agregó el ítem "Reportes de Caja" en la sección Administración del menú lateral (`main/views.py`), junto a "Cajas Bloqueadas", con el nombre de ruta `reporte_arqueos`. Se eligió ese nombre para no confundirlo con el ítem existente "Auditoría de Logs".
+
 * **Resultado / Decisión**: 20 pruebas nuevas en `app/tests/arqueos/test_reportes.py` (acceso, solo lectura, resumen, cada filtro, CSV y formato). Suite completa del proyecto: 164 pruebas en verde.
 
 ---

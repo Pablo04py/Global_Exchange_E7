@@ -224,6 +224,7 @@ def get_menu_sections(role, active_client, is_authenticated=False, roles=None):
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
                 {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-currency-dollar"},
                 {"name": "Cajas Bloqueadas", "url": reverse("cajas_bloqueadas"), "icon": "ti-lock"},
+                {"name": "Reportes de Caja", "url": reverse("reporte_arqueos"), "icon": "ti-report-analytics"},
                 {"name": "Parámetros del Sistema", "url": "/admin/parametros/", "icon": "ti-settings"},
                 {"name": "Auditoría de Logs", "url": "/admin/auditoria/", "icon": "ti-shield-check"},
             ]

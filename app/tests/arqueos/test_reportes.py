@@ -10,6 +10,7 @@ import re
 from datetime import datetime
 from decimal import Decimal
 
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -109,6 +110,22 @@ class ReporteAccesoTestCase(ReporteBaseTestCase):
         response = self.client.get(URL)
         self.assertContains(response, 'window.print()')
         self.assertContains(response, '@media print')
+
+
+class ReporteMenuTestCase(ReporteBaseTestCase):
+    """Acceso al reporte desde el menú lateral."""
+
+    def _urls_del_menu(self, usuario, rol):
+        """Devuelve las URLs del menú del dashboard para un usuario con el rol (grupo de Keycloak) dado."""
+        usuario.groups.add(Group.objects.get_or_create(name=rol)[0])
+        self.client.force_login(usuario)
+        secciones = self.client.get(reverse('dashboard')).context['menu_sections']
+        return [item['url'] for seccion in secciones for item in seccion['items']]
+
+    def test_administrador_tiene_el_reporte_en_el_menu(self):
+        """El menú del Administrador General incluye "Reportes de Caja"; el del cajero no."""
+        self.assertIn(URL, self._urls_del_menu(self.admin, 'Administrador General'))
+        self.assertNotIn(URL, self._urls_del_menu(self.maria, 'Cajero'))
 
 
 class ReporteContenidoTestCase(ReporteBaseTestCase):
