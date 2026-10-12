@@ -8,12 +8,28 @@ User = get_user_model()
 
 class AsignarCajeroViewTestCase(TestCase):
 
+    from django.test import TestCase
+from django.urls import reverse
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
+from caja.models import Caja, SesionCaja, EstadoCaja, EstadoSesionCaja
+
+User = get_user_model()
+
+
+class AsignarCajeroViewTestCase(TestCase):
+
     def setUp(self):
         self.admin_user = User.objects.create_user(
             username='admin_test',
             password='password123',
             is_staff=True
         )
+        
+        # Otorgar el permiso necesario para asignar cajeros
+        permiso = Permission.objects.get(codename='add_sesioncaja')
+        self.admin_user.user_permissions.add(permiso)
+
         self.cajero_user = User.objects.create_user(
             username='cajero_test',
             password='password123'

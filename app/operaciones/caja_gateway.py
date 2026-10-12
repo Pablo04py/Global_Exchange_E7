@@ -4,11 +4,8 @@ Es lo único que `operaciones` conoce de `caja`. Si cambian los modelos de
 caja, solo se ajusta este archivo.
 """
 
-import logging
-
 from caja.models import EstadoSesionCaja, SesionCaja
-
-logger = logging.getLogger(__name__)
+from caja.services import registrar_movimiento_transaccion, saldo_por_moneda
 
 
 class SesionCajaNoAbierta(Exception):
@@ -47,22 +44,10 @@ def registrar_movimiento(sesion, transaccion):
     - Sale `transaccion.monto_recibido` en `transaccion.moneda_recibida`.
     - Lanza ValidationError si no hay stock suficiente de lo que se entrega.
     - Es idempotente por transacción (no duplica el movimiento).
-
-    Mientras caja no lo exponga, no hace nada y deja un warning en el log.
     """
-    try:
-        from caja.services import registrar_movimiento_transaccion
-    except ImportError:
-        logger.warning(
-            "caja.services.registrar_movimiento_transaccion no existe todavía: "
-            "la transacción %s NO generó movimiento de caja.", transaccion.pk
-        )
-        return None
     return registrar_movimiento_transaccion(sesion, transaccion)
+
 
 def obtener_saldos(sesion):
     """Saldo de efectivo por moneda de la sesión: {'PYG': ..., 'USD': ...}."""
-    try:
-        from caja.services import saldo_por_moneda
-    except ImportError:
-        return {}
+    return saldo_por_moneda(sesion)

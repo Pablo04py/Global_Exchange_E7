@@ -1,9 +1,23 @@
+from decimal import Decimal
+
 from django import forms
 from django.contrib.auth import get_user_model
+
 from .models import Caja, SesionCaja, EstadoCaja, EstadoSesionCaja
 from operaciones.models import Moneda
 
 User = get_user_model()
+
+ESTADOS_ACTIVOS = [EstadoSesionCaja.ASIGNADA, EstadoSesionCaja.ABIERTA]
+
+
+class CajeroChoiceField(forms.ModelChoiceField):
+    """
+    Campo personalizado para mostrar el nombre completo o email del cajero,
+    evitando mostrar los hashes generados por Keycloak.
+    """
+    def label_from_instance(self, obj):
+        return obj.get_full_name() or obj.email or obj.username
 
 
 class AsignarCajeroForm(forms.ModelForm):
@@ -12,8 +26,8 @@ class AsignarCajeroForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select'}),
         label="Caja Registradora"
     )
-    cajero = forms.ModelChoiceField(
-        queryset=User.objects.all(),
+    cajero = CajeroChoiceField(
+        queryset=User.objects.filter(is_active=True),
         widget=forms.Select(attrs={'class': 'form-select'}),
         label="Cajero a Asignar"
     )
@@ -22,35 +36,67 @@ class AsignarCajeroForm(forms.ModelForm):
         model = SesionCaja
         fields = ['caja', 'cajero']
 
+    def clean_caja(self):
+        caja = self.cleaned_data.get('caja')
+        if caja and SesionCaja.objects.filter(caja=caja, estado__in=ESTADOS_ACTIVOS).exists():
+            raise forms.ValidationError("Esta caja ya está asignada a otro cajero.")
+        return caja
+
     def clean_cajero(self):
         cajero = self.cleaned_data.get('cajero')
-        sesion_pendiente = SesionCaja.objects.filter(
-            cajero=cajero,
-            estado__in=[EstadoSesionCaja.ASIGNADA, EstadoSesionCaja.ABIERTA]
-        ).exists()
-
-        if sesion_pendiente:
+        if cajero and SesionCaja.objects.filter(cajero=cajero, estado__in=ESTADOS_ACTIVOS).exists():
             raise forms.ValidationError("Este cajero ya tiene una caja asignada o abierta actualmente.")
         return cajero
 
 
-class AperturaCajaForm(forms.Form):
+class MontosPorMonedaForm(forms.Form):
     """
-    Formulario dinámico que genera un campo de entrada para cada moneda habilitada en la base de datos.
+    Base dinámica: un campo numérico `monto_<codigo>` por cada moneda habilitada
+    (más las monedas extra que se indiquen, por ejemplo las que ya tienen saldo en caja).
     """
-    def __init__(self, *args, **kwargs):
+    etiqueta = "{nombre} ({codigo})"
+    valor_inicial = None
+
+    def __init__(self, *args, codigos_extra=(), **kwargs):
         super().__init__(*args, **kwargs)
-        monedas = Moneda.objects.filter(habilitada=True)
-        for moneda in monedas:
-            self.fields[f'monto_{moneda.codigo.lower()}'] = forms.DecimalField(
+
+        nombres = {
+            m.codigo.upper(): m.nombre
+            for m in Moneda.objects.filter(habilitada=True).order_by('codigo')
+        }
+        for codigo in codigos_extra:
+            nombres.setdefault(codigo.upper(), codigo.upper())
+
+        self.campos_moneda = {}  # {'monto_pyg': 'PYG', ...}
+        for codigo, nombre in nombres.items():
+            campo = f'monto_{codigo.lower()}'
+            self.fields[campo] = forms.DecimalField(
                 max_digits=15,
                 decimal_places=2,
                 min_value=0,
-                initial=0.00,
-                label=f"Fondo Inicial en {moneda.nombre} ({moneda.codigo})",
+                initial=self.valor_inicial,
+                label=self.etiqueta.format(nombre=nombre, codigo=codigo),
                 widget=forms.NumberInput(attrs={
-                    'class': 'form-control', 
-                    'step': '0.01', 
-                    'placeholder': '0.00'
+                    'class': 'form-control',
+                    'step': '0.01',
+                    'placeholder': '0.00',
                 })
             )
+            self.campos_moneda[campo] = codigo
+
+    def montos_por_moneda(self):
+        """Devuelve {'PYG': Decimal, 'USD': Decimal, ...} con lo ingresado."""
+        return {
+            codigo: self.cleaned_data.get(campo) or Decimal('0')
+            for campo, codigo in self.campos_moneda.items()
+        }
+
+
+class AperturaCajaForm(MontosPorMonedaForm):
+    etiqueta = "Fondo Inicial en {nombre} ({codigo})"
+    valor_inicial = Decimal('0.00')
+
+
+class CierreCajaForm(MontosPorMonedaForm):
+    """El cajero declara lo que contó, sin ver el saldo del sistema (arqueo ciego)."""
+    etiqueta = "Efectivo contado en {nombre} ({codigo})"
