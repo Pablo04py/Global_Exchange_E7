@@ -103,31 +103,127 @@
 
           <!-- Selector de Cliente Activo y Categoría (RF9, RF26) -->
           {% if associated_clients %}
-          <div class="client-selector-container">
-            <i class="ti ti-building-bank"></i>
-            <select class="client-select" id="activeClientSelect" onchange="switchClient(this.value)">
-              {% for client in associated_clients %}
-                <option value="{{ client.id }}" {% if client.id == active_client.id %}selected{% endif %}>
-                  {{ client.name }}
-                </option>
-              {% endfor %}
-            </select>
+            <div class="client-selector-container">
+              <i class="ti ti-building-bank"></i>
+              <select class="client-select" id="activeClientSelect" onchange="switchClient(this.value)">
+                {% for client in associated_clients %}
+                  <option value="{{ client.id }}" {% if client.id == active_client.id %}selected{% endif %}>
+                    {{ client.name }}
+                  </option>
+                {% endfor %}
+              </select>
 
-            {% if active_client %}
-              <span class="category-badge category-{{ active_client.category|lower }}">
-                {{ active_client.category }}
-              </span>
-            {% endif %}
-          </div>
-          <div class="topbar-divider"></div>
+              {% if active_client %}
+                <span class="category-badge category-{{ active_client.category|lower }}">
+                  {{ active_client.category }}
+                </span>
+              {% endif %}
+            </div>
+
+            <div class="topbar-divider"></div>
           {% endif %}
 
-          <button class="topbar-icon-btn" title="Notificaciones">
-            <i class="ti ti-bell"></i>
-            <span class="notif-dot"></span>
-          </button>
+          {# ── NOTIFICACIONES ── #}
 
-          <div class="topbar-divider"></div>
+          <div class="notification-menu">
+            <button type="button" class="topbar-icon-btn" id="notificationTrigger" title="Notificaciones">
+              <i class="ti ti-bell"></i>
+              
+              {% if notificaciones_no_leidas > 0 %}
+                <span class="notif-count" id="notificationCount">
+                  {{ notificaciones_no_leidas }}
+                </span>
+              {% else %}
+                <span
+                  class="notif-count"
+                  id="notificationCount"
+                  style="display:none;"
+                ></span>
+              {% endif %}
+            </button>
+
+            <div class="notification-dropdown" id="notificationDropdown">
+              <div class="notification-header">
+
+                <div>
+                  <div class="notification-title">
+                    Notificaciones
+                  </div>
+
+                  <div class="notification-subtitle">
+                    Actualizaciones recientes
+                  </div>
+              </div>
+
+              {% if notificaciones_no_leidas > 0 %}
+                <button type="button" class="notification-read-all" id="notificationReadAll" data-url="{% url 'notificaciones:marcar_todas_leidas' %}">
+                  Marcar todas
+                </button>
+              {% endif %}
+            
+            </div>
+
+            <div class="notification-list" id="notificationList">
+              {% for item in notificaciones_recientes %}
+                <div
+                  class="notification-item {% if not item.leida %}unread{% endif %}"
+                  data-notification-id="{{ item.id }}"
+                >
+                  <div class="notification-icon">
+                    {% if item.notificacion.tipo == 'TASA_CAMBIO' %}
+                      <i class="ti ti-arrows-exchange"></i>
+                    {% elif item.notificacion.tipo == 'PAGO' %}
+                      <i class="ti ti-credit-card"></i>
+                    {% elif item.notificacion.tipo == 'OPERACION' %}
+                      <i class="ti ti-receipt"></i>
+                    {% else %}
+                      <i class="ti ti-bell"></i>
+                    {% endif %}
+                  </div>
+
+                  <div class="notification-content">
+
+                    <div class="notification-item-title">
+                      {{ item.notificacion.titulo }}
+                    </div>
+
+                    <div class="notification-message">
+                      {{ item.notificacion.mensaje|linebreaksbr }}
+                    </div>
+
+                    <div class="notification-time">
+                      Hace
+                      {{ item.notificacion.fecha_creacion|timesince }}
+                    </div>
+                  </div>
+
+                  {% if not item.leida %}
+                    <button
+                      type="button"
+                      class="notification-mark-read"
+                      title="Marcar como leída"
+                      data-url="{% url 'notificaciones:marcar_leida' item.id %}"
+                    >
+                      <span></span>
+                    </button>
+                  {% endif %}
+                </div>
+
+              {% empty %}
+                
+                <div class="notification-empty">
+                  <i class="ti ti-bell-off"></i>
+                  <span>No tenés notificaciones todavía.</span>
+                </div>
+
+              {% endfor %}
+            
+            </div>
+          </div>
+        </div>
+        {# ── FIN NOTIFICACIONES ── #}
+        
+        <div class="topbar-divider"></div>
 
           <div class="user-menu" id="userMenuTrigger">
             <div class="user-info">

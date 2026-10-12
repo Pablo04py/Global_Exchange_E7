@@ -289,6 +289,35 @@ def dashboard(request):
     else:
         summary_cards = cards_by_role.get(role, [])
 
+    # ── Notificación inicial del dashboard ──
+    notificacion_inicio = None
+
+    if is_auth:
+
+        ultima_no_leida = (
+            request.user.notificaciones
+            .filter(leida=False)
+            .select_related('notificacion')
+            .order_by('-notificacion__fecha_creacion')
+            .first()
+        )
+
+        if ultima_no_leida:
+
+            ultima_mostrada_id = request.session.get(
+                'ge_ultima_notificacion_mostrada'
+            )
+
+            if str(ultima_no_leida.id) != ultima_mostrada_id:
+
+                notificacion_inicio = ultima_no_leida
+
+                request.session[
+                    'ge_ultima_notificacion_mostrada'
+                ] = str(ultima_no_leida.id)
+
+
+
     context = {
         "summary_cards": summary_cards,
         "user_role": role,
