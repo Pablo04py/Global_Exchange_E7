@@ -34,9 +34,6 @@
                     <a class="variable" href="#CERO">CERO</a>
             </li>
             <li>
-                    <a class="function" href="#saldo_inicial">saldo_inicial</a>
-            </li>
-            <li>
                     <a class="function" href="#saldo_registrado">saldo_registrado</a>
             </li>
     </ul>
@@ -58,22 +55,9 @@
 
                         <div class="docstring"><p>Saldo registrado de un turno de caja para el arqueo (SCRUM-40).</p>
 
-<p>Combina las dos fuentes que hoy existen en la app <code>caja</code>:</p>
-
-<ul>
-<li>SCRUM-37 (apertura): el fondo inicial por moneda queda en <code>SaldoInicialCaja</code>
-(y el de guaraníes en <code>SesionCaja.monto_inicial</code>).</li>
-<li>SCRUM-39 (operación de cajeros): las entradas y salidas de efectivo del
-turno quedan en <code>MovimientoCaja</code>; <code>caja.services.saldo_por_moneda</code> las suma.</li>
-</ul>
-
-<p>La apertura todavía no registra un <code>MovimientoCaja</code> de tipo <code>APERTURA</code>, por lo
-que <code>saldo_por_moneda</code> no incluye el fondo inicial. Esta función lo suma desde
-<code>SaldoInicialCaja</code>, pero solo si el turno no tiene movimientos de apertura:
-cuando la apertura empiece a registrarlos, deja de sumarlo para no contarlo
-dos veces.</p>
-
-<p>Es la función que usa el arqueo por defecto (setting <code>ARQUEO_FUNCION_SALDO</code>).</p>
+<p>Calcula el saldo esperado de la caja sumando todas las entradas y salidas
+registradas en el libro mayor (incluyendo la apertura y las operaciones del turno)
+a través de <code>caja.services.saldo_por_moneda</code>.</p>
 </div>
 
                         <input id="mod-saldos-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -82,67 +66,32 @@ dos veces.</p>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">"""Saldo registrado de un turno de caja para el arqueo (SCRUM-40).</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">Combina las dos fuentes que hoy existen en la app `caja`:</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="sd">- SCRUM-37 (apertura): el fondo inicial por moneda queda en `SaldoInicialCaja`</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="sd">  (y el de guaraníes en `SesionCaja.monto_inicial`).</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="sd">- SCRUM-39 (operación de cajeros): las entradas y salidas de efectivo del</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="sd">  turno quedan en `MovimientoCaja`; `caja.services.saldo_por_moneda` las suma.</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">La apertura todavía no registra un `MovimientoCaja` de tipo `APERTURA`, por lo</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">que `saldo_por_moneda` no incluye el fondo inicial. Esta función lo suma desde</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">`SaldoInicialCaja`, pero solo si el turno no tiene movimientos de apertura:</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">cuando la apertura empiece a registrarlos, deja de sumarlo para no contarlo</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">dos veces.</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">Es la función que usa el arqueo por defecto (setting `ARQUEO_FUNCION_SALDO`).</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">"""</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">decimal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decimal</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">Calcula el saldo esperado de la caja sumando todas las entradas y salidas</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="sd">registradas en el libro mayor (incluyendo la apertura y las operaciones del turno)</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="sd">a través de `caja.services.saldo_por_moneda`.</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="sd">"""</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">decimal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decimal</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">caja.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">saldo_por_moneda</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="n">CERO</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="s1">'0'</span><span class="p">)</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="k">def</span><span class="w"> </span><span class="nf">saldo_registrado</span><span class="p">(</span><span class="n">turno</span><span class="p">):</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="w">    </span><span class="sd">"""Devuelve el efectivo que debería haber en la caja, por moneda.</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">    Obtiene el saldo dinámico directamente del libro mayor de movimientos,</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">    garantizando que la apertura, operaciones y transferencias se reflejen</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">    correctamente sin desincronizarse.</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">caja.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TipoMovimiento</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">caja.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">MONEDA_LOCAL</span><span class="p">,</span> <span class="n">saldo_por_moneda</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">    Args:</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">        turno: `SesionCaja` abierta.</span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="n">CERO</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="s1">'0'</span><span class="p">)</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="k">def</span><span class="w"> </span><span class="nf">saldo_inicial</span><span class="p">(</span><span class="n">turno</span><span class="p">):</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="w">    </span><span class="sd">"""Devuelve el fondo inicial del turno por moneda.</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">    El guaraní siempre se incluye: si la apertura no lo cargó como moneda,</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="sd">    se toma de `monto_inicial` del turno.</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">    Args:</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">        turno: `SesionCaja` abierta.</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">    Returns:</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">        dict[str, Decimal]: Fondo inicial por código de moneda.</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">    """</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="n">inicial</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span> <span class="n">s</span><span class="o">.</span><span class="n">monto</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">turno</span><span class="o">.</span><span class="n">saldos_iniciales</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">'moneda'</span><span class="p">)}</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="n">inicial</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">MONEDA_LOCAL</span><span class="p">,</span> <span class="n">turno</span><span class="o">.</span><span class="n">monto_inicial</span> <span class="ow">or</span> <span class="n">CERO</span><span class="p">)</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="k">return</span> <span class="n">inicial</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="k">def</span><span class="w"> </span><span class="nf">saldo_registrado</span><span class="p">(</span><span class="n">turno</span><span class="p">):</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="w">    </span><span class="sd">"""Devuelve el efectivo que debería haber en la caja, por moneda.</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">    `saldo registrado = fondo inicial + entradas - salidas del turno`. Incluye</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="sd">    todas las monedas abiertas o movidas en el turno (aunque su saldo sea 0)</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">    y siempre el guaraní, para que el cajero declare cada una.</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="sd">    Args:</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="sd">        turno: `SesionCaja` abierta.</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a><span class="sd">    Returns:</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="sd">        dict[str, Decimal]: Saldo registrado por código de moneda.</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a><span class="sd">    """</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="n">saldo</span> <span class="o">=</span> <span class="p">{</span><span class="n">moneda</span><span class="p">:</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">monto</span><span class="p">)</span> <span class="k">for</span> <span class="n">moneda</span><span class="p">,</span> <span class="n">monto</span> <span class="ow">in</span> <span class="n">saldo_por_moneda</span><span class="p">(</span><span class="n">turno</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="n">tiene_apertura_registrada</span> <span class="o">=</span> <span class="n">turno</span><span class="o">.</span><span class="n">movimientos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tipo</span><span class="o">=</span><span class="n">TipoMovimiento</span><span class="o">.</span><span class="n">APERTURA</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    <span class="k">for</span> <span class="n">moneda</span><span class="p">,</span> <span class="n">monto</span> <span class="ow">in</span> <span class="n">saldo_inicial</span><span class="p">(</span><span class="n">turno</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>        <span class="n">base</span> <span class="o">=</span> <span class="n">saldo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">moneda</span><span class="p">,</span> <span class="n">CERO</span><span class="p">)</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>        <span class="n">saldo</span><span class="p">[</span><span class="n">moneda</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span> <span class="k">if</span> <span class="n">tiene_apertura_registrada</span> <span class="k">else</span> <span class="n">base</span> <span class="o">+</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">monto</span><span class="p">)</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>    <span class="k">return</span> <span class="n">saldo</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">    Returns:</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">        dict[str, Decimal]: Saldo registrado por código de moneda.</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="sd">    """</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">saldos</span> <span class="o">=</span> <span class="n">saldo_por_moneda</span><span class="p">(</span><span class="n">turno</span><span class="p">)</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="k">return</span> <span class="p">{</span><span class="n">moneda</span><span class="p">:</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">monto</span><span class="p">)</span> <span class="k">for</span> <span class="n">moneda</span><span class="p">,</span> <span class="n">monto</span> <span class="ow">in</span> <span class="n">saldos</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 </span></pre></div>
 
 
@@ -159,55 +108,6 @@ dos veces.</p>
     
 
                 </section>
-                <section id="saldo_inicial">
-                            <input id="saldo_inicial-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">saldo_inicial</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">turno</span></span><span class="return-annotation">):</span></span>
-
-                <label class="view-source-button" for="saldo_inicial-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#saldo_inicial"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="saldo_inicial-28"><a href="#saldo_inicial-28"><span class="linenos">28</span></a><span class="k">def</span><span class="w"> </span><span class="nf">saldo_inicial</span><span class="p">(</span><span class="n">turno</span><span class="p">):</span>
-</span><span id="saldo_inicial-29"><a href="#saldo_inicial-29"><span class="linenos">29</span></a><span class="w">    </span><span class="sd">"""Devuelve el fondo inicial del turno por moneda.</span>
-</span><span id="saldo_inicial-30"><a href="#saldo_inicial-30"><span class="linenos">30</span></a>
-</span><span id="saldo_inicial-31"><a href="#saldo_inicial-31"><span class="linenos">31</span></a><span class="sd">    El guaraní siempre se incluye: si la apertura no lo cargó como moneda,</span>
-</span><span id="saldo_inicial-32"><a href="#saldo_inicial-32"><span class="linenos">32</span></a><span class="sd">    se toma de `monto_inicial` del turno.</span>
-</span><span id="saldo_inicial-33"><a href="#saldo_inicial-33"><span class="linenos">33</span></a>
-</span><span id="saldo_inicial-34"><a href="#saldo_inicial-34"><span class="linenos">34</span></a><span class="sd">    Args:</span>
-</span><span id="saldo_inicial-35"><a href="#saldo_inicial-35"><span class="linenos">35</span></a><span class="sd">        turno: `SesionCaja` abierta.</span>
-</span><span id="saldo_inicial-36"><a href="#saldo_inicial-36"><span class="linenos">36</span></a>
-</span><span id="saldo_inicial-37"><a href="#saldo_inicial-37"><span class="linenos">37</span></a><span class="sd">    Returns:</span>
-</span><span id="saldo_inicial-38"><a href="#saldo_inicial-38"><span class="linenos">38</span></a><span class="sd">        dict[str, Decimal]: Fondo inicial por código de moneda.</span>
-</span><span id="saldo_inicial-39"><a href="#saldo_inicial-39"><span class="linenos">39</span></a><span class="sd">    """</span>
-</span><span id="saldo_inicial-40"><a href="#saldo_inicial-40"><span class="linenos">40</span></a>    <span class="n">inicial</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">moneda</span><span class="o">.</span><span class="n">codigo</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span> <span class="n">s</span><span class="o">.</span><span class="n">monto</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">turno</span><span class="o">.</span><span class="n">saldos_iniciales</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">'moneda'</span><span class="p">)}</span>
-</span><span id="saldo_inicial-41"><a href="#saldo_inicial-41"><span class="linenos">41</span></a>    <span class="n">inicial</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">MONEDA_LOCAL</span><span class="p">,</span> <span class="n">turno</span><span class="o">.</span><span class="n">monto_inicial</span> <span class="ow">or</span> <span class="n">CERO</span><span class="p">)</span>
-</span><span id="saldo_inicial-42"><a href="#saldo_inicial-42"><span class="linenos">42</span></a>    <span class="k">return</span> <span class="n">inicial</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Devuelve el fondo inicial del turno por moneda.</p>
-
-<p>El guaraní siempre se incluye: si la apertura no lo cargó como moneda,
-se toma de <code>monto_inicial</code> del turno.</p>
-
-<h6 id="arguments">Parámetros:</h6>
-
-<ul>
-<li><strong>turno:</strong>  <code>SesionCaja</code> abierta.</li>
-</ul>
-
-<h6 id="returns">Retorna:</h6>
-
-<blockquote>
-  <p>dict[str, Decimal]: Fondo inicial por código de moneda.</p>
-</blockquote>
-</div>
-
-
-                </section>
                 <section id="saldo_registrado">
                             <input id="saldo_registrado-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -219,34 +119,29 @@ se toma de <code>monto_inicial</code> del turno.</p>
 
     </div>
     <a class="headerlink" href="#saldo_registrado"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="saldo_registrado-45"><a href="#saldo_registrado-45"><span class="linenos">45</span></a><span class="k">def</span><span class="w"> </span><span class="nf">saldo_registrado</span><span class="p">(</span><span class="n">turno</span><span class="p">):</span>
-</span><span id="saldo_registrado-46"><a href="#saldo_registrado-46"><span class="linenos">46</span></a><span class="w">    </span><span class="sd">"""Devuelve el efectivo que debería haber en la caja, por moneda.</span>
-</span><span id="saldo_registrado-47"><a href="#saldo_registrado-47"><span class="linenos">47</span></a>
-</span><span id="saldo_registrado-48"><a href="#saldo_registrado-48"><span class="linenos">48</span></a><span class="sd">    `saldo registrado = fondo inicial + entradas - salidas del turno`. Incluye</span>
-</span><span id="saldo_registrado-49"><a href="#saldo_registrado-49"><span class="linenos">49</span></a><span class="sd">    todas las monedas abiertas o movidas en el turno (aunque su saldo sea 0)</span>
-</span><span id="saldo_registrado-50"><a href="#saldo_registrado-50"><span class="linenos">50</span></a><span class="sd">    y siempre el guaraní, para que el cajero declare cada una.</span>
-</span><span id="saldo_registrado-51"><a href="#saldo_registrado-51"><span class="linenos">51</span></a>
-</span><span id="saldo_registrado-52"><a href="#saldo_registrado-52"><span class="linenos">52</span></a><span class="sd">    Args:</span>
-</span><span id="saldo_registrado-53"><a href="#saldo_registrado-53"><span class="linenos">53</span></a><span class="sd">        turno: `SesionCaja` abierta.</span>
-</span><span id="saldo_registrado-54"><a href="#saldo_registrado-54"><span class="linenos">54</span></a>
-</span><span id="saldo_registrado-55"><a href="#saldo_registrado-55"><span class="linenos">55</span></a><span class="sd">    Returns:</span>
-</span><span id="saldo_registrado-56"><a href="#saldo_registrado-56"><span class="linenos">56</span></a><span class="sd">        dict[str, Decimal]: Saldo registrado por código de moneda.</span>
-</span><span id="saldo_registrado-57"><a href="#saldo_registrado-57"><span class="linenos">57</span></a><span class="sd">    """</span>
-</span><span id="saldo_registrado-58"><a href="#saldo_registrado-58"><span class="linenos">58</span></a>    <span class="n">saldo</span> <span class="o">=</span> <span class="p">{</span><span class="n">moneda</span><span class="p">:</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">monto</span><span class="p">)</span> <span class="k">for</span> <span class="n">moneda</span><span class="p">,</span> <span class="n">monto</span> <span class="ow">in</span> <span class="n">saldo_por_moneda</span><span class="p">(</span><span class="n">turno</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-</span><span id="saldo_registrado-59"><a href="#saldo_registrado-59"><span class="linenos">59</span></a>    <span class="n">tiene_apertura_registrada</span> <span class="o">=</span> <span class="n">turno</span><span class="o">.</span><span class="n">movimientos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tipo</span><span class="o">=</span><span class="n">TipoMovimiento</span><span class="o">.</span><span class="n">APERTURA</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
-</span><span id="saldo_registrado-60"><a href="#saldo_registrado-60"><span class="linenos">60</span></a>
-</span><span id="saldo_registrado-61"><a href="#saldo_registrado-61"><span class="linenos">61</span></a>    <span class="k">for</span> <span class="n">moneda</span><span class="p">,</span> <span class="n">monto</span> <span class="ow">in</span> <span class="n">saldo_inicial</span><span class="p">(</span><span class="n">turno</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="saldo_registrado-62"><a href="#saldo_registrado-62"><span class="linenos">62</span></a>        <span class="n">base</span> <span class="o">=</span> <span class="n">saldo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">moneda</span><span class="p">,</span> <span class="n">CERO</span><span class="p">)</span>
-</span><span id="saldo_registrado-63"><a href="#saldo_registrado-63"><span class="linenos">63</span></a>        <span class="n">saldo</span><span class="p">[</span><span class="n">moneda</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span> <span class="k">if</span> <span class="n">tiene_apertura_registrada</span> <span class="k">else</span> <span class="n">base</span> <span class="o">+</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">monto</span><span class="p">)</span>
-</span><span id="saldo_registrado-64"><a href="#saldo_registrado-64"><span class="linenos">64</span></a>    <span class="k">return</span> <span class="n">saldo</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="saldo_registrado-15"><a href="#saldo_registrado-15"><span class="linenos">15</span></a><span class="k">def</span><span class="w"> </span><span class="nf">saldo_registrado</span><span class="p">(</span><span class="n">turno</span><span class="p">):</span>
+</span><span id="saldo_registrado-16"><a href="#saldo_registrado-16"><span class="linenos">16</span></a><span class="w">    </span><span class="sd">"""Devuelve el efectivo que debería haber en la caja, por moneda.</span>
+</span><span id="saldo_registrado-17"><a href="#saldo_registrado-17"><span class="linenos">17</span></a>
+</span><span id="saldo_registrado-18"><a href="#saldo_registrado-18"><span class="linenos">18</span></a><span class="sd">    Obtiene el saldo dinámico directamente del libro mayor de movimientos,</span>
+</span><span id="saldo_registrado-19"><a href="#saldo_registrado-19"><span class="linenos">19</span></a><span class="sd">    garantizando que la apertura, operaciones y transferencias se reflejen</span>
+</span><span id="saldo_registrado-20"><a href="#saldo_registrado-20"><span class="linenos">20</span></a><span class="sd">    correctamente sin desincronizarse.</span>
+</span><span id="saldo_registrado-21"><a href="#saldo_registrado-21"><span class="linenos">21</span></a>
+</span><span id="saldo_registrado-22"><a href="#saldo_registrado-22"><span class="linenos">22</span></a><span class="sd">    Args:</span>
+</span><span id="saldo_registrado-23"><a href="#saldo_registrado-23"><span class="linenos">23</span></a><span class="sd">        turno: `SesionCaja` abierta.</span>
+</span><span id="saldo_registrado-24"><a href="#saldo_registrado-24"><span class="linenos">24</span></a>
+</span><span id="saldo_registrado-25"><a href="#saldo_registrado-25"><span class="linenos">25</span></a><span class="sd">    Returns:</span>
+</span><span id="saldo_registrado-26"><a href="#saldo_registrado-26"><span class="linenos">26</span></a><span class="sd">        dict[str, Decimal]: Saldo registrado por código de moneda.</span>
+</span><span id="saldo_registrado-27"><a href="#saldo_registrado-27"><span class="linenos">27</span></a><span class="sd">    """</span>
+</span><span id="saldo_registrado-28"><a href="#saldo_registrado-28"><span class="linenos">28</span></a>    <span class="n">saldos</span> <span class="o">=</span> <span class="n">saldo_por_moneda</span><span class="p">(</span><span class="n">turno</span><span class="p">)</span>
+</span><span id="saldo_registrado-29"><a href="#saldo_registrado-29"><span class="linenos">29</span></a>    <span class="k">return</span> <span class="p">{</span><span class="n">moneda</span><span class="p">:</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">monto</span><span class="p">)</span> <span class="k">for</span> <span class="n">moneda</span><span class="p">,</span> <span class="n">monto</span> <span class="ow">in</span> <span class="n">saldos</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Devuelve el efectivo que debería haber en la caja, por moneda.</p>
 
-<p><code>saldo registrado = fondo inicial + entradas - salidas del turno</code>. Incluye
-todas las monedas abiertas o movidas en el turno (aunque su saldo sea 0)
-y siempre el guaraní, para que el cajero declare cada una.</p>
+<p>Obtiene el saldo dinámico directamente del libro mayor de movimientos,
+garantizando que la apertura, operaciones y transferencias se reflejen
+correctamente sin desincronizarse.</p>
 
 <h6 id="arguments">Parámetros:</h6>
 

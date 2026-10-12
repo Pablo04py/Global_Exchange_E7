@@ -191,7 +191,7 @@ def get_menu_sections(role, active_client, is_authenticated=False, roles=None):
             "items": [                
                 {"name": "Operar en caja", "url": reverse("caja_buscar_cliente"), "icon": "ti-user-search"},
                 {"name": "Historial del día", "url": reverse("caja_historial_dia"), "icon": "ti-history"},
-                {"name": "Apertura de Caja", "url": "/caja/gestion/", "icon": "ti-cash-register"},
+                {"name": "Apertura de Caja", "url": reverse("caja:apertura_caja"), "icon": "ti-cash-register"},
                 {"name": "Cierre de Caja", "url": reverse("cerrar_caja"), "icon": "ti-lock"},
                 {"name": "Movimientos de Efectivo", "url": "/caja/movimientos/", "icon": "ti-file-spreadsheet"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
