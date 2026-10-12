@@ -5,246 +5,482 @@
 
 {% block extra_css %}
 <style>
-.list-wrapper {
-    max-width: 960px;
-    margin: 0 auto;
+/* ── Layout 2 columnas ──────────────────────────────────────────────────── */
+.caja-layout {
+  --caja-ink: #1A2840;
+  --caja-ink-hover: #26395A;
+  --caja-muted: #6B7A90;
+  --caja-border: #E5E9F0;
+  --caja-surface: #F5F7FA;
+  --caja-tint: #EEF3FB;
+  --caja-accent: #2F6FDE;
+  --caja-danger: #C0392B;
+
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
 }
 
-.list-card {
-    background: #fff;
-    border: 1px solid #E5E9F0;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(26, 40, 64, 0.06);
-    overflow: hidden;
+.caja-main {
+  min-width: 0;
 }
 
-.list-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    flex-wrap: wrap;
-    padding: 20px 24px;
-    border-bottom: 1px solid #E5E9F0;
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+.caja-sidebar {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: calc(100vh - 140px);
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--caja-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(26, 40, 64, 0.06);
 }
 
-.list-card-heading {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+.caja-sidebar-label {
+  display: block;
+  margin-bottom: 8px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--caja-muted);
 }
 
-.list-card-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-    background: #EEF3FB;
-    color: #1A2840;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
+.caja-sidebar-nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.list-card-title {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 700;
-    color: #1A2840;
+.caja-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--caja-ink);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
 }
 
-.list-card-subtitle {
-    margin: 2px 0 0;
-    font-size: 13px;
-    color: #6B7A90;
+.caja-sidebar-link i {
+  font-size: 18px;
+  color: var(--caja-muted);
 }
 
-.table-scroll {
-    overflow-x: auto;
+.caja-sidebar-link:hover {
+  background: var(--caja-surface);
 }
 
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
+.caja-sidebar-link.is-active {
+  background: var(--caja-tint);
+  color: var(--caja-accent);
 }
 
-.data-table th {
-    padding: 12px 24px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #6B7A90;
-    background: #F5F7FA;
-    border-bottom: 1px solid #E5E9F0;
-    white-space: nowrap;
+.caja-sidebar-link.is-active i {
+  color: var(--caja-accent);
 }
 
-.data-table td {
-    padding: 14px 24px;
-    color: #1A2840;
-    border-bottom: 1px solid #E5E9F0;
-    white-space: nowrap;
+/* Widget de sesión (parte inferior del sidebar) */
+.caja-session {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--caja-border);
 }
 
-.data-table tbody tr:last-child td {
-    border-bottom: none;
+.caja-session-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
-.data-table tbody tr:hover {
-    background: #F9FAFC;
-}
-.cell-main {
-    font-weight: 600;
-}
-
-.cell-user {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.cell-user i {
-    color: #6B7A90;
-    font-size: 16px;
-}
-.cell-date {
-    color: #6B7A90;
-    font-variant-numeric: tabular-nums;
+.caja-session-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  color: var(--caja-ink);
+  background: var(--caja-tint);
+  border-radius: 50%;
 }
 
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 10px;
-    font-size: 12px;
-    font-weight: 600;
-    border-radius: 999px;
-    background: #EEF3FB;
-    color: #2F6FDE;
-    text-transform: capitalize;
+.caja-session-text {
+  min-width: 0;
+  font-size: 12px;
+  color: var(--caja-muted);
 }
 
-.status-asignada,
-.status-asignado,
-.status-pendiente {
-    background: #FFF4DD;
-    color: #B7791F;
+.caja-session-text strong,
+.caja-session-text span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.status-abierta,
-.status-abierto,
-.status-activa,
-.status-activo {
-    background: #E6F6EC;
-    color: #1E8449;
+.caja-session-text strong {
+  font-size: 13px;
+  color: var(--caja-ink);
 }
 
-.status-cerrada,
-.status-cerrado,
-.status-inactiva,
-.status-inactivo {
-    background: #EDF0F5;
-    color: #6B7A90;
+.caja-session-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--caja-muted);
 }
 
-.empty-state {
-    padding: 48px 24px;
-    text-align: center;
-    color: #6B7A90;
+/* ── Tarjeta ────────────────────────────────────────────────────────────── */
+.caja-card {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--caja-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(26, 40, 64, 0.06);
 }
 
-.empty-state i {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 32px;
-    color: #B8C2D1;
+.caja-card--narrow {
+  max-width: 560px;
+  margin: 0 auto;
 }
 
-.btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 18px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    background: #1A2840;
-    border: 1px solid #1A2840;
-    border-radius: 8px;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.15s;
+.caja-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--caja-border);
 }
 
-.btn-primary:hover {
-    background: #26395A;
+.caja-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.caja-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  font-size: 22px;
+  color: var(--caja-ink);
+  background: var(--caja-tint);
+  border-radius: 10px;
+}
+
+.caja-card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--caja-ink);
+}
+
+.caja-card-subtitle {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--caja-muted);
+}
+
+/* ── Botones ────────────────────────────────────────────────────────────── */
+.caja-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.caja-btn--primary {
+  color: #fff;
+  background: var(--caja-ink);
+  border: 1px solid var(--caja-ink);
+}
+
+.caja-btn--primary:hover {
+  background: var(--caja-ink-hover);
+}
+
+.caja-btn--secondary {
+  color: var(--caja-ink);
+  background: #fff;
+  border: 1px solid var(--caja-border);
+}
+
+.caja-btn--secondary:hover {
+  background: var(--caja-surface);
+}
+
+.caja-btn--block {
+  width: 100%;
+}
+
+
+/* ── Tabla (listado de asignaciones) ────────────────────────────────────── */
+.caja-table-scroll {
+  overflow-x: auto;
+}
+
+.caja-table {
+  width: 100%;
+  font-size: 14px;
+  border-collapse: collapse;
+}
+
+.caja-table th {
+  padding: 12px 24px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--caja-muted);
+  background: var(--caja-surface);
+  border-bottom: 1px solid var(--caja-border);
+}
+
+.caja-table td {
+  padding: 14px 24px;
+  white-space: nowrap;
+  color: var(--caja-ink);
+  border-bottom: 1px solid var(--caja-border);
+}
+
+.caja-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.caja-table tbody tr:hover {
+  background: #F9FAFC;
+}
+
+.caja-cell-main {
+  font-weight: 600;
+}
+
+.caja-cell-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.caja-cell-user i {
+  font-size: 16px;
+  color: var(--caja-muted);
+}
+
+.caja-cell-date {
+  font-variant-numeric: tabular-nums;
+  color: var(--caja-muted);
+}
+
+.caja-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: var(--caja-accent);
+  background: var(--caja-tint);
+  border-radius: 999px;
+}
+
+.caja-badge.status-asignada,
+.caja-badge.status-asignado,
+.caja-badge.status-pendiente {
+  color: #B7791F;
+  background: #FFF4DD;
+}
+
+.caja-badge.status-abierta,
+.caja-badge.status-abierto,
+.caja-badge.status-activa,
+.caja-badge.status-activo {
+  color: #1E8449;
+  background: #E6F6EC;
+}
+
+.caja-badge.status-cerrada,
+.caja-badge.status-cerrado,
+.caja-badge.status-inactiva,
+.caja-badge.status-inactivo {
+  color: var(--caja-muted);
+  background: #EDF0F5;
+}
+
+.caja-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--caja-muted);
+}
+
+.caja-empty i {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 32px;
+  color: #B8C2D1;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .caja-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .caja-sidebar {
+    position: static;
+    min-height: 0;
+  }
+
+  .caja-sidebar-nav {
+    flex: none;
+  }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="list-wrapper">
-<div class="list-card">
+<div class="caja-layout">
 
-    <div class="list-card-header">
-    <div class="list-card-heading">
-        <div class="list-card-icon">
-        <i class="ti ti-users-group"></i>
+  {% with current=request.resolver_match.url_name %}
+  <aside class="caja-sidebar">
+
+    <div>
+      <span class="caja-sidebar-label">Gestión de caja</span>
+      <nav class="caja-sidebar-nav">
+        <a href="{% url 'caja:asignar_cajero' %}"
+           class="caja-sidebar-link {% if current == 'asignar_cajero' %}is-active{% endif %}">
+          <i class="ti ti-user-check"></i> Asignar cajero
+        </a>
+        <a href="{% url 'caja:aperturar_caja' %}"
+           class="caja-sidebar-link {% if current == 'aperturar_caja' %}is-active{% endif %}">
+          <i class="ti ti-cash-register"></i> Apertura de caja
+        </a>
+        <a href="{% url 'caja:listar_asignaciones' %}"
+           class="caja-sidebar-link {% if current == 'listar_asignaciones' %}is-active{% endif %}">
+          <i class="ti ti-users-group"></i> Asignaciones
+        </a>
+      </nav>
+    </div>
+
+    {# Widget de sesión: misma lógica que home.html #}
+    <div class="caja-session">
+      {% if user.is_authenticated %}
+        <div class="caja-session-user">
+          <div class="caja-session-avatar"><i class="ti ti-user"></i></div>
+          <div class="caja-session-text">
+            Hola,
+            <strong>{{ user.username }}</strong>
+            <span>{{ user.email }}</span>
+          </div>
         </div>
-        <div>
-        <h2 class="list-card-title">Asignaciones de caja</h2>
-        <p class="list-card-subtitle">Cajeros asignados a cada caja y su estado actual.</p>
+
+        <!-- Botón para cerrar sesión vía Keycloak -->
+        <form action="{% url 'oidc_logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="caja-btn caja-btn--secondary caja-btn--block">
+            <i class="ti ti-logout"></i> Cerrar sesión
+          </button>
+        </form>
+      {% else %}
+        <p class="caja-session-note">No has iniciado sesión.</p>
+
+        <!-- Botón para iniciar sesión vía Keycloak -->
+        <a href="{% url 'oidc_authentication_init' %}" class="caja-btn caja-btn--primary caja-btn--block">
+          <i class="ti ti-login"></i> Iniciar sesión con Keycloak
+        </a>
+      {% endif %}
+    </div>
+
+  </aside>
+  {% endwith %}
+
+  <section class="caja-main">
+    <div class="caja-card">
+
+      <div class="caja-card-header">
+        <div class="caja-card-heading">
+          <div class="caja-card-icon">
+            <i class="ti ti-users-group"></i>
+          </div>
+          <div>
+            <h2 class="caja-card-title">Asignaciones de caja</h2>
+            <p class="caja-card-subtitle">Cajeros asignados a cada caja y su estado actual.</p>
+          </div>
         </div>
-    </div>
 
-    <a href="{% url 'caja:asignar_cajero' %}" class="btn-primary">
-        <i class="ti ti-user-plus"></i> Asignar cajero
-    </a>
-    </div>
+        <a href="{% url 'caja:asignar_cajero' %}" class="caja-btn caja-btn--primary">
+          <i class="ti ti-user-plus"></i> Asignar cajero
+        </a>
+      </div>
 
-    <div class="table-scroll">
-    <table class="data-table">
-        <thead>
-        <tr>
-            <th>Caja</th>
-            <th>Cajero</th>
-            <th>Estado</th>
-            <th>Fecha asignación</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for sesion in sesiones %}
-        <tr>
-            <td class="cell-main">{{ sesion.caja.nombre }}</td>
-            <td>
-            <span class="cell-user">
-                <i class="ti ti-user-circle"></i> {{ sesion.cajero.username }}
-            </span>
-            </td>
-            <td>
-            <span class="status-badge status-{{ sesion.estado|slugify }}">{{ sesion.estado }}</span>
-            </td>
-            <td class="cell-date">{{ sesion.fecha_asignacion|date:"Y-m-d H:i" }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4">
-            <div class="empty-state">
-                <i class="ti ti-inbox"></i>
-                No hay asignaciones registradas.
-            </div>
-            </td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    </div>
+      <div class="caja-table-scroll">
+        <table class="caja-table">
+          <thead>
+            <tr>
+              <th>Caja</th>
+              <th>Cajero</th>
+              <th>Estado</th>
+              <th>Fecha asignación</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sesion in sesiones %}
+            <tr>
+              <td class="caja-cell-main">{{ sesion.caja.nombre }}</td>
+              <td>
+                <span class="caja-cell-user">
+                  <i class="ti ti-user-circle"></i> {{ sesion.cajero.username }}
+                </span>
+              </td>
+              <td>
+                <span class="caja-badge status-{{ sesion.estado|slugify }}">{{ sesion.estado }}</span>
+              </td>
+              <td class="caja-cell-date">{{ sesion.fecha_asignacion|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4">
+                <div class="caja-empty">
+                  <i class="ti ti-inbox"></i>
+                  No hay asignaciones registradas.
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
 
-</div>
+    </div>
+  </section>
+
 </div>
 {% endblock %}

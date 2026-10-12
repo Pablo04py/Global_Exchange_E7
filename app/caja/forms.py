@@ -6,13 +6,22 @@ from operaciones.models import Moneda
 User = get_user_model()
 
 
+class CajeroChoiceField(forms.ModelChoiceField):
+    """
+    Campo personalizado para mostrar el nombre completo o email del cajero,
+    evitando mostrar los hashes generados por Keycloak.
+    """
+    def label_from_instance(self, obj):
+        return obj.get_full_name() or obj.email or obj.username
+
+
 class AsignarCajeroForm(forms.ModelForm):
     caja = forms.ModelChoiceField(
         queryset=Caja.objects.filter(estado=EstadoCaja.DISPONIBLE, activa=True),
         widget=forms.Select(attrs={'class': 'form-select'}),
         label="Caja Registradora"
     )
-    cajero = forms.ModelChoiceField(
+    cajero = CajeroChoiceField(
         queryset=User.objects.all(),
         widget=forms.Select(attrs={'class': 'form-select'}),
         label="Cajero a Asignar"

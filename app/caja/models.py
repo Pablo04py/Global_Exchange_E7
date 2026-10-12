@@ -80,31 +80,6 @@ class SesionCaja(models.Model):
         return f"Sesión {self.caja.codigo} - Cajero: {self.cajero} [{self.estado}]"
 
 
-class SaldoInicialCaja(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    sesion = models.ForeignKey(
-        SesionCaja, 
-        on_delete=models.CASCADE, 
-        related_name='saldos_iniciales'
-    )
-    # Relación dinámica con el modelo Moneda de la app operaciones
-    moneda = models.ForeignKey(
-        'operaciones.Moneda', 
-        on_delete=models.PROTECT, 
-        related_name='saldos_iniciales'
-    )
-    monto = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
-
-    class Meta:
-        db_table = 'saldo_inicial_caja'
-        unique_together = ('sesion', 'moneda')
-        verbose_name = 'Saldo Inicial de Caja'
-        verbose_name_plural = 'Saldos Iniciales de Caja'
-
-    def __str__(self):
-        return f"{self.moneda.codigo}: {self.monto} (Sesión {self.sesion.caja.codigo})"
-
-
 class SentidoMovimiento(models.TextChoices):
     ENTRADA = 'ENTRADA', 'Entrada'
     SALIDA = 'SALIDA', 'Salida'
