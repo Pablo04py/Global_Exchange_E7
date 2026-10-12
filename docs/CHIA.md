@@ -253,7 +253,17 @@ from 'operaciones.services'
   7. **Integración con la apertura por movimientos (fix/SCRUM-37):**
      > *"por que cuando entro a apertura de caja me sale esto?"*
      >
-     > **Decisión**: La apertura pasó a registrar el fondo inicial como `MovimientoCaja` de tipo `APERTURA` y se eliminó `SaldoInicialCaja`; además se había reemplazado la plantilla `arqueos/cerrar_caja.html` por la del cierre de la app `caja`. Se movió esa plantilla a `caja/templates/caja/cerrar_caja.html` (donde la busca su vista), se restauró la del arqueo, el comando `preparar_demo_cierre` ahora usa los servicios reales `asignar_cajero` y `apertura_caja`, los tests se adaptaron al libro mayor de movimientos y el ítem "Apertura de Caja" del menú apunta a `caja:apertura_caja`. Queda pendiente con el equipo definir un único cierre (hoy coexisten `/arqueos/cerrar/` y `/caja/cerrar/`).
+     > **Decisión**: La apertura pasó a registrar el fondo inicial como `MovimientoCaja` de tipo `APERTURA` y se eliminó `SaldoInicialCaja`; además se había reemplazado la plantilla `arqueos/cerrar_caja.html` por la del cierre de la app `caja`. Se movió esa plantilla a `caja/templates/caja/cerrar_caja.html` (donde la busca su vista), se restauró la del arqueo, el comando `preparar_demo_cierre` ahora usa los servicios reales `asignar_cajero` y `apertura_caja`, los tests se adaptaron al libro mayor de movimientos y el ítem "Apertura de Caja" del menú apunta a `caja:apertura_caja`.
+
+  8. **Un único cierre de caja:**
+     > *"me dijo que elija uno y el otro saque"* (acordado con Fabio, responsable de SCRUM-36/37)
+     >
+     > **Decisión**: Se conservó el cierre de SCRUM-40 (`/arqueos/cerrar/`), del que dependen los reportes de SCRUM-41 y la habilitación de cajas bloqueadas. Se eliminó el cierre de la app `caja`: vista `cerrar_caja_view`, ruta `/caja/cerrar/`, servicio `cerrar_caja`, formulario `CierreCajaForm`, plantilla y modelo `caja.ArqueoCaja` (migración `0007_delete_arqueocaja`; la tabla estaba vacía). El botón "Cierre de caja" de las pantallas de la app `caja` ahora lleva al cierre de SCRUM-40.
+
+  9. **Cierre dentro de la app caja, junto a la apertura:**
+     > *"que el cierre de caja al final se vea dentro de la apertura de caja y no redirija a nuestro apartado de cierre de caja"* y luego *"puedes poner como dos opciones distintas apertura y otra opción cierre de caja"*
+     >
+     > **Decisión**: El cierre con arqueo ciego se hace en la app `caja`, en `/caja/cierre/` (`caja:cierre_caja`), que muestra el formulario, el resultado del arqueo tras cerrar (`?arqueo=<id>`, solo el propio) o un aviso con acceso a la apertura. La apertura (`caja:apertura_caja`) confirma el éxito dentro de la tarjeta (`?abierta=1`) y, con la caja abierta, ofrece "Ir a cierre de caja". La lógica del cierre sigue en la app `arqueos` (`CierreCajaForm`, `registrar_cierre`) y se reutiliza. `/arqueos/cerrar/` queda solo como redirección. El menú blanco de la app caja tiene "Apertura de caja" y "Cierre de caja" por separado; el menú lateral principal tiene una sola opción, "Apertura y Cierre de Caja". Se reemplazó el ícono `ti-cash-register`, inexistente en la versión de Tabler del proyecto, por `ti-cash`. Cambios en código de Fabio (SCRUM-37) autorizados por el usuario.
 
 * **Resultado / Decisión**: 56 pruebas en `app/tests/arqueos/` (cálculo, registro, cierre del turno y bloqueo con los modelos reales de `caja`, inmutabilidad, integración, vistas y modo demostración). Suite completa del proyecto: 176 pruebas en verde (incluye `tests/main/test_menu_varios_roles.py`). Cierre y habilitación verificados de punta a punta en el navegador con el modo demostración.
 

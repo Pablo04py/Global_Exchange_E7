@@ -1,7 +1,7 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Apertura de Caja · Global Exchange{% endblock %}
-{% block page_title %}Apertura de Caja{% endblock %}
+{% block title %}{% if request.resolver_match.url_name == 'cierre_caja' %}Cierre{% else %}Apertura{% endif %} de Caja · Global Exchange{% endblock %}
+{% block page_title %}{% if request.resolver_match.url_name == 'cierre_caja' %}Cierre{% else %}Apertura{% endif %} de Caja{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -375,6 +375,120 @@
   white-space: nowrap;
 }
 
+/* ── Cierre y resultado del arqueo (SCRUM-40) ───────────────────────────── */
+.caja-btn--danger {
+  color: #fff;
+  background: var(--caja-danger);
+  border: 1px solid var(--caja-danger);
+}
+
+.caja-btn--danger:hover {
+  background: #A93226;
+}
+
+.caja-aviso {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--caja-muted);
+}
+
+.caja-aviso > i {
+  font-size: 36px;
+}
+
+.caja-aviso h4 {
+  margin: 10px 0 6px;
+  font-size: 15px;
+  color: var(--caja-ink);
+}
+
+.caja-aviso p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.caja-table-wrap {
+  overflow-x: auto;
+  padding: 8px 24px 0;
+}
+
+.caja-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.caja-table th {
+  padding: 10px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: right;
+  text-transform: uppercase;
+  color: var(--caja-muted);
+  border-bottom: 1px solid var(--caja-border);
+}
+
+.caja-table td {
+  padding: 10px 8px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--caja-ink);
+  border-bottom: 1px solid var(--caja-border);
+}
+
+.caja-table th:first-child,
+.caja-table td:first-child {
+  text-align: left;
+}
+
+.caja-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+.caja-badge--cuadra { color: #1E7B45; background: #E3F5EA; }
+.caja-badge--sobrante { color: #8A5A00; background: #FFF4D6; }
+.caja-badge--faltante { color: var(--caja-danger); background: #FDECEA; }
+
+.caja-nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 16px 24px 24px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--caja-ink);
+  background: var(--caja-surface);
+  border-radius: 8px;
+}
+
+.caja-success {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 24px 0;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1E7B45;
+  background: #E3F5EA;
+  border: 1px solid #BFE5CC;
+  border-radius: 8px;
+}
+
+.caja-success i {
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.caja-aviso .caja-btn {
+  margin-top: 18px;
+}
+
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 860px) {
   .caja-layout {
@@ -414,10 +528,10 @@
         </a>
         <a href="{% url 'caja:apertura_caja' %}"
            class="caja-sidebar-link {% if current == 'apertura_caja' %}is-active{% endif %}">
-          <i class="ti ti-cash-register"></i> Apertura de caja
+          <i class="ti ti-cash"></i> Apertura de caja
         </a>
-        <a href="{% url 'caja:cerrar_caja' %}"
-           class="caja-sidebar-link {% if current == 'cerrar_caja' %}is-active{% endif %}">
+        <a href="{% url 'caja:cierre_caja' %}"
+           class="caja-sidebar-link {% if current == 'cierre_caja' %}is-active{% endif %}">
           <i class="ti ti-lock"></i> Cierre de caja
         </a>
         <a href="{% url 'caja:listar_asignaciones' %}"
@@ -465,15 +579,30 @@
       <div class="caja-card-header">
         <div class="caja-card-heading">
           <div class="caja-card-icon">
-            <i class="ti ti-cash-register"></i>
+            <i class="ti {% if modo == 'cierre' or modo == 'resultado' %}ti-lock{% else %}ti-cash{% endif %}"></i>
           </div>
           <div>
-            <h2 class="caja-card-title">Apertura de caja</h2>
-            <p class="caja-card-subtitle">Ingresa los montos iniciales por moneda para abrir la sesión.</p>
+            {% if modo == 'apertura' %}
+              <h2 class="caja-card-title">Apertura de caja</h2>
+              <p class="caja-card-subtitle">Ingresa los montos iniciales por moneda para abrir la sesión.</p>
+            {% elif modo == 'cierre' %}
+              <h2 class="caja-card-title">Cierre de caja y arqueo</h2>
+              <p class="caja-card-subtitle">Declará el saldo físico que contaste. Al confirmar, la caja queda bloqueada.</p>
+            {% elif modo == 'resultado' %}
+              <h2 class="caja-card-title">Resultado del cierre</h2>
+              <p class="caja-card-subtitle">Saldo registrado por el sistema frente al saldo declarado. No se puede modificar.</p>
+            {% elif request.resolver_match.url_name == 'cierre_caja' %}
+              <h2 class="caja-card-title">Cierre de caja</h2>
+              <p class="caja-card-subtitle">Cerrá tu caja al terminar el turno.</p>
+            {% else %}
+              <h2 class="caja-card-title">Apertura de caja</h2>
+              <p class="caja-card-subtitle">Abrí tu caja al empezar el turno.</p>
+            {% endif %}
           </div>
         </div>
       </div>
 
+      {% if modo == 'apertura' or modo == 'cierre' %}
       <div class="caja-info">
         <div class="caja-info-item">
           <i class="ti ti-building-store"></i>
@@ -503,7 +632,13 @@
           </div>
         {% endif %}
 
-        <h3 class="caja-form-title">Montos iniciales</h3>
+        {% if modo == 'apertura' %}
+          <h3 class="caja-form-title">Montos iniciales</h3>
+        {% else %}
+          {# Arqueo ciego: el saldo registrado no se muestra hasta después del cierre #}
+          <h3 class="caja-form-title">Saldo contado por moneda</h3>
+          <span class="caja-help">Ingresá el total contado de cada moneda. El saldo esperado se mostrará después de cerrar.</span>
+        {% endif %}
 
         {% for field in form %}
           <div class="caja-field">
@@ -519,14 +654,110 @@
         {% endfor %}
 
         <div class="caja-actions">
-          <a href="{% url 'caja:listar_asignaciones' %}" class="caja-btn caja-btn--secondary">
-            <i class="ti ti-x"></i> Cancelar
-          </a>
-          <button type="submit" class="caja-btn caja-btn--primary">
-            <i class="ti ti-lock-open"></i> Apertura caja
-          </button>
+          {% if modo == 'apertura' %}
+            <a href="{% url 'caja:listar_asignaciones' %}" class="caja-btn caja-btn--secondary">
+              <i class="ti ti-x"></i> Cancelar
+            </a>
+            <button type="submit" class="caja-btn caja-btn--primary">
+              <i class="ti ti-lock-open"></i> Apertura caja
+            </button>
+          {% else %}
+            <button type="submit" class="caja-btn caja-btn--danger"
+                    onclick="return confirm('¿Confirmás el cierre? La caja quedará bloqueada y el arqueo no se podrá modificar.');">
+              <i class="ti ti-lock"></i> Cerrar caja
+            </button>
+          {% endif %}
         </div>
       </form>
+
+      {% elif modo == 'resultado' %}
+      <div class="caja-info">
+        <div class="caja-info-item">
+          <i class="ti ti-building-store"></i>
+          <div>
+            <span class="caja-info-label">Caja</span>
+            <span class="caja-info-value">{{ arqueo.caja_nombre }}</span>
+          </div>
+        </div>
+        <div class="caja-info-item">
+          <i class="ti ti-calendar"></i>
+          <div>
+            <span class="caja-info-label">Fecha de cierre</span>
+            <span class="caja-info-value">{{ arqueo.fecha_cierre|date:"d/m/Y H:i" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="caja-table-wrap">
+        <table class="caja-table">
+          <thead>
+            <tr>
+              <th>Moneda</th>
+              <th>Registrado</th>
+              <th>Declarado</th>
+              <th>Diferencia</th>
+              <th>Resultado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in detalles %}
+            <tr>
+              <td><strong>{{ d.moneda }}</strong></td>
+              <td>{{ d.saldo_registrado|floatformat:"2g" }}</td>
+              <td>{{ d.saldo_declarado|floatformat:"2g" }}</td>
+              <td>{{ d.diferencia|floatformat:"2g" }}</td>
+              <td><span class="caja-badge caja-badge--{{ d.resultado|lower }}">{{ d.get_resultado_display }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="caja-nota">
+        <i class="ti ti-lock"></i>
+        <span>La caja quedó bloqueada y no admite nuevos cierres hasta que un Administrador General la habilite nuevamente.</span>
+      </div>
+
+      {% elif modo == 'ya_abierta' %}
+      {% if recien_abierta %}
+      <div class="caja-success">
+        <i class="ti ti-circle-check"></i>
+        <span>Apertura de la caja <strong>{{ sesion.caja.nombre }}</strong> realizada exitosamente.</span>
+      </div>
+      {% endif %}
+      <div class="caja-aviso">
+        <i class="ti ti-lock-open"></i>
+        <h4>Tu caja {{ sesion.caja.nombre }} ({{ sesion.caja.codigo }}) está abierta</h4>
+        <p>Cuando termines tu turno, hacé el cierre y el arqueo de la caja.</p>
+        <a href="{% url 'caja:cierre_caja' %}" class="caja-btn caja-btn--primary">
+          <i class="ti ti-lock"></i> Ir a cierre de caja
+        </a>
+      </div>
+
+      {% elif modo == 'sin_caja_cierre' %}
+      <div class="caja-aviso">
+        <i class="ti ti-lock"></i>
+        <h4>No tenés una caja abierta para cerrar</h4>
+        <p>Para cerrar una caja primero tiene que estar asignada a vos y abierta.</p>
+        <a href="{% url 'caja:apertura_caja' %}" class="caja-btn caja-btn--primary">
+          <i class="ti ti-cash"></i> Ir a apertura de caja
+        </a>
+      </div>
+
+      {% elif modo == 'modulo_no_disponible' %}
+      <div class="caja-aviso">
+        <i class="ti ti-plug-connected-x"></i>
+        <h4>El módulo de caja todavía no está disponible</h4>
+        <p>El cierre se habilitará cuando estén integradas la asignación y la apertura de cajas.</p>
+      </div>
+
+      {% else %}
+      <div class="caja-aviso">
+        <i class="ti ti-cash"></i>
+        <h4>No tenés ninguna caja asignada pendiente de apertura</h4>
+        <p>Un administrador tiene que asignarte una caja antes de empezar el turno.</p>
+      </div>
+      {% endif %}
 
     </div>
   </section>

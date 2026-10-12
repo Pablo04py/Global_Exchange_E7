@@ -6,7 +6,7 @@ from django.db.models import Q, Sum
 from django.utils import timezone
 
 from .models import (
-    ArqueoCaja, Caja, EstadoCaja, EstadoSesionCaja, MovimientoCaja,
+    Caja, EstadoCaja, EstadoSesionCaja, MovimientoCaja,
     SentidoMovimiento, SesionCaja, TipoMovimiento,
 )
 
@@ -83,46 +83,6 @@ def apertura_caja(cajero, montos):
     caja.save()
     sesion.caja = caja
     return sesion
-
-
-@transaction.atomic
-def cerrar_caja(cajero, declarados):
-    """Cierre/arqueo: compara, moneda por moneda, lo declarado contra el saldo del sistema.
-
-    `declarados` es {'PYG': Decimal, ...}. Devuelve (sesion, [ArqueoCaja]).
-    """
-    sesion = (
-        SesionCaja.objects.select_for_update()
-        .filter(cajero=cajero, estado=EstadoSesionCaja.ABIERTA)
-        .first()
-    )
-    if not sesion:
-        raise ValidationError("No tienes ninguna caja abierta para cerrar.")
-
-    caja = Caja.objects.select_for_update().get(pk=sesion.caja_id)
-    saldos = saldo_por_moneda(sesion)
-
-    arqueos = []
-    for moneda in sorted(set(saldos) | set(declarados)):
-        sistema = saldos.get(moneda, CERO)
-        declarado = declarados.get(moneda, CERO)
-        arqueos.append(ArqueoCaja.objects.create(
-            sesion=sesion, moneda=moneda,
-            monto_sistema=sistema, monto_declarado=declarado,
-            diferencia=declarado - sistema,
-        ))
-
-    # Compatibilidad con los campos de la sesión (solo guaraníes)
-    sesion.monto_final_declarado = declarados.get(MONEDA_LOCAL, CERO)
-    sesion.monto_final_sistema = saldos.get(MONEDA_LOCAL, CERO)
-    sesion.estado = EstadoSesionCaja.CERRADA
-    sesion.fecha_cierre = timezone.now()
-    sesion.save()
-
-    caja.estado = EstadoCaja.DISPONIBLE
-    caja.save()
-    sesion.caja = caja
-    return sesion, arqueos
 
 
 @transaction.atomic

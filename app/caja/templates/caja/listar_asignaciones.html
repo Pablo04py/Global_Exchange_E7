@@ -381,10 +381,10 @@
         </a>
         <a href="{% url 'caja:apertura_caja' %}"
            class="caja-sidebar-link {% if current == 'apertura_caja' %}is-active{% endif %}">
-          <i class="ti ti-cash-register"></i> Apertura de caja
+          <i class="ti ti-cash"></i> Apertura de caja
         </a>
-        <a href="{% url 'caja:cerrar_caja' %}"
-           class="caja-sidebar-link {% if current == 'cerrar_caja' %}is-active{% endif %}">
+        <a href="{% url 'caja:cierre_caja' %}"
+           class="caja-sidebar-link {% if current == 'cierre_caja' %}is-active{% endif %}">
           <i class="ti ti-lock"></i> Cierre de caja
         </a>
         <a href="{% url 'caja:listar_asignaciones' %}"

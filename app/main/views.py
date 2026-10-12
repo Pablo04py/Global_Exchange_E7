@@ -191,8 +191,7 @@ def get_menu_sections(role, active_client, is_authenticated=False, roles=None):
             "items": [                
                 {"name": "Operar en caja", "url": reverse("caja_buscar_cliente"), "icon": "ti-user-search"},
                 {"name": "Historial del día", "url": reverse("caja_historial_dia"), "icon": "ti-history"},
-                {"name": "Apertura de Caja", "url": reverse("caja:apertura_caja"), "icon": "ti-cash-register"},
-                {"name": "Cierre de Caja", "url": reverse("cerrar_caja"), "icon": "ti-lock"},
+                {"name": "Apertura y Cierre de Caja", "url": reverse("caja:apertura_caja"), "icon": "ti-cash"},
                 {"name": "Movimientos de Efectivo", "url": "/caja/movimientos/", "icon": "ti-file-spreadsheet"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
                 {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-currency-dollar"},
@@ -303,7 +302,7 @@ def dashboard(request):
             {"label": "Transacciones hoy", "value": "142",     "sub": "+12% vs ayer",          "icon": "ti-arrows-right-left", "bg": "#DBEAFE", "color": "#2563EB"},
             {"label": "Clientes activos",  "value": str(len(associated_clients)),   "sub": "8 nuevos esta semana",  "icon": "ti-users",             "bg": "#D1FAE5", "color": "#059669"},
             {"label": "Ganancia del día",  "value": "G. 4,2M", "sub": "en 3 monedas",          "icon": "ti-trending-up",       "bg": "#FEF3C7", "color": "#D97706"},
-            {"label": "Cajas abiertas",    "value": "6 / 8",   "sub": "2 pendientes",          "icon": "ti-cash-register",     "bg": "#EDE9FE", "color": "#7C3AED"},
+            {"label": "Cajas abiertas",    "value": "6 / 8",   "sub": "2 pendientes",          "icon": "ti-cash",     "bg": "#EDE9FE", "color": "#7C3AED"},
         ],
         "Analista Cambiario": [
             {"label": "Tasa USD/PYG",      "value": "7.620",   "sub": "Actualizada hace 3min", "icon": "ti-currency-dollar",   "bg": "#DBEAFE", "color": "#2563EB"},

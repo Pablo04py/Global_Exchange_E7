@@ -53,11 +53,11 @@ class PrepararDemoCierreTestCase(TestCase):
         """Con el turno de demo y el saldo registrado real, el cajero cierra la caja."""
         self._ejecutar('cajero1')
         self.client.force_login(self.cajero)
-        response = self.client.post(reverse('cerrar_caja'), {
+        response = self.client.post(reverse('caja:cierre_caja'), {
             'saldo_PYG': '5000000', 'saldo_USD': '990', 'saldo_EUR': '1000',
         })
         arqueo = ArqueoCaja.objects.get()
-        self.assertRedirects(response, reverse('detalle_arqueo', kwargs={'arqueo_id': arqueo.id}))
+        self.assertRedirects(response, f"{reverse('caja:cierre_caja')}?arqueo={arqueo.id}")
         self.assertEqual(arqueo.detalles.get(moneda='USD').diferencia, Decimal('-10'))
         self.assertEqual(arqueo.detalles.get(moneda='PYG').resultado, 'CUADRA')
         self.assertEqual(Caja.objects.get().estado, EstadoCaja.INACTIVA)
