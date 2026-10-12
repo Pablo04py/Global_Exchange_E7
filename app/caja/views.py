@@ -11,12 +11,48 @@ from arqueos.services import registrar_cierre
 from main.views import get_menu_sections, resolve_user_role, resolve_user_roles
 
 from .models import SesionCaja, EstadoSesionCaja
-from .forms import AsignarCajeroForm, AperturaCajaForm
+from .forms import CajaForm, AsignarCajeroForm, AperturaCajaForm
 from .services import (
     asignar_cajero, apertura_caja, nombre_usuario,
 )
 
 PERMISO_ADMIN_CAJAS = 'caja.add_sesioncaja'
+
+@login_required
+@permission_required('caja.add_caja', raise_exception=True)
+def crear_caja_view(request):
+    """
+    Permite a un Administrador General registrar una nueva caja.
+
+    Las cajas nuevas se crean activas y disponibles por defecto.
+    """
+
+    if request.method == 'POST':
+        form = CajaForm(request.POST)
+
+        if form.is_valid():
+            caja = form.save()
+
+            messages.success(
+                request,
+                f"La caja '{caja.nombre}' ({caja.codigo}) fue creada correctamente."
+            )
+
+            return redirect('caja:asignar_cajero')
+
+    else:
+        form = CajaForm()
+
+    contexto = {
+        'form': form,
+        'menu_sections': _menu(request),
+    }
+
+    return render(
+        request,
+        'caja/crear_caja.html',
+        contexto
+    )
 
 
 @login_required

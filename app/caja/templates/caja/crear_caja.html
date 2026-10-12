@@ -1,0 +1,704 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Crear Caja · Global Exchange{% endblock %}
+{% block page_title %}Administración de Cajas{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Layout 2 columnas ──────────────────────────────────────────────────── */
+.caja-layout {
+  --caja-ink: #1A2840;
+  --caja-ink-hover: #26395A;
+  --caja-muted: #6B7A90;
+  --caja-border: #E5E9F0;
+  --caja-surface: #F5F7FA;
+  --caja-tint: #EEF3FB;
+  --caja-accent: #2F6FDE;
+  --caja-danger: #C0392B;
+
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.caja-main {
+  min-width: 0;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+.caja-sidebar {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: calc(100vh - 140px);
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--caja-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(26, 40, 64, 0.06);
+}
+
+.caja-sidebar-label {
+  display: block;
+  margin-bottom: 8px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--caja-muted);
+}
+
+.caja-sidebar-nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.caja-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--caja-ink);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.caja-sidebar-link i {
+  font-size: 18px;
+  color: var(--caja-muted);
+}
+
+.caja-sidebar-link:hover {
+  background: var(--caja-surface);
+}
+
+.caja-sidebar-link.is-active {
+  background: var(--caja-tint);
+  color: var(--caja-accent);
+}
+
+.caja-sidebar-link.is-active i {
+  color: var(--caja-accent);
+}
+
+/* Widget de sesión (parte inferior del sidebar) */
+.caja-session {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--caja-border);
+}
+
+.caja-session-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.caja-session-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  color: var(--caja-ink);
+  background: var(--caja-tint);
+  border-radius: 50%;
+}
+
+.caja-session-text {
+  min-width: 0;
+  font-size: 12px;
+  color: var(--caja-muted);
+}
+
+.caja-session-text strong,
+.caja-session-text span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.caja-session-text strong {
+  font-size: 13px;
+  color: var(--caja-ink);
+}
+
+.caja-session-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--caja-muted);
+}
+
+/* ── Tarjeta ────────────────────────────────────────────────────────────── */
+.caja-card {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--caja-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(26, 40, 64, 0.06);
+}
+
+.caja-card--narrow {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.caja-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--caja-border);
+}
+
+.caja-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.caja-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  font-size: 22px;
+  color: var(--caja-ink);
+  background: var(--caja-tint);
+  border-radius: 10px;
+}
+
+.caja-card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--caja-ink);
+}
+
+.caja-card-subtitle {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--caja-muted);
+}
+
+/* ── Botones ────────────────────────────────────────────────────────────── */
+.caja-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.caja-btn--primary {
+  color: #fff;
+  background: var(--caja-ink);
+  border: 1px solid var(--caja-ink);
+}
+
+.caja-btn--primary:hover {
+  background: var(--caja-ink-hover);
+}
+
+.caja-btn--secondary {
+  color: var(--caja-ink);
+  background: #fff;
+  border: 1px solid var(--caja-border);
+}
+
+.caja-btn--secondary:hover {
+  background: var(--caja-surface);
+}
+
+.caja-btn--block {
+  width: 100%;
+}
+
+
+/* ── Formularios ────────────────────────────────────────────────────────── */
+.caja-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+}
+
+.caja-form-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--caja-ink);
+}
+
+.caja-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.caja-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--caja-ink);
+}
+
+.caja-field input[type="text"],
+.caja-field input[type="number"],
+.caja-field input[type="email"],
+.caja-field input[type="date"],
+.caja-field input[type="password"],
+.caja-field select,
+.caja-field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--caja-ink);
+  background: #fff;
+  border: 1px solid var(--caja-border);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.caja-field input[type="number"] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.caja-field input:focus,
+.caja-field select:focus,
+.caja-field textarea:focus {
+  border-color: var(--caja-accent);
+  box-shadow: 0 0 0 3px rgba(47, 111, 222, 0.15);
+}
+
+.caja-help {
+  font-size: 12px;
+  color: var(--caja-muted);
+}
+
+.caja-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--caja-danger);
+}
+
+.caja-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--caja-danger);
+  background: #FDECEA;
+  border: 1px solid #F5C6C1;
+  border-radius: 8px;
+}
+
+.caja-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 6px;
+}
+
+/* ── Franja de datos de sesión (apertura de caja) ───────────────────────── */
+.caja-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px 24px;
+  background: var(--caja-surface);
+  border-bottom: 1px solid var(--caja-border);
+}
+
+.caja-info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.caja-info-item i {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: var(--caja-muted);
+}
+
+.caja-info-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--caja-muted);
+}
+
+.caja-info-value {
+  display: block;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--caja-ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Cierre y resultado del arqueo (SCRUM-40) ───────────────────────────── */
+.caja-btn--danger {
+  color: #fff;
+  background: var(--caja-danger);
+  border: 1px solid var(--caja-danger);
+}
+
+.caja-btn--danger:hover {
+  background: #A93226;
+}
+
+.caja-aviso {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--caja-muted);
+}
+
+.caja-aviso > i {
+  font-size: 36px;
+}
+
+.caja-aviso h4 {
+  margin: 10px 0 6px;
+  font-size: 15px;
+  color: var(--caja-ink);
+}
+
+.caja-aviso p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.caja-table-wrap {
+  overflow-x: auto;
+  padding: 8px 24px 0;
+}
+
+.caja-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.caja-table th {
+  padding: 10px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: right;
+  text-transform: uppercase;
+  color: var(--caja-muted);
+  border-bottom: 1px solid var(--caja-border);
+}
+
+.caja-table td {
+  padding: 10px 8px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--caja-ink);
+  border-bottom: 1px solid var(--caja-border);
+}
+
+.caja-table th:first-child,
+.caja-table td:first-child {
+  text-align: left;
+}
+
+.caja-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+.caja-badge--cuadra { color: #1E7B45; background: #E3F5EA; }
+.caja-badge--sobrante { color: #8A5A00; background: #FFF4D6; }
+.caja-badge--faltante { color: var(--caja-danger); background: #FDECEA; }
+
+.caja-nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 16px 24px 24px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--caja-ink);
+  background: var(--caja-surface);
+  border-radius: 8px;
+}
+
+.caja-success {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 24px 0;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1E7B45;
+  background: #E3F5EA;
+  border: 1px solid #BFE5CC;
+  border-radius: 8px;
+}
+
+.caja-success i {
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.caja-aviso .caja-btn {
+  margin-top: 18px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .caja-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .caja-sidebar {
+    position: static;
+    min-height: 0;
+  }
+
+  .caja-sidebar-nav {
+    flex: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .caja-info {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="caja-layout">
+
+  {% with current=request.resolver_match.url_name %}
+  <aside class="caja-sidebar">
+
+    <div>
+      <span class="caja-sidebar-label">Gestión de caja</span>
+      <nav class="caja-sidebar-nav">
+        {% if perms.caja.add_caja %}
+          <a href="{% url 'caja:crear_caja' %}"
+            class="caja-sidebar-link {% if current == 'crear_caja' %}is-active{% endif %}">
+            <i class="ti ti-plus"></i>
+            Crear caja
+          </a>
+        {% endif %}
+        <a href="{% url 'caja:asignar_cajero' %}"
+           class="caja-sidebar-link {% if current == 'asignar_cajero' %}is-active{% endif %}">
+          <i class="ti ti-user-check"></i> Asignar cajero
+        </a>
+        <a href="{% url 'caja:apertura_caja' %}"
+           class="caja-sidebar-link {% if current == 'apertura_caja' %}is-active{% endif %}">
+          <i class="ti ti-cash"></i> Apertura de caja
+        </a>
+        <a href="{% url 'caja:cierre_caja' %}"
+           class="caja-sidebar-link {% if current == 'cierre_caja' %}is-active{% endif %}">
+          <i class="ti ti-lock"></i> Cierre de caja
+        </a>
+        <a href="{% url 'caja:listar_asignaciones' %}"
+           class="caja-sidebar-link {% if current == 'listar_asignaciones' %}is-active{% endif %}">
+          <i class="ti ti-users-group"></i> Asignaciones
+        </a>
+      </nav>
+    </div>
+
+    {# Widget de sesión: misma lógica que home.html #}
+    <div class="caja-session">
+      {% if user.is_authenticated %}
+        <div class="caja-session-user">
+          <div class="caja-session-avatar"><i class="ti ti-user"></i></div>
+          <div class="caja-session-text">
+            Hola,
+            <strong>{{ user.get_full_name|default:user.email|default:user.username }}</strong>
+            <span>{{ user.email }}</span>
+          </div>
+        </div>
+
+        <!-- Botón para cerrar sesión vía Keycloak -->
+        <form action="{% url 'oidc_logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="caja-btn caja-btn--secondary caja-btn--block">
+            <i class="ti ti-logout"></i> Cerrar sesión
+          </button>
+        </form>
+      {% else %}
+        <p class="caja-session-note">No has iniciado sesión.</p>
+
+        <!-- Botón para iniciar sesión vía Keycloak -->
+        <a href="{% url 'oidc_authentication_init' %}" class="caja-btn caja-btn--primary caja-btn--block">
+          <i class="ti ti-login"></i> Iniciar sesión con Keycloak
+        </a>
+      {% endif %}
+    </div>
+
+  </aside>
+  {% endwith %}
+
+  <section class="caja-main">
+
+    <div class="caja-card caja-card--narrow">
+
+      <div class="caja-card-header">
+
+        <div class="caja-card-heading">
+
+          <div class="caja-card-icon">
+            <i class="ti ti-cash-register"></i>
+          </div>
+
+          <div>
+            <h2 class="caja-card-title">
+              Crear nueva caja
+            </h2>
+
+            <p class="caja-card-subtitle">
+              Registra una nueva caja para que pueda ser asignada posteriormente a un cajero.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <form
+        method="post"
+        class="caja-form"
+        novalidate
+      >
+
+        {% csrf_token %}
+
+
+        {% if form.non_field_errors %}
+
+          <div class="caja-alert">
+
+            <i class="ti ti-alert-circle"></i>
+
+            <div>
+              {% for error in form.non_field_errors %}
+                {{ error }}
+
+                {% if not forloop.last %}
+                  <br>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+          </div>
+
+        {% endif %}
+
+
+        <h3 class="caja-form-title">
+          Datos de la caja
+        </h3>
+
+
+        {% for field in form %}
+
+          <div class="caja-field">
+
+            <label for="{{ field.id_for_label }}">
+              {{ field.label }}
+            </label>
+
+            {{ field }}
+
+            {% if field.help_text %}
+              <span class="caja-help">
+                {{ field.help_text }}
+              </span>
+            {% endif %}
+
+
+            {% for error in field.errors %}
+
+              <span class="caja-error">
+                <i class="ti ti-alert-circle"></i>
+                {{ error }}
+              </span>
+
+            {% endfor %}
+
+          </div>
+
+        {% endfor %}
+
+
+        <div class="caja-actions">
+
+          <a
+            href="{% url 'dashboard' %}"
+            class="caja-btn caja-btn--secondary"
+          >
+            <i class="ti ti-x"></i>
+            Cancelar
+          </a>
+
+
+          <button
+            type="submit"
+            class="caja-btn caja-btn--primary"
+          >
+            <i class="ti ti-plus"></i>
+            Crear caja
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </section>
+
+</div>
+{% endblock %}

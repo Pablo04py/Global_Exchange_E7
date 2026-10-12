@@ -19,6 +19,38 @@ class CajeroChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.get_full_name() or obj.email or obj.username
 
+class CajaForm(forms.ModelForm):
+    """Formulario para registrar una nueva caja."""
+
+    class Meta:
+        model = Caja
+        fields = ['nombre', 'codigo']
+
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej.: Caja Principal',
+            }),
+            'codigo': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej.: CAJA-01',
+            }),
+        }
+
+        labels = {
+            'nombre': 'Nombre de la caja',
+            'codigo': 'Código de la caja',
+        }
+
+        help_texts = {
+            'nombre': 'Nombre descriptivo para identificar la caja.',
+            'codigo': 'Código único utilizado internamente por el sistema.',
+        }
+
+    def clean_codigo(self):
+        """Normaliza el código de la caja a mayúsculas."""
+        codigo = self.cleaned_data['codigo'].strip().upper()
+        return codigo
 
 class AsignarCajeroForm(forms.ModelForm):
     caja = forms.ModelChoiceField(
