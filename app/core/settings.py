@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'cotizaciones',
     'operaciones',
     'arqueos',
+    'caja',
 
     
     

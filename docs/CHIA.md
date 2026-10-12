@@ -231,3 +231,28 @@ from 'operaciones.services'
      > **Decisión**: El cajero declara un total por moneda en un **arqueo ciego** (no ve el saldo registrado hasta cerrar). `arqueos.services.registrar_cierre` calcula la diferencia (`declarado - registrado`) y el resultado (cuadra, sobrante o faltante) por moneda, guarda `ArqueoCaja` + `DetalleArqueo` y bloquea la caja dentro de una sola transacción con `SELECT ... FOR UPDATE`. Los arqueos son inmutables (`save` rechaza modificaciones; admin de solo lectura). Desbloquear la caja, crearla, asignarla y abrirla quedan en las historias de los compañeros.
 
 * **Resultado / Decisión**: 35 pruebas nuevas en `app/tests/arqueos/` (cálculo, registro, bloqueo, inmutabilidad, integración configurable con un modelo sustituto y vistas). Suite completa del proyecto: 144 pruebas en verde.
+
+
+### Registro #9 - 11/10/2026
+- **Tarea / Historia**: `SCRUM-36` (Asignación de Cajero)
+- **Autor**: Fabio Rodriguez
+- **Herramienta / Modelo**: Gemini
+- **Contexto / Objetivo**: Implementación completa del módulo de asignación de cajeros (`caja`), arquitectura MVT, validaciones de lógica de negocio, resolución de errores de importación/plantillas en Docker y armado del test suite en `tests/caja/`.
+- **Prompts Determinantes Utilizados**:
+
+1. **Resolución de Importación Circular y Estructura MVT:**
+     > *"ImportError: cannot import name 'Caja' from partially initialized module 'caja.models' (most likely due to a circular import)"*
+     >
+     > **Decisión**: Se eliminó la importación redundante en `app/caja/models.py` y se estructuró la regla de negocio `clean_cajero()` en `forms.py` para impedir doble asignación de sesión a un mismo cajero.
+
+2. **Ajuste de Test Suite en Espejo para Entorno Docker:**
+     > *"ModuleNotFoundError: No module named 'app' al ejecutar manage.py test tests.caja dentro del contenedor Docker."*
+     >
+     > **Decisión**: Se ajustaron los `imports` dentro de `tests/caja/test_models.py` y `tests/caja/test_views.py` sustituyendo el prefijo `app.` por `caja.models`, adaptándose a la raíz `/app` del contenedor web.
+
+3. **Corrección de Aserciones de Formulario en Django 4.1+:**
+     > *"AttributeError: 'HttpResponse' object has no attribute 'is_bound' en assertFormError"*
+     >
+     > **Decisión**: Se actualizó la aserción extrayendo la instancia del formulario enlazado directamente desde el contexto de la respuesta (`response.context['form']`), garantizando el chequeo correcto de los mensajes de error.
+
+- **Resultado / Decisión**: Ejecución exitosa de la suite con resultado **`OK` (4/4 tests pasados)** y plantilla `asignar_cajero.html` integrada correctamente al diseño base del sistema.
