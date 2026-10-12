@@ -223,6 +223,8 @@ def get_menu_sections(role, active_client, is_authenticated=False, roles=None):
                 {"name": "Ajuste de Tasas", "url": "/operaciones/tasas/", "icon": "ti-currency-dollar"},
                 {"name": "Simulador Divisas", "url": "/operaciones/simulador/", "icon": "ti-chart-bar"},
                 {"name": "Medios de Pago", "url": reverse("mpagos:listar"), "icon": "ti-currency-dollar"},
+                {"name": "Crear Caja","url": reverse("caja:crear_caja"),"icon": "ti-cash-register"},
+                {"name": "Asignar Cajero", "url": reverse("caja:asignar_cajero"), "icon": "ti-user-cog"},
                 {"name": "Cajas Bloqueadas", "url": reverse("cajas_bloqueadas"), "icon": "ti-lock"},
                 {"name": "Reportes de Caja", "url": reverse("reporte_arqueos"), "icon": "ti-report-analytics"},
                 {"name": "Parámetros del Sistema", "url": "/admin/parametros/", "icon": "ti-settings"},
