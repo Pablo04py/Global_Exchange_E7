@@ -1,0 +1,59 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Cierre de Caja - Global Exchange{% endblock %}
+{% block page_title %}Cierre de Caja{% endblock %}
+
+{% block extra_css %}{% include 'arqueos/_estilos.html' %}{% endblock %}
+
+{% block content %}
+<div class="aq-wrap">
+
+  <div class="aq-header">
+    <span class="aq-eyebrow">Mi caja</span>
+    <h1>Cierre de Caja y Arqueo</h1>
+    <p>Declará el saldo físico que contaste en tu caja. Al confirmar, el sistema lo compara con el saldo registrado y la caja queda bloqueada.</p>
+    {% if caja %}
+      <div class="aq-chip"><i class="ti ti-cash-register"></i><span>Caja:</span> <strong>{{ caja.caja_nombre }}</strong>{% if caja.sucursal_nombre %} <span>· {{ caja.sucursal_nombre }}</span>{% endif %}</div>
+    {% endif %}
+  </div>
+
+  <div class="aq-card">
+    {% if modulo_no_disponible %}
+      <div class="aq-aviso">
+        <i class="ti ti-plug-connected-x"></i>
+        <h4>El módulo de caja todavía no está disponible</h4>
+        <p>El cierre se habilitará cuando estén integradas la asignación y la apertura de cajas.</p>
+      </div>
+    {% elif not caja %}
+      <div class="aq-aviso">
+        <i class="ti ti-lock"></i>
+        <h4>No tenés una caja abierta asignada</h4>
+        <p>Para cerrar una caja primero tiene que estar asignada a vos y abierta.</p>
+      </div>
+    {% else %}
+      {# Arqueo ciego: no se muestra el saldo registrado hasta después del cierre #}
+      <p class="aq-ayuda">Ingresá el total contado de cada moneda. El saldo esperado se mostrará después de cerrar.</p>
+      <form method="post">
+        {% csrf_token %}
+        {% for e in form.non_field_errors %}<div class="aq-error">{{ e }}</div>{% endfor %}
+        {% for campo in form %}
+          <div class="aq-campo">
+            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+            <div style="flex:1">
+              {{ campo }}
+              {% for e in campo.errors %}<div class="aq-error">{{ e }}</div>{% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+        <div class="aq-acciones">
+          <button type="submit" class="aq-btn aq-btn-peligro"
+                  onclick="return confirm('¿Confirmás el cierre? La caja quedará bloqueada y el arqueo no se podrá modificar.');">
+            <i class="ti ti-lock"></i> Cerrar caja
+          </button>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

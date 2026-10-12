@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'mpagos',
     'cotizaciones',
     'operaciones',
+    'arqueos',
     'caja',
     'notificaciones',
     'main',
@@ -133,6 +134,10 @@ OIDC_STORE_ID_TOKEN = True
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = 'oidc_authentication_init'
+
+# Cierre de caja (SCRUM-40): función que devuelve el saldo registrado por moneda
+# de un turno de caja (ver `arqueos.integracion` y `arqueos.saldos`).
+ARQUEO_FUNCION_SALDO = config('ARQUEO_FUNCION_SALDO', default='arqueos.saldos.saldo_registrado')
 
 
 # Stripe Sandbox

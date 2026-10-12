@@ -18,7 +18,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_GET
 
 from clientes.models import Cliente
-from main.views import get_menu_sections, resolve_user_role
+from main.views import get_menu_sections, resolve_user_role, resolve_user_roles
 from usuarios.decorators import requiere_rol
 
 from .models import Moneda, TasaDeCambio, Transaccion
@@ -323,7 +323,9 @@ def historial_transacciones(request):
         )),
         'total': page_obj.paginator.count,
         'hay_filtros': any(v for k, v in request.GET.items() if k != 'page'),
-        'menu_sections': get_menu_sections(resolve_user_role(request), cliente, is_authenticated=True),
+        'menu_sections': get_menu_sections(
+            resolve_user_role(request), cliente, is_authenticated=True, roles=resolve_user_roles(request)
+        ),
     }
     return render(request, 'operaciones/historial.html', context)
 

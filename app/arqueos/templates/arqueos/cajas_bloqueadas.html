@@ -1,0 +1,84 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Cajas Bloqueadas - Global Exchange{% endblock %}
+{% block page_title %}Cajas Bloqueadas{% endblock %}
+
+{% block extra_css %}
+{% include 'arqueos/_estilos.html' %}
+<style>
+  .cb-wrap { max-width: 1000px; margin: 0 auto; }
+  .cb-card { padding: 0; overflow: hidden; }
+  .cb-btn {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600;
+    border-radius: var(--radius); padding: 7px 14px; border: 1px solid transparent; cursor: pointer;
+    background: #059669; color: #fff;
+  }
+  .cb-btn:hover { background: #047857; }
+  .cb-link { color: #2563EB; text-decoration: none; font-weight: 600; }
+  .cb-link:hover { text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cb-wrap">
+
+  <div class="aq-header">
+    <span class="aq-eyebrow">Administración</span>
+    <h1>Cajas bloqueadas por cierre</h1>
+    <p>Cajas que quedaron bloqueadas después de su cierre y arqueo. Al habilitarlas vuelven a estar disponibles para asignarse y abrirse.</p>
+  </div>
+
+  <div class="aq-card cb-card">
+    {% if modulo_no_disponible %}
+      <div class="aq-aviso">
+        <i class="ti ti-plug-connected-x"></i>
+        <h4>El módulo de caja todavía no está disponible</h4>
+      </div>
+    {% elif bloqueadas %}
+      <table class="aq-table">
+        <thead>
+          <tr>
+            <th>Caja</th>
+            <th>Último cierre</th>
+            <th>Cajero</th>
+            <th>Resultado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in bloqueadas %}
+          {% with arqueo=item.ultimo_arqueo %}
+          <tr>
+            <td><strong>{{ item.caja }}</strong></td>
+            <td><a class="cb-link" href="{% url 'detalle_arqueo' arqueo.id %}">{{ arqueo.fecha_cierre|date:"d/m/Y H:i" }}</a></td>
+            <td>{{ arqueo.cajero.get_full_name|default:arqueo.cajero.username }}</td>
+            <td>
+              {% for d in arqueo.detalles.all %}
+                <span class="aq-badge aq-badge-{{ d.resultado|lower }}">{{ d.moneda }} {{ d.get_resultado_display }}</span>
+              {% endfor %}
+            </td>
+            <td>
+              <form method="post" action="{% url 'habilitar_caja' item.caja.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="cb-btn"
+                        onclick="return confirm('¿Habilitar la caja {{ item.caja|escapejs }}? Volverá a estar disponible.');">
+                  <i class="ti ti-lock-open"></i> Habilitar
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endwith %}
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="aq-aviso">
+        <i class="ti ti-circle-check"></i>
+        <h4>No hay cajas bloqueadas</h4>
+        <p>Las cajas aparecerán aquí cuando un cajero realice su cierre.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

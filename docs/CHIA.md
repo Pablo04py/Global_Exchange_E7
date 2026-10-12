@@ -211,6 +211,46 @@ El log mostraba:
 ImportError: cannot import name 'registrar_transaccion_cancelada'
 from 'operaciones.services'
 
+---
+
+### Registro #10 - 08/10/2026
+* **Tarea / Historia**: `SCRUM-40` (Cierre de Caja y Arqueo)
+* **Autor**: Alejandro Gimenez
+* **Herramienta / Modelo**: Claude
+* **Contexto / Objetivo**: Implementar el cierre de caja del cajero (saldo físico declarado vs. saldo registrado, sobrante/faltante y bloqueo de la caja) cuando los modelos de caja, apertura y saldo registrado pertenecen a historias de otros compañeros (SCRUM-36, SCRUM-37 y otra) que aún no estaban en el repositorio.
+* **Prompts Determinantes Utilizados**:
+
+  1. **Independencia de otras historias:**
+     > *"No hay forma de hacerlo sin que él me diga?, sin depender de otro scrum?"*
+     >
+     > **Decisión**: Se creó la app propia `arqueos` (nombre que no choca con la futura app de caja). El arqueo guarda una "foto" de la caja (identificador, nombre y sucursal) en lugar de una clave foránea, por lo que su migración solo depende de `Usuario`. Toda la dependencia con las otras historias quedó concentrada en `arqueos/integracion.py`, con los nombres del modelo de caja, sus campos, estados y la función de saldo registrado configurables en `settings` (`ARQUEO_*`). Mientras esas piezas no existan, la pantalla muestra "El módulo de caja todavía no está disponible".
+
+  2. **Alcance y reglas del cierre:**
+     > *"Total por moneda está bien"* / *"la caja queda cerrada y no se puede volver a cerrar ni modificar el arqueo"*
+     >
+     > **Decisión**: El cajero declara un total por moneda en un **arqueo ciego** (no ve el saldo registrado hasta cerrar). `arqueos.services.registrar_cierre` calcula la diferencia (`declarado - registrado`) y el resultado (cuadra, sobrante o faltante) por moneda, guarda `ArqueoCaja` + `DetalleArqueo` y bloquea la caja dentro de una sola transacción con `SELECT ... FOR UPDATE`. Los arqueos son inmutables (`save` rechaza modificaciones; admin de solo lectura). Desbloquear la caja, crearla, asignarla y abrirla quedan en las historias de los compañeros.
+
+  3. **Conexión con la app `caja` de SCRUM-36 y modo demostración:**
+     > *"puedes revisar el github para ver si fabio subió el scrum [...] no hay una forma de ver como quedaría mientras no está la función?"*
+     >
+     > **Decisión**: Se mergeó `develop` en `feature/SCRUM-40` para trabajar sobre los modelos reales (`Caja` y `SesionCaja`). El turno que se cierra es `caja.SesionCaja` en estado `ABIERTA`; al cerrar, el turno pasa a `CERRADA` (con `fecha_cierre`) y la caja a `INACTIVA` (bloqueo que un Administrador revierte en otra historia). Los montos únicos de `SesionCaja` quedan vacíos porque el arqueo, por moneda, es el registro oficial; la sucursal queda vacía hasta que exista en el modelo. Para probar en el navegador sin la función real de saldo se agregó un modo demostración solo para `DEBUG`: `arqueos.demo.saldo_de_demostracion` (activable con `ARQUEO_FUNCION_SALDO` en el `.env`) y el comando `preparar_demo_cierre <usuario>`, que simula la apertura (SCRUM-37).
+
+  4. **Habilitación de la caja bloqueada:**
+     > *"pusiste para que el admin general o equivalente pueda habilitar la caja que quedó bloqueada? si no, ponlo"*
+     >
+     > **Decisión**: Se agregó la pantalla `/arqueos/cajas-bloqueadas/` (solo `Administrador General`, constante `ROLES_HABILITAR`) que lista únicamente las cajas `INACTIVA` con un arqueo registrado (para no habilitar cajas desactivadas por otros motivos) y un botón "Habilitar" (solo POST, con confirmación) que las pasa a `DISPONIBLE`, quedando nuevamente asignables desde SCRUM-36. El arqueo no se modifica.
+
+  5. **Menú para usuarios con varios roles:**
+     > *"puedes hacer que al ser admin y cajero a la vez, puedas ver las opciones de cajero?"*
+     >
+     > **Decisión**: El menú elegía un único rol por prioridad. Se agregó `main.views.resolve_user_roles` (todos los roles reconocidos, en orden de prioridad) y el parámetro opcional `roles` de `get_menu_sections`, que agrega la sección de cada rol sin repetir ítems entre secciones de rol. Con un solo rol el menú no cambia; el rol principal (etiqueta y tarjetas del dashboard) tampoco. Se agregó el ítem "Cajas Bloqueadas" en la sección Administración.
+
+  6. **Saldo registrado real (apertura SCRUM-37 + movimientos SCRUM-39):**
+     > *"podemos cambiar algo de nuestro scrum para resolver eso sin tocar sus ramas?"*
+     >
+     > **Decisión**: La apertura guarda el fondo inicial en `SaldoInicialCaja` pero no registra un `MovimientoCaja` de tipo `APERTURA`, y `caja.services.saldo_por_moneda` solo suma movimientos. Sin tocar el código de los compañeros, se creó `arqueos.saldos.saldo_registrado` (fondo inicial + entradas - salidas) como función por defecto del arqueo; suma el fondo inicial solo si el turno no tiene movimientos `APERTURA`, para no contarlo dos veces cuando la apertura los registre. El guaraní siempre se incluye (la apertura solo pide las monedas de la tabla `Moneda`). Se eliminó el saldo de demostración y el comando `preparar_demo_cierre` ahora crea el fondo inicial como la apertura real.
+
+* **Resultado / Decisión**: 56 pruebas en `app/tests/arqueos/` (cálculo, registro, cierre del turno y bloqueo con los modelos reales de `caja`, inmutabilidad, integración, vistas y modo demostración). Suite completa del proyecto: 176 pruebas en verde (incluye `tests/main/test_menu_varios_roles.py`). Cierre y habilitación verificados de punta a punta en el navegador con el modo demostración.
 
 
 ### Registro #10 - 11/10/2026

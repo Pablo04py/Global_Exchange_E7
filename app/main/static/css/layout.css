@@ -103,6 +103,8 @@ body.sidebar-collapsed .logo-text { opacity: 0; pointer-events: none; }
   flex-direction: column;
   gap: 2px;
 }
+/* Los ítems y títulos no se achican: si no entran, el menú se desplaza (scroll) en vez de recortarlos */
+.sidebar-nav > * { flex-shrink: 0; }
 .sidebar-nav::-webkit-scrollbar { width: 4px; }
 .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 

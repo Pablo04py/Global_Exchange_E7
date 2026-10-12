@@ -1,0 +1,51 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Arqueo de Caja - Global Exchange{% endblock %}
+{% block page_title %}Arqueo de Caja{% endblock %}
+
+{% block extra_css %}{% include 'arqueos/_estilos.html' %}{% endblock %}
+
+{% block content %}
+<div class="aq-wrap">
+
+  <div class="aq-header">
+    <span class="aq-eyebrow">Arqueo registrado</span>
+    <h1>Resultado del cierre</h1>
+    <p>Comparación entre el saldo registrado por el sistema y el saldo físico declarado. Este registro no se puede modificar.</p>
+    <div class="aq-chip"><i class="ti ti-cash-register"></i><span>Caja:</span> <strong>{{ arqueo.caja_nombre }}</strong>{% if arqueo.sucursal_nombre %} <span>· {{ arqueo.sucursal_nombre }}</span>{% endif %}</div>
+  </div>
+
+  <div class="aq-card">
+    <div class="aq-meta">
+      <div>Cajero: <strong>{{ arqueo.cajero.get_full_name|default:arqueo.cajero.username }}</strong></div>
+      <div>Fecha de cierre: <strong>{{ arqueo.fecha_cierre|date:"d/m/Y H:i" }}</strong></div>
+    </div>
+
+    <table class="aq-table">
+      <thead>
+        <tr>
+          <th>Moneda</th>
+          <th>Saldo registrado</th>
+          <th>Saldo declarado</th>
+          <th>Diferencia</th>
+          <th>Resultado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in detalles %}
+        <tr>
+          <td><strong>{{ d.moneda }}</strong></td>
+          <td>{{ d.saldo_registrado|floatformat:"2g" }}</td>
+          <td>{{ d.saldo_declarado|floatformat:"2g" }}</td>
+          <td>{{ d.diferencia|floatformat:"2g" }}</td>
+          <td><span class="aq-badge aq-badge-{{ d.resultado|lower }}">{{ d.get_resultado_display }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="aq-bloqueo"><i class="ti ti-lock"></i> La caja quedó bloqueada y no admite nuevos cierres hasta que un Administrador General la habilite nuevamente.</div>
+  </div>
+
+</div>
+{% endblock %}
