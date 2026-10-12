@@ -280,7 +280,7 @@ from 'operaciones.services'
 
 ---
 
-### Registro #10 - 11/10/2026
+### Registro #9 - 11/10/2026
 - **Tarea / Historia**: `SCRUM-36` (Asignación de Cajero)
 - **Autor**: Fabio Rodriguez
 - **Herramienta / Modelo**: Gemini
@@ -333,6 +333,7 @@ from 'operaciones.services'
 
 ### 4. Resultado de Verificación
 - **Migraciones:** Regenerada la migración `0002_saldoinicialcaja.py` para reflejar la relación FK con `operaciones.Moneda`.
+<<<<<<< Updated upstream
 - **Tests Unitarios:** Ejecución exitosa de la suite completa con `docker compose exec web python manage.py test tests.caja`.
 
 Registro #11 - 12/10/2026
@@ -705,3 +706,6 @@ Registro #11 - 12/10/2026
   - `static/js/layout.js`: apertura/cierre del dropdown, marcado AJAX y comportamiento del toast.
 
 * **Resultado / Decisión**: Se implementó un sistema reutilizable de notificaciones internas integrado al diseño existente de Global Exchange. Los cambios de cotización generan una notificación persistente para los usuarios activos, mostrando los valores anteriores y nuevos de compra y venta. Cada usuario mantiene independientemente su estado de lectura, puede consultar los avisos desde la campana global y recibe un aviso visual al ingresar al Dashboard. La arquitectura queda preparada para reutilizar el mismo mecanismo con futuros eventos de pagos, operaciones y mensajes del sistema, sin crear implementaciones paralelas.
+=======
+- **Tests Unitarios:** Ejecución exitosa de la suite completa con `docker compose exec web python manage.py test tests.caja`.
+>>>>>>> Stashed changes
