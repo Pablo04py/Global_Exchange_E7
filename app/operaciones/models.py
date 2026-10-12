@@ -151,6 +151,12 @@ class Transaccion(models.Model):
 
     MONEDA_LOCAL = 'PYG'
 
+    class Canal(models.TextChoices):
+        """Canal por el que se originó la operación."""
+        WEB = 'WEB', 'Web'
+        CAJA = 'CAJA', 'Caja (presencial)'
+
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, related_name='transacciones')
     usuario = models.ForeignKey(
@@ -176,6 +182,7 @@ class Transaccion(models.Model):
     estado = models.CharField(max_length=20, choices=Estado.choices, default=Estado.PENDIENTE)
     # default en lugar de auto_now_add para poder registrar operaciones con fecha pasada
     fecha = models.DateTimeField(default=timezone.now)
+    canal = models.CharField(max_length=10, choices=Canal.choices, default=Canal.WEB)
 
     class Meta:
         """Nombres legibles, orden de más reciente a más antigua e índice por cliente."""

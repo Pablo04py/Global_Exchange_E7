@@ -1,7 +1,7 @@
 """Rutas de la aplicación operaciones (monedas, tasas, simulador e historial)."""
 
 from django.urls import path
-from . import views
+from . import views, views_caja
 
 urlpatterns = [
     path('', views.lista_monedas, name='lista_monedas'),
@@ -18,5 +18,9 @@ urlpatterns = [
     path('pagos/stripe/webhook/', views.stripe_webhook, name='stripe_webhook'),
     path('operar/<uuid:transaccion_id>/pago/estado/', views.estado_pago_stripe, name='estado_pago_stripe'),
     path('operar/<uuid:transaccion_id>/pagar/sipap/', views.confirmar_pago_sipap, name='confirmar_pago_sipap'),
-    path('operar/<uuid:transaccion_id>/pagar/efectivo/', views.confirmar_pago_efectivo, name='confirmar_pago_efectivo'),
+    path('operar/<uuid:transaccion_id>/pagar/efectivo/', views.confirmar_pago_efectivo, name='confirmar_pago_efectivo'),  # Caja (operaciones presenciales del cajero)
+    path('caja/', views_caja.buscar_cliente_caja, name='caja_buscar_cliente'),
+    path('caja/historial/', views_caja.historial_caja_dia, name='caja_historial_dia'),
+    path('caja/ticket/<uuid:transaccion_id>/', views_caja.ticket_caja, name='caja_ticket'),
+    path('caja/<uuid:cliente_id>/operar/', views_caja.operar_en_caja_view, name='caja_operar'),
 ]

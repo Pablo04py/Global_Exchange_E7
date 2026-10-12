@@ -49,7 +49,7 @@ def operar_en_caja(cajero, cliente, tipo_operacion, moneda, monto,
     tx.save(update_fields=['cajero'])
 
     cambiar_estado_transaccion(
-        tx, Transaccion.Estado.CONFIRMADA, cajero,
+        tx, Transaccion.Estado.PAGADA, cajero,
         motivo=f"Operación presencial en {sesion.caja} ({medio_pago.get_tipo_display()})",
     )
     caja_gateway.registrar_movimiento(sesion, tx)
