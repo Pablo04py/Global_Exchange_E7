@@ -34,6 +34,9 @@ from .services import (
 
 from .pagos.stripe_service import crear_payment_intent_tarjeta_guardada
 
+from django.db import transaction
+from notificaciones.services import crear_notificacion_cambio_tasa
+
 @requiere_rol('Administrador General')
 def lista_monedas(request):
     """Lista todas las monedas registradas.
@@ -136,15 +139,42 @@ def crear_tasa(request, moneda_id=None):
 
     Returns:
         HttpResponse: Formulario o redirección a `lista_tasas`.
+    
+    Al registrar una nueva tasa:
+    - conserva el historial existente;
+    - identifica la tasa vigente anterior;
+    - registra la nueva tasa;
+    - genera una notificación para los usuarios del sistema.
     """
     # Si viene un moneda_id por la URL, buscamos la moneda. Si no, queda en None.
     moneda_inicial = get_object_or_404(Moneda, id=moneda_id) if moneda_id else None
 
     if request.method == 'POST':
         form = TasaDeCambioForm(request.POST)
+
         if form.is_valid():
-            form.save()
+
+            moneda = form.cleaned_data['moneda']
+
+            tasa_anterior = TasaDeCambio.objects.filter(moneda=moneda).order_by('-fecha_vigencia').first()
+
+            with transaction.atomic():
+
+                tasa_nueva = form.save()
+
+                crear_notificacion_cambio_tasa(
+                    tasa_nueva=tasa_nueva,
+                    tasa_anterior=tasa_anterior,
+                    usuario=request.user
+                )
+
+            messages.success(
+                request,
+                f"La tasa de {moneda.codigo} fue actualizada correctamente."
+            )
+
             return redirect('lista_tasas')
+
     else:
         form = TasaDeCambioForm(initial={'moneda': moneda_inicial} if moneda_inicial else None)
 

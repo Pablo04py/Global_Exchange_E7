@@ -102,3 +102,209 @@ backButton?.addEventListener('click', () => {
 
   window.location.href = dashboardUrl;
 });
+
+// ── Notificaciones ─────────────────────────────────────────────
+
+const notificationTrigger =
+  document.getElementById('notificationTrigger');
+
+const notificationDropdown =
+  document.getElementById('notificationDropdown');
+
+const notificationCount =
+  document.getElementById('notificationCount');
+
+const notificationReadAll =
+  document.getElementById('notificationReadAll');
+
+
+notificationTrigger?.addEventListener('click', (event) => {
+
+  event.stopPropagation();
+
+  notificationDropdown?.classList.toggle('open');
+
+  // Cerrar menú de usuario si está abierto
+  userDropdown?.classList.remove('open');
+});
+
+
+notificationDropdown?.addEventListener('click', (event) => {
+  event.stopPropagation();
+});
+
+
+document.addEventListener('click', () => {
+  notificationDropdown?.classList.remove('open');
+});
+
+
+function actualizarContadorNotificaciones(cantidad) {
+
+  if (!notificationCount) {
+    return;
+  }
+
+  if (cantidad > 0) {
+
+    notificationCount.textContent = cantidad;
+    notificationCount.style.display = 'flex';
+
+  } else {
+
+    notificationCount.textContent = '';
+    notificationCount.style.display = 'none';
+  }
+}
+
+
+document
+  .querySelectorAll('.notification-mark-read')
+  .forEach(button => {
+
+    button.addEventListener('click', async (event) => {
+
+      event.stopPropagation();
+
+      const url = button.dataset.url;
+
+      if (!url) {
+        return;
+      }
+
+      try {
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            'No se pudo marcar la notificación como leída.'
+          );
+        }
+
+        const data = await response.json();
+
+        const notificationItem =
+          button.closest('.notification-item');
+
+        notificationItem?.classList.remove('unread');
+
+        button.remove();
+
+        actualizarContadorNotificaciones(
+          data.pendientes
+        );
+
+        if (data.pendientes === 0) {
+          notificationReadAll?.remove();
+        }
+
+      } catch (error) {
+
+        console.error(
+          'Error al marcar notificación:',
+          error
+        );
+      }
+    });
+  });
+
+
+notificationReadAll?.addEventListener(
+  'click',
+  async (event) => {
+
+    event.stopPropagation();
+
+    const url = notificationReadAll.dataset.url;
+
+    if (!url) {
+      return;
+    }
+
+    try {
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          'No se pudieron marcar las notificaciones.'
+        );
+      }
+
+      document
+        .querySelectorAll('.notification-item.unread')
+        .forEach(item => {
+          item.classList.remove('unread');
+        });
+
+
+      document
+        .querySelectorAll('.notification-mark-read')
+        .forEach(button => {
+          button.remove();
+        });
+
+
+      actualizarContadorNotificaciones(0);
+
+      notificationReadAll.remove();
+
+    } catch (error) {
+
+      console.error(
+        'Error al marcar todas las notificaciones:',
+        error
+      );
+    }
+  }
+);
+
+// ── Toast de notificación ─────────────────────────────────────
+
+const notificationToast =
+  document.getElementById('notificationToast');
+
+const notificationToastClose =
+  document.getElementById('notificationToastClose');
+
+
+function cerrarNotificationToast() {
+
+  if (!notificationToast) {
+    return;
+  }
+
+  notificationToast.classList.add('hide');
+
+  setTimeout(() => {
+    notificationToast.remove();
+  }, 250);
+}
+
+
+notificationToastClose?.addEventListener(
+  'click',
+  cerrarNotificationToast
+);
+
+
+if (notificationToast) {
+
+  setTimeout(() => {
+    cerrarNotificationToast();
+  }, 8000);
+
+}
