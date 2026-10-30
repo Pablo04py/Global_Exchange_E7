@@ -238,6 +238,54 @@ Detalle de Operación
     background: #F8FAFC;
   }
 
+  .invoice-section {
+    margin-top: 18px;
+  }
+
+  .invoice-section h3 {
+    margin: 0 0 14px;
+    color: #0F172A;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .invoice-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .invoice-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 14px;
+
+    border-radius: 8px;
+
+    background: #2563EB;
+    color: #FFFFFF;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    text-decoration: none;
+  }
+
+  .invoice-button:hover {
+    background: #1D4ED8;
+  }
+
+  .invoice-button-secondary {
+    background: #475569;
+  }
+
+  .invoice-button-secondary:hover {
+    background: #334155;
+  }
+
   @media (max-width: 640px) {
     .detail-card {
       padding: 18px;
@@ -463,6 +511,75 @@ Detalle de Operación
       <hr class="detail-divider">
       <div class="payment-cancelled">
         Esta operación fue cancelada.
+      </div>
+    {% endif %}
+
+    {% if factura %}
+      <hr class="detail-divider">
+
+      <div class="invoice-section">
+
+        <h3>Factura electrónica</h3>
+
+        <div class="detail-grid">
+
+          <div class="detail-item">
+            <span class="detail-label">
+              Número de factura
+            </span>
+
+            <span class="detail-value">
+              {{ factura.numero_documento }}
+            </span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">
+              Estado
+            </span>
+
+            <span class="detail-value">
+              {{ factura.get_estado_display }}
+            </span>
+          </div>
+
+          {% if factura.cdc %}
+            <div class="detail-item detail-item-full">
+              <span class="detail-label">
+                CDC
+              </span>
+
+              <span class="detail-value">
+                {{ factura.cdc }}
+              </span>
+            </div>
+          {% endif %}
+
+        </div>
+
+
+        {% if factura.estado == 'APROBADA' %}
+
+          <div class="invoice-actions">
+
+            <a
+              href="{% url 'facturacion:descargar_kude' factura.id %}"
+              class="invoice-button"
+            >
+              Descargar KuDE
+            </a>
+
+            <a
+              href="{% url 'facturacion:descargar_xml' factura.id %}"
+              class="invoice-button invoice-button-secondary"
+            >
+              Descargar XML
+            </a>
+
+          </div>
+
+        {% endif %}
+
       </div>
     {% endif %}
 

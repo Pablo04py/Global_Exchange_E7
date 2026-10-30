@@ -4,6 +4,8 @@ from django.db import models
 import uuid
 from django.db import models
 from usuarios.models import Usuario
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 
 class Cliente (models.Model):
     """Cliente de la casa de cambios (persona física o jurídica).
@@ -31,10 +33,24 @@ class Cliente (models.Model):
     tipo_persona = models.CharField(max_length = 10, choices= TipoPersona.choices)
     nombre_o_denominacion = models.CharField(max_length=255)
     documento = models.CharField(max_length=50, unique=True)
+    digito_verificador = models.CharField(max_length=1, blank=True, null=True, validators=[RegexValidator(regex=r'^\d$', message='El dígito verificador debe ser un número de 0 a 9.')], verbose_name='Dígito verificador')
     categoria = models.CharField(max_length=20, choices=Categoria.choices, default=Categoria.MINORISTA)
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
     stripe_customer_id = models.CharField(max_length=255,blank=True,null=True,unique=True,help_text="Identificador del cliente asociado en Stripe.")
+
+    def clean(self):
+        super().clean()
+
+        if self.tipo_persona == self.TipoPersona.JURIDICA:
+            if not self.digito_verificador:
+                raise ValidationError({
+                    'digito_verificador':
+                        'El dígito verificador es obligatorio para una persona jurídica.'
+                })
+
+        if self.tipo_persona == self.TipoPersona.FISICA:
+            self.digito_verificador = None
 
     def __str__(self):
         """Devuelve el nombre o denominación del cliente."""
