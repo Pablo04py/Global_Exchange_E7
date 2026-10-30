@@ -33,5 +33,5 @@ urlpatterns = [
     #ruta a caja
     path('caja/', include('caja.urls', namespace='caja')),
     path('notificaciones/', include('notificaciones.urls', namespace='notificaciones')),
-
+    path('facturacion/', include('facturacion.urls', namespace='facturacion')),
 ]

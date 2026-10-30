@@ -1,5 +1,6 @@
 from decimal import Decimal, ROUND_HALF_UP
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
@@ -347,6 +348,48 @@ def registrar_transaccion_cancelada(
         ),
     )
 
+def iniciar_facturacion_transaccion(
+    transaccion_id
+):
+    """
+    Inicia la facturación electrónica después
+    de confirmar una transacción como PAGADA.
+
+    Un fallo de facturación nunca revierte
+    el pago confirmado.
+    """
+
+    if not settings.FACTURACION_EMISION_AUTOMATICA:
+        return
+
+    try:
+        from facturacion.services.emision import (
+            emitir_factura,
+        )
+
+        transaccion = (
+            Transaccion.objects
+            .select_related(
+                'cliente',
+                'usuario',
+                'moneda',
+                'medio_pago',
+            )
+            .get(id=transaccion_id)
+        )
+
+        emitir_factura(
+            transaccion
+        )
+
+    except Exception as exc:
+        print(
+            'ERROR FACTURACIÓN:',
+            type(exc).__name__,
+            str(exc),
+            flush=True,
+        )
+
 @transaction.atomic
 def cambiar_estado_transaccion(transaccion, nuevo_estado, usuario, motivo=""):
     """
@@ -380,4 +423,15 @@ def cambiar_estado_transaccion(transaccion, nuevo_estado, usuario, motivo=""):
         motivo=motivo
     )
 
+    if nuevo_estado == Transaccion.Estado.PAGADA:
+
+        transaccion_id = transaccion.id
+
+        transaction.on_commit(
+            lambda: iniciar_facturacion_transaccion(
+                transaccion_id
+            )
+        )
+
     return transaccion
+

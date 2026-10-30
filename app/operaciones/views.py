@@ -37,6 +37,9 @@ from .pagos.stripe_service import crear_payment_intent_tarjeta_guardada
 from django.db import transaction
 from notificaciones.services import crear_notificacion_cambio_tasa
 
+from facturacion.services.emision import sincronizar_estado_sifen
+from facturacion.services.factura_segura import FacturaSeguraError
+
 @requiere_rol('Administrador General')
 def lista_monedas(request):
     """Lista todas las monedas registradas.
@@ -465,11 +468,32 @@ def detalle_transaccion(request, transaccion_id):
 
     transaccion = get_object_or_404(Transaccion.objects.select_related('cliente','usuario','moneda','medio_pago'),id=transaccion_id,cliente=cliente)
 
+    factura = getattr(transaccion, 'factura', None)
+
+    if (
+        factura
+        and factura.cdc
+        and factura.estado
+        == factura.Estado.EMITIDA
+    ):
+        try:
+            factura = sincronizar_estado_sifen(
+                factura
+            )
+
+        except FacturaSeguraError as exc:
+            print(
+                'ERROR CONSULTANDO SIFEN:',
+                str(exc),
+                flush=True,
+            )
+
     return render(
         request,
         'operaciones/detalle_transaccion.html',
         {
             'transaccion': transaccion,
+            'factura': factura,
             'stripe_publishable_key': (
                 settings.STRIPE_PUBLISHABLE_KEY
             ),

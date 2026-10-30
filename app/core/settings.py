@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'caja',
     'notificaciones',
     'main',
+    'facturacion',
     
     # Librerías de terceros
     'mozilla_django_oidc',
@@ -145,3 +146,9 @@ STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
 STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='')
 STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
 STRIPE_CURRENCY = config('STRIPE_CURRENCY', default='pyg').lower()
+
+#Facturacion
+FACTURA_SEGURA_BASE_URL = config('FACTURA_SEGURA_BASE_URL', default='https://apitest.facturasegura.com.py')
+FACTURA_SEGURA_TOKEN = config('FACTURA_SEGURA_TOKEN', default='')
+FACTURA_SEGURA_TIMEOUT = config('FACTURA_SEGURA_TIMEOUT', default=20, cast=int)
+FACTURACION_EMISION_AUTOMATICA = config('FACTURACION_EMISION_AUTOMATICA', default=False, cast=bool,)

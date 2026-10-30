@@ -19,5 +19,38 @@
         </a>
       </div>
   </form>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const tipoPersona = document.getElementById("id_tipo_persona");
+      const dv = document.getElementById("id_digito_verificador");
+
+      if (!tipoPersona || !dv) {
+          return;
+      }
+
+      const contenedorDv = dv.closest("p");
+
+      function actualizarCampos() {
+          const esJuridica = tipoPersona.value === "JURIDICA";
+
+          if (contenedorDv) {
+              contenedorDv.style.display = esJuridica ? "" : "none";
+          }
+
+          if (!esJuridica) {
+              dv.value = "";
+          }
+      }
+
+      tipoPersona.addEventListener(
+          "change",
+          actualizarCampos
+      );
+
+      actualizarCampos();
+  });
+  </script>
+
 </div>
 {% endblock %}
