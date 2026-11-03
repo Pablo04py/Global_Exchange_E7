@@ -1,4 +1,4 @@
-"""Modelos de la aplicación comprobantes (cola de envíos por email)."""
+"""Modelos de la aplicación comprobantes (cola de envíos de facturas por email)."""
 
 import uuid
 
@@ -6,25 +6,26 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
-from operaciones.models import Transaccion
+from facturacion.models import FacturaElectronica
 
 
 class EnvioComprobante(models.Model):
-    """Envío por email del comprobante de una transacción pagada.
+    """Envío por email del KuDE de una factura electrónica aprobada.
 
-    Funciona como cola: si el servidor SMTP falla, el registro queda `PENDIENTE`
-    con la fecha del próximo intento y el comando `procesar_envios` lo reintenta.
-    Pasada la ventana de reintentos (1 hora por defecto) queda `FALLIDO`.
+    Funciona como cola: el envío se crea `PENDIENTE` cuando la factura pasa a
+    `APROBADA` y lo procesa el comando `procesar_envios`. Si el servidor SMTP o
+    Factura Segura fallan, se programa el próximo intento; pasada la ventana de
+    reintentos (1 hora por defecto) queda `FALLIDO`.
 
     Attributes:
         id: Identificador UUID, no editable.
-        transaccion: Transacción cuyo comprobante se envía (uno por transacción).
+        factura: Factura cuyo KuDE se envía (un envío por factura).
         destinatarios: Emails de los usuarios asociados al cliente.
         estado: `PENDIENTE`, `ENVIADO` o `FALLIDO`.
         intentos: Cantidad de intentos de envío realizados.
-        ultimo_error: Mensaje del último error de SMTP.
+        ultimo_error: Mensaje del último error.
         fecha_creacion: Momento en que se encoló el envío; inicio de la ventana de reintentos.
-        proximo_intento: Momento a partir del cual se puede volver a intentar.
+        proximo_intento: Momento a partir del cual se puede intentar el envío.
         fecha_envio: Momento en que el correo se envió con éxito.
     """
 
@@ -35,7 +36,7 @@ class EnvioComprobante(models.Model):
         FALLIDO = 'FALLIDO', 'Fallido'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    transaccion = models.ForeignKey(Transaccion, on_delete=models.PROTECT, related_name='envios_comprobante')
+    factura = models.OneToOneField(FacturaElectronica, on_delete=models.PROTECT, related_name='envio_email')
     destinatarios = ArrayField(models.EmailField())
     estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
     intentos = models.PositiveIntegerField(default=0)
@@ -45,15 +46,12 @@ class EnvioComprobante(models.Model):
     fecha_envio = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        """Nombres legibles, orden por antigüedad y un solo envío por transacción."""
-        verbose_name = "Envío de comprobante"
-        verbose_name_plural = "Envíos de comprobantes"
+        """Nombres legibles, orden por antigüedad e índice para buscar pendientes."""
+        verbose_name = "Envío de factura por email"
+        verbose_name_plural = "Envíos de facturas por email"
         ordering = ['-fecha_creacion']
-        constraints = [
-            models.UniqueConstraint(fields=['transaccion'], name='envio_unico_por_transaccion'),
-        ]
         indexes = [models.Index(fields=['estado', 'proximo_intento'])]
 
     def __str__(self):
-        """Devuelve `Comprobante <id de transacción> - ESTADO`."""
-        return f"Comprobante {self.transaccion_id} - {self.get_estado_display()}"
+        """Devuelve `Factura <número> - ESTADO`."""
+        return f"Factura {self.factura.numero_documento} - {self.get_estado_display()}"

@@ -45,6 +45,9 @@
             <li>
                     <a class="function" href="#historial_caja_dia">historial_caja_dia</a>
             </li>
+            <li>
+                    <a class="function" href="#saldo_caja">saldo_caja</a>
+            </li>
     </ul>
 
 
@@ -177,7 +180,7 @@
 </span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>
 </span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="nd">@requiere_rol</span><span class="p">(</span><span class="s1">'Cajero'</span><span class="p">)</span>
 </span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="k">def</span><span class="w"> </span><span class="nf">historial_caja_dia</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="w">    </span><span class="sd">"""Operaciones que el cajero actual confirmó hoy, con el saldo de su caja."""</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="w">    </span><span class="sd">"""Operaciones que el cajero actual confirmó hoy."""</span>
 </span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>    <span class="n">hoy</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">localdate</span><span class="p">()</span>
 </span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>    <span class="n">transacciones</span> <span class="o">=</span> <span class="p">(</span>
 </span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>        <span class="n">Transaccion</span><span class="o">.</span><span class="n">objects</span>
@@ -185,20 +188,25 @@
 </span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>        <span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">'cliente'</span><span class="p">,</span> <span class="s1">'moneda'</span><span class="p">,</span> <span class="s1">'medio_pago'</span><span class="p">)</span>
 </span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">'-fecha'</span><span class="p">)</span>
 </span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>    <span class="p">)</span>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>    <span class="k">try</span><span class="p">:</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="n">sesion</span> <span class="o">=</span> <span class="n">caja_gateway</span><span class="o">.</span><span class="n">obtener_sesion_abierta</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="n">saldos</span> <span class="o">=</span> <span class="n">caja_gateway</span><span class="o">.</span><span class="n">obtener_saldos</span><span class="p">(</span><span class="n">sesion</span><span class="p">)</span>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>    <span class="k">except</span> <span class="n">caja_gateway</span><span class="o">.</span><span class="n">SesionCajaNoAbierta</span><span class="p">:</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>        <span class="n">sesion</span><span class="p">,</span> <span class="n">saldos</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="p">{}</span>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>
-</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">'operaciones/caja_historial_dia.html'</span><span class="p">,</span> <span class="p">{</span>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>        <span class="s1">'transacciones'</span><span class="p">:</span> <span class="n">transacciones</span><span class="p">,</span>
-</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>        <span class="s1">'total'</span><span class="p">:</span> <span class="n">transacciones</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
-</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>        <span class="s1">'saldos'</span><span class="p">:</span> <span class="n">saldos</span><span class="p">,</span>
-</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>        <span class="s1">'sesion'</span><span class="p">:</span> <span class="n">sesion</span><span class="p">,</span>
-</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>        <span class="s1">'hoy'</span><span class="p">:</span> <span class="n">hoy</span><span class="p">,</span>
-</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>    <span class="p">})</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">'operaciones/caja_historial_dia.html'</span><span class="p">,</span> <span class="p">{</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>        <span class="s1">'transacciones'</span><span class="p">:</span> <span class="n">transacciones</span><span class="p">,</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="s1">'total'</span><span class="p">:</span> <span class="n">transacciones</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="s1">'hoy'</span><span class="p">:</span> <span class="n">hoy</span><span class="p">,</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>    <span class="p">})</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="nd">@requiere_rol</span><span class="p">(</span><span class="s1">'Cajero'</span><span class="p">)</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="k">def</span><span class="w"> </span><span class="nf">saldo_caja</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="w">    </span><span class="sd">"""Efectivo actual por moneda de la caja abierta del cajero, con sus últimos movimientos."""</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>        <span class="n">sesion</span> <span class="o">=</span> <span class="n">caja_gateway</span><span class="o">.</span><span class="n">obtener_sesion_abierta</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>    <span class="k">except</span> <span class="n">caja_gateway</span><span class="o">.</span><span class="n">SesionCajaNoAbierta</span><span class="p">:</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">'operaciones/caja_saldo.html'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'sesion'</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">'operaciones/caja_saldo.html'</span><span class="p">,</span> <span class="p">{</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>    <span class="s1">'sesion'</span><span class="p">:</span> <span class="n">sesion</span><span class="p">,</span>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>    <span class="s1">'resumen'</span><span class="p">:</span> <span class="n">caja_gateway</span><span class="o">.</span><span class="n">obtener_resumen</span><span class="p">(</span><span class="n">sesion</span><span class="p">),</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>    <span class="s1">'movimientos'</span><span class="p">:</span> <span class="n">sesion</span><span class="o">.</span><span class="n">movimientos</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">'transaccion__cliente'</span><span class="p">)[:</span><span class="mi">30</span><span class="p">],</span>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>    <span class="p">})</span>
 </span></pre></div>
 
 
@@ -367,7 +375,7 @@
     <a class="headerlink" href="#historial_caja_dia"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="historial_caja_dia-110"><a href="#historial_caja_dia-110"><span class="linenos">110</span></a><span class="nd">@requiere_rol</span><span class="p">(</span><span class="s1">'Cajero'</span><span class="p">)</span>
 </span><span id="historial_caja_dia-111"><a href="#historial_caja_dia-111"><span class="linenos">111</span></a><span class="k">def</span><span class="w"> </span><span class="nf">historial_caja_dia</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-</span><span id="historial_caja_dia-112"><a href="#historial_caja_dia-112"><span class="linenos">112</span></a><span class="w">    </span><span class="sd">"""Operaciones que el cajero actual confirmó hoy, con el saldo de su caja."""</span>
+</span><span id="historial_caja_dia-112"><a href="#historial_caja_dia-112"><span class="linenos">112</span></a><span class="w">    </span><span class="sd">"""Operaciones que el cajero actual confirmó hoy."""</span>
 </span><span id="historial_caja_dia-113"><a href="#historial_caja_dia-113"><span class="linenos">113</span></a>    <span class="n">hoy</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">localdate</span><span class="p">()</span>
 </span><span id="historial_caja_dia-114"><a href="#historial_caja_dia-114"><span class="linenos">114</span></a>    <span class="n">transacciones</span> <span class="o">=</span> <span class="p">(</span>
 </span><span id="historial_caja_dia-115"><a href="#historial_caja_dia-115"><span class="linenos">115</span></a>        <span class="n">Transaccion</span><span class="o">.</span><span class="n">objects</span>
@@ -375,24 +383,48 @@
 </span><span id="historial_caja_dia-117"><a href="#historial_caja_dia-117"><span class="linenos">117</span></a>        <span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">'cliente'</span><span class="p">,</span> <span class="s1">'moneda'</span><span class="p">,</span> <span class="s1">'medio_pago'</span><span class="p">)</span>
 </span><span id="historial_caja_dia-118"><a href="#historial_caja_dia-118"><span class="linenos">118</span></a>        <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">'-fecha'</span><span class="p">)</span>
 </span><span id="historial_caja_dia-119"><a href="#historial_caja_dia-119"><span class="linenos">119</span></a>    <span class="p">)</span>
-</span><span id="historial_caja_dia-120"><a href="#historial_caja_dia-120"><span class="linenos">120</span></a>
-</span><span id="historial_caja_dia-121"><a href="#historial_caja_dia-121"><span class="linenos">121</span></a>    <span class="k">try</span><span class="p">:</span>
-</span><span id="historial_caja_dia-122"><a href="#historial_caja_dia-122"><span class="linenos">122</span></a>        <span class="n">sesion</span> <span class="o">=</span> <span class="n">caja_gateway</span><span class="o">.</span><span class="n">obtener_sesion_abierta</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
-</span><span id="historial_caja_dia-123"><a href="#historial_caja_dia-123"><span class="linenos">123</span></a>        <span class="n">saldos</span> <span class="o">=</span> <span class="n">caja_gateway</span><span class="o">.</span><span class="n">obtener_saldos</span><span class="p">(</span><span class="n">sesion</span><span class="p">)</span>
-</span><span id="historial_caja_dia-124"><a href="#historial_caja_dia-124"><span class="linenos">124</span></a>    <span class="k">except</span> <span class="n">caja_gateway</span><span class="o">.</span><span class="n">SesionCajaNoAbierta</span><span class="p">:</span>
-</span><span id="historial_caja_dia-125"><a href="#historial_caja_dia-125"><span class="linenos">125</span></a>        <span class="n">sesion</span><span class="p">,</span> <span class="n">saldos</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="p">{}</span>
-</span><span id="historial_caja_dia-126"><a href="#historial_caja_dia-126"><span class="linenos">126</span></a>
-</span><span id="historial_caja_dia-127"><a href="#historial_caja_dia-127"><span class="linenos">127</span></a>    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">'operaciones/caja_historial_dia.html'</span><span class="p">,</span> <span class="p">{</span>
-</span><span id="historial_caja_dia-128"><a href="#historial_caja_dia-128"><span class="linenos">128</span></a>        <span class="s1">'transacciones'</span><span class="p">:</span> <span class="n">transacciones</span><span class="p">,</span>
-</span><span id="historial_caja_dia-129"><a href="#historial_caja_dia-129"><span class="linenos">129</span></a>        <span class="s1">'total'</span><span class="p">:</span> <span class="n">transacciones</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
-</span><span id="historial_caja_dia-130"><a href="#historial_caja_dia-130"><span class="linenos">130</span></a>        <span class="s1">'saldos'</span><span class="p">:</span> <span class="n">saldos</span><span class="p">,</span>
-</span><span id="historial_caja_dia-131"><a href="#historial_caja_dia-131"><span class="linenos">131</span></a>        <span class="s1">'sesion'</span><span class="p">:</span> <span class="n">sesion</span><span class="p">,</span>
-</span><span id="historial_caja_dia-132"><a href="#historial_caja_dia-132"><span class="linenos">132</span></a>        <span class="s1">'hoy'</span><span class="p">:</span> <span class="n">hoy</span><span class="p">,</span>
-</span><span id="historial_caja_dia-133"><a href="#historial_caja_dia-133"><span class="linenos">133</span></a>    <span class="p">})</span>
+</span><span id="historial_caja_dia-120"><a href="#historial_caja_dia-120"><span class="linenos">120</span></a>    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">'operaciones/caja_historial_dia.html'</span><span class="p">,</span> <span class="p">{</span>
+</span><span id="historial_caja_dia-121"><a href="#historial_caja_dia-121"><span class="linenos">121</span></a>        <span class="s1">'transacciones'</span><span class="p">:</span> <span class="n">transacciones</span><span class="p">,</span>
+</span><span id="historial_caja_dia-122"><a href="#historial_caja_dia-122"><span class="linenos">122</span></a>        <span class="s1">'total'</span><span class="p">:</span> <span class="n">transacciones</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+</span><span id="historial_caja_dia-123"><a href="#historial_caja_dia-123"><span class="linenos">123</span></a>        <span class="s1">'hoy'</span><span class="p">:</span> <span class="n">hoy</span><span class="p">,</span>
+</span><span id="historial_caja_dia-124"><a href="#historial_caja_dia-124"><span class="linenos">124</span></a>    <span class="p">})</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Operaciones que el cajero actual confirmó hoy, con el saldo de su caja.</p>
+            <div class="docstring"><p>Operaciones que el cajero actual confirmó hoy.</p>
+</div>
+
+
+                </section>
+                <section id="saldo_caja">
+                            <input id="saldo_caja-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+                    <div class="decorator decorator-requiere_rol">@requiere_rol(&#39;Cajero&#39;)</div>
+
+        <span class="def">def</span>
+        <span class="name">saldo_caja</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">request</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="saldo_caja-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#saldo_caja"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="saldo_caja-126"><a href="#saldo_caja-126"><span class="linenos">126</span></a><span class="nd">@requiere_rol</span><span class="p">(</span><span class="s1">'Cajero'</span><span class="p">)</span>
+</span><span id="saldo_caja-127"><a href="#saldo_caja-127"><span class="linenos">127</span></a><span class="k">def</span><span class="w"> </span><span class="nf">saldo_caja</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+</span><span id="saldo_caja-128"><a href="#saldo_caja-128"><span class="linenos">128</span></a><span class="w">    </span><span class="sd">"""Efectivo actual por moneda de la caja abierta del cajero, con sus últimos movimientos."""</span>
+</span><span id="saldo_caja-129"><a href="#saldo_caja-129"><span class="linenos">129</span></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="saldo_caja-130"><a href="#saldo_caja-130"><span class="linenos">130</span></a>        <span class="n">sesion</span> <span class="o">=</span> <span class="n">caja_gateway</span><span class="o">.</span><span class="n">obtener_sesion_abierta</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+</span><span id="saldo_caja-131"><a href="#saldo_caja-131"><span class="linenos">131</span></a>    <span class="k">except</span> <span class="n">caja_gateway</span><span class="o">.</span><span class="n">SesionCajaNoAbierta</span><span class="p">:</span>
+</span><span id="saldo_caja-132"><a href="#saldo_caja-132"><span class="linenos">132</span></a>        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">'operaciones/caja_saldo.html'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'sesion'</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
+</span><span id="saldo_caja-133"><a href="#saldo_caja-133"><span class="linenos">133</span></a>
+</span><span id="saldo_caja-134"><a href="#saldo_caja-134"><span class="linenos">134</span></a>    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">'operaciones/caja_saldo.html'</span><span class="p">,</span> <span class="p">{</span>
+</span><span id="saldo_caja-135"><a href="#saldo_caja-135"><span class="linenos">135</span></a>    <span class="s1">'sesion'</span><span class="p">:</span> <span class="n">sesion</span><span class="p">,</span>
+</span><span id="saldo_caja-136"><a href="#saldo_caja-136"><span class="linenos">136</span></a>    <span class="s1">'resumen'</span><span class="p">:</span> <span class="n">caja_gateway</span><span class="o">.</span><span class="n">obtener_resumen</span><span class="p">(</span><span class="n">sesion</span><span class="p">),</span>
+</span><span id="saldo_caja-137"><a href="#saldo_caja-137"><span class="linenos">137</span></a>    <span class="s1">'movimientos'</span><span class="p">:</span> <span class="n">sesion</span><span class="o">.</span><span class="n">movimientos</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">'transaccion__cliente'</span><span class="p">)[:</span><span class="mi">30</span><span class="p">],</span>
+</span><span id="saldo_caja-138"><a href="#saldo_caja-138"><span class="linenos">138</span></a>    <span class="p">})</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Efectivo actual por moneda de la caja abierta del cajero, con sus últimos movimientos.</p>
 </div>
 
 

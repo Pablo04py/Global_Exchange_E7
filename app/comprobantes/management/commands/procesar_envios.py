@@ -1,4 +1,4 @@
-"""Comando que reintenta los envíos de comprobantes pendientes.
+"""Comando que envía y reintenta los envíos de facturas por email pendientes.
 
 Uso (desde la raíz del repositorio):
     docker compose exec web python manage.py procesar_envios
@@ -17,9 +17,9 @@ from comprobantes.services import procesar_pendientes
 
 
 class Command(BaseCommand):
-    """Reintenta los envíos de comprobantes `PENDIENTE` cuyo próximo intento ya llegó."""
+    """Procesa los envíos de facturas `PENDIENTE` cuyo próximo intento ya llegó."""
 
-    help = "Reintenta el envío por email de los comprobantes pendientes (SCRUM-23)."
+    help = "Envía por email el KuDE de las facturas aprobadas pendientes y reintenta los fallidos (SCRUM-23)."
 
     def add_arguments(self, parser):
         """Define los argumentos del comando.

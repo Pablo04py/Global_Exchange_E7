@@ -1,4 +1,4 @@
-"""Servicios de envío por email de comprobantes y reintentos ante fallas del SMTP."""
+"""Servicios de envío por email del KuDE de las facturas y reintentos ante fallas."""
 
 import logging
 import smtplib
@@ -11,14 +11,14 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 from clientes.models import UsuarioCliente
+from facturacion.services.factura_segura import FacturaSeguraError, FacturaSeguraService
 
 from .models import EnvioComprobante
-from .pdf import generar_pdf_comprobante, nombre_archivo
 
 logger = logging.getLogger(__name__)
 
-# Errores que indican que el servidor SMTP no está disponible: se reintenta.
-ERRORES_SMTP = (smtplib.SMTPException, OSError)
+# Errores transitorios: el servidor SMTP o Factura Segura no están disponibles. Se reintenta.
+ERRORES_REINTENTABLES = (smtplib.SMTPException, OSError, FacturaSeguraError)
 
 
 def minutos_entre_reintentos():
@@ -46,7 +46,7 @@ def obtener_destinatarios(transaccion):
     las operaciones de caja ese usuario es el cajero y no el cliente.
 
     Args:
-        transaccion: Transacción pagada.
+        transaccion: Transacción facturada.
 
     Returns:
         list[str]: Emails únicos, en minúsculas y ordenados; vacía si ningún
@@ -58,69 +58,80 @@ def obtener_destinatarios(transaccion):
     return sorted({email.strip().lower() for email in emails if email and email.strip()})
 
 
-def encolar_envio(transaccion):
-    """Registra el envío del comprobante y hace el primer intento.
-
-    Si la transacción ya tiene un envío registrado no se crea otro, así un
-    mismo pago nunca genera dos correos.
+def nombre_archivo(factura):
+    """Nombre del adjunto, igual al de la descarga del KuDE de `facturacion`.
 
     Args:
-        transaccion: Transacción que acaba de pasar a `PAGADA`.
+        factura: Factura electrónica.
+
+    Returns:
+        str: `factura_<número de documento>.pdf`.
+    """
+    return f"factura_{factura.numero_documento}.pdf"
+
+
+def encolar_envio(factura):
+    """Registra el envío del KuDE de una factura aprobada.
+
+    Solo crea el registro `PENDIENTE`; el correo lo manda el comando
+    `procesar_envios` (servicio `mailer`). Así quien aprobó la factura, por
+    ejemplo la vista de detalle de la transacción, no espera la descarga del
+    KuDE ni la respuesta del SMTP. Si la factura ya tiene un envío no se crea
+    otro, para que nunca se manden dos correos.
+
+    Args:
+        factura: Factura que acaba de quedar `APROBADA`.
 
     Returns:
         EnvioComprobante | None: El envío, o `None` si el cliente no tiene
         ningún email al que enviarlo.
     """
-    destinatarios = obtener_destinatarios(transaccion)
+    destinatarios = obtener_destinatarios(factura.transaccion)
     if not destinatarios:
         logger.warning(
-            "Comprobante de la transacción %s no enviado: el cliente %s no tiene usuarios con email.",
-            transaccion.id, transaccion.cliente_id,
+            "Factura %s no enviada: el cliente %s no tiene usuarios con email.",
+            factura.numero_documento, factura.transaccion.cliente_id,
         )
         return None
 
     ahora = timezone.now()
-    envio, creado = EnvioComprobante.objects.get_or_create(
-        transaccion=transaccion,
-        defaults={
-            'destinatarios': destinatarios,
-            'fecha_creacion': ahora,
-            # Mientras se hace el primer intento, el comando de reintentos no lo toma.
-            'proximo_intento': ahora + timedelta(minutes=minutos_entre_reintentos()),
-        },
+    envio, _ = EnvioComprobante.objects.get_or_create(
+        factura=factura,
+        defaults={'destinatarios': destinatarios, 'fecha_creacion': ahora, 'proximo_intento': ahora},
     )
-    if creado:
-        intentar_envio(envio, ahora)
     return envio
 
 
 def _enviar_email(envio):
-    """Arma el correo con el PDF adjunto y lo envía por SMTP.
+    """Descarga el KuDE de Factura Segura y lo envía por SMTP como adjunto.
 
     Args:
         envio: Envío a realizar.
 
     Raises:
+        FacturaSeguraError: Si no se pudo descargar el KuDE.
         smtplib.SMTPException | OSError: Si el servidor SMTP no responde o rechaza el envío.
     """
-    tx = envio.transaccion
+    factura = envio.factura
+    kude = FacturaSeguraService.descargar_kude(ruc_emisor=factura.configuracion.ruc_emisor, cdc=factura.cdc)
+    tx = factura.transaccion
     mensaje = EmailMessage(
-        subject=f"Global Exchange - Comprobante de su operación del {timezone.localtime(tx.fecha):%d/%m/%Y}",
-        body=render_to_string('comprobantes/email_comprobante.txt', {'transaccion': tx}),
+        subject=f"Global Exchange - Factura electrónica N.° {factura.numero_documento}",
+        body=render_to_string('comprobantes/email_factura.txt', {'factura': factura, 'transaccion': tx}),
         to=envio.destinatarios,
     )
-    mensaje.attach(nombre_archivo(tx), generar_pdf_comprobante(tx), 'application/pdf')
+    mensaje.attach(nombre_archivo(factura), kude, 'application/pdf')
     mensaje.send(fail_silently=False)
 
 
 def intentar_envio(envio, ahora=None):
-    """Intenta enviar el comprobante y actualiza el estado del envío.
+    """Intenta enviar el KuDE y actualiza el estado del envío.
 
     - Si el correo sale: queda `ENVIADO`.
-    - Si el SMTP falla dentro de la ventana de reintentos: sigue `PENDIENTE`
-      y se programa el próximo intento (nunca después del fin de la ventana).
-    - Si el SMTP falla con la ventana vencida, o el error no es de SMTP (por
-      ejemplo, no se pudo generar el PDF): queda `FALLIDO`.
+    - Si el SMTP o Factura Segura fallan dentro de la ventana de reintentos:
+      sigue `PENDIENTE` y se programa el próximo intento (nunca después del fin
+      de la ventana).
+    - Si fallan con la ventana vencida, o el error es de otro tipo: queda `FALLIDO`.
 
     Args:
         envio: Envío `PENDIENTE` a intentar.
@@ -133,7 +144,7 @@ def intentar_envio(envio, ahora=None):
     envio.intentos += 1
     try:
         _enviar_email(envio)
-    except ERRORES_SMTP as exc:
+    except ERRORES_REINTENTABLES as exc:
         envio.ultimo_error = f"{type(exc).__name__}: {exc}"
         limite = envio.fecha_creacion + ventana_de_reintentos()
         if ahora >= limite:
@@ -141,12 +152,12 @@ def intentar_envio(envio, ahora=None):
             logger.error("Envío %s FALLIDO tras %s intentos: %s", envio.id, envio.intentos, envio.ultimo_error)
         else:
             envio.proximo_intento = min(ahora + timedelta(minutes=minutos_entre_reintentos()), limite)
-            logger.warning("Envío %s encolado para reintento a las %s: %s",
+            logger.warning("Envío %s se reintentará a las %s: %s",
                            envio.id, envio.proximo_intento, envio.ultimo_error)
     except Exception as exc:
         envio.estado = EnvioComprobante.Estado.FALLIDO
         envio.ultimo_error = f"{type(exc).__name__}: {exc}"
-        logger.exception("Envío %s FALLIDO por un error que no es de SMTP.", envio.id)
+        logger.exception("Envío %s FALLIDO por un error no reintentable.", envio.id)
     else:
         envio.estado = EnvioComprobante.Estado.ENVIADO
         envio.fecha_envio = ahora
@@ -156,7 +167,7 @@ def intentar_envio(envio, ahora=None):
 
 
 def procesar_pendientes(ahora=None):
-    """Reintenta los envíos `PENDIENTE` cuyo próximo intento ya llegó.
+    """Envía los envíos `PENDIENTE` cuyo próximo intento ya llegó.
 
     Cada envío se bloquea con `select_for_update(skip_locked=True)`, así dos
     procesos ejecutando el comando a la vez no mandan el mismo correo.

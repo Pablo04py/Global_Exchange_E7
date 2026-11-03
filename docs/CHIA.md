@@ -727,46 +727,54 @@ Registro #11 - 12/10/2026
 
 ---
 
-### Registro #13 - 28/10/2026
+### Registro #13 - 28/10/2026 al 03/11/2026
 
 * **Tarea / Historia**: `SCRUM-23` (Envío de comprobantes por email, épica SCRUM-7 Facturación)
 * **Autor**: Alejandro David Gimenez
 * **Herramienta / Modelo**: Claude Code (Claude Opus 5.5)
-* **Contexto / Objetivo**: Enviar automáticamente por email el PDF del comprobante cuando una transacción pasa a `PAGADA` y, si el servidor SMTP está caído, encolar el correo y reintentarlo durante 1 hora. Al inicio del Sprint 5 todavía no existía el modelo de factura electrónica (SCRUM-22/56), por lo que había que avanzar sin depender de esas historias.
+* **Contexto / Objetivo**: Enviar automáticamente por email el PDF de la factura de cada operación y, si el servidor SMTP está caído, encolar el correo y reintentarlo durante 1 hora. La historia arrancó cuando todavía no existía la factura electrónica y se terminó sobre la integración con SIFEN de SCRUM-56.
 
 * **Prompts Determinantes Utilizados**:
 
-  1. **Análisis de dependencias con otras historias:**
+  1. **Análisis de dependencias con otras historias (28/10):**
      > *"Mi scrum es el de 'Envío de comprobantes por email', ¿hay posibilidad que yo haga algo sin tener los demás scrums? ... Si tienes dudas o algo es ambiguo hazme preguntas"*
      >
-     > **Decisión**: Se envía un **comprobante provisorio** en PDF armado con los datos de la `Transaccion`. La generación queda aislada en `comprobantes.pdf.generar_pdf_comprobante`, de modo que cuando exista el KuDE solo se reemplaza esa función; la cola, el envío y los reintentos no cambian.
+     > **Decisión**: Como todavía no había factura, se empezó con un comprobante provisorio en PDF (`xhtml2pdf`) armado con los datos de la `Transaccion`, aislado en una función para reemplazarlo después por el KuDE.
 
-  2. **Destinatario, cola y servidor SMTP (preguntas de ambigüedad):**
-     > *Respuestas elegidas: "Usuarios del cliente", "Comprobante provisorio", "Cola en BD + comando" (el SMTP se definió después, ver punto 4).*
+  2. **Destinatario y cola de reintentos (preguntas de ambigüedad):**
+     > *Respuestas elegidas: "Usuarios del cliente", "Comprobante provisorio", "Cola en BD + comando".*
      >
      > **Decisión**:
      > - `Cliente` no tiene email: se envía a los usuarios activos asociados al cliente (`UsuarioCliente`). No se usa `transaccion.usuario` porque en caja es el cajero.
      > - Sin Celery en el proyecto: la cola es el modelo `EnvioComprobante` (`PENDIENTE`/`ENVIADO`/`FALLIDO`) y el comando `procesar_envios --loop` la procesa desde un servicio `mailer` de docker-compose. Se reintenta cada 5 minutos hasta cumplir 60 minutos; después queda `FALLIDO`.
-     > - SMTP configurable por `.env` (`EMAIL_*`), con `EMAIL_TIMEOUT` para que una caída no cuelgue la confirmación del pago.
 
-  4. **Reutilizar el SMTP de Keycloak:**
+  3. **Reutilizar el SMTP de Keycloak:**
      > *"Usamos Keycloak para enviar los correos al crear una cuenta ... se utiliza un servidor SMTP"*
      >
-     > **Decisión**: En lugar de Gmail directo se usa el mismo servidor SMTP de Brevo que Keycloak (`smtp-relay.brevo.com:587`, STARTTLS, remitente `bgx.globalexchange@gmail.com`). La clave se toma de la variable `SMTP_PASSWORD` ya existente si no se define `EMAIL_HOST_PASSWORD`, para no duplicar el secreto en el `.env`.
+     > **Decisión**: Se usa el mismo servidor SMTP de Brevo que Keycloak (`smtp-relay.brevo.com:587`, STARTTLS, remitente `bgx.globalexchange@gmail.com`). La clave se toma de la variable `SMTP_PASSWORD` ya existente si no se define `EMAIL_HOST_PASSWORD`, para no duplicar el secreto en el `.env`. `EMAIL_TIMEOUT` evita que una caída del SMTP deje procesos colgados.
 
-  3. **Punto de enganche sin tocar código ajeno:**
-     > *"Puedes generar una rama aparte con el número de scrum-23 y ahí empezar a trabajar"*
+  4. **Adaptación a SCRUM-56 (03/11):**
+     > *"El scrum 56 ya está finalizado, quiero que trabajemos según el merge que se hizo del scrum 56 al develop ... hagamos solo lo que pide el scrum 23, si hace falta algo del scrum 22 o 27 para hacer el scrum 23 quiero que me avises"*
      >
-     > **Decisión**: Se trabajó en `feature/SCRUM-23`, en una app nueva `comprobantes`. El envío se dispara con una señal `post_save` de `Transaccion` (solo cuando `update_fields` incluye `estado` y el nuevo estado es `PAGADA`), que cubre Stripe, SIPAP, efectivo y caja porque todos pasan por `cambiar_estado_transaccion`. Se usa `transaction.on_commit(..., robust=True)`: el correo solo sale si el pago quedó guardado y un error de envío no revierte el pago.
+     > **Decisión**:
+     > - Se hizo merge de `develop` hacia `feature/SCRUM-23` (sin tocar `develop`; el merge final lo hace el equipo con git flow).
+     > - Se envía el **KuDE oficial** descargado con `FacturaSeguraService.descargar_kude` en lugar del comprobante provisorio, que se eliminó junto con `xhtml2pdf`.
+     > - El envío se encola con una señal `post_save` de `FacturaElectronica` cuando queda `APROBADA` (con `transaction.on_commit(..., robust=True)`), y lo manda el `mailer`: así quien aprueba la factura no espera la descarga del KuDE ni al SMTP. `EnvioComprobante` pasó a tener una relación 1:1 con la factura.
+     > - También se reintentan las fallas de Factura Segura al descargar el KuDE.
+     > - No se modificó código de `facturacion` ni de `operaciones`.
+
+  5. **Dependencia con SCRUM-22:**
+     > *Se avisó que para que el correo salga 100 % solo hace falta consultar periódicamente el estado en SIFEN (SCRUM-22, criterio "ciclo de vida, máximo 48 horas"). Respuesta elegida: "Sin consulta periódica".*
+     >
+     > **Decisión**: No se adelantó nada de SCRUM-22. Hoy el estado se actualiza cuando alguien abre el detalle de la transacción (`sincronizar_estado_sifen` de SCRUM-56) y en ese momento se encola el correo. Cuando SCRUM-22 actualice el estado automáticamente, el correo saldrá solo sin cambios en `comprobantes`.
 
 * **Archivos Creados / Modificados**:
 
-  - `comprobantes/` (app nueva): `models.py`, `pdf.py`, `services.py`, `signals.py`, `admin.py`, `management/commands/procesar_envios.py`, plantillas del PDF y del correo, migración `0001_initial`.
+  - `comprobantes/` (app nueva): `models.py`, `services.py`, `signals.py`, `admin.py`, `management/commands/procesar_envios.py`, plantilla `email_factura.txt`, migración `0001_initial`.
   - `core/settings.py`: app registrada y bloque de configuración `EMAIL_*`.
-  - `requirements.txt`: `xhtml2pdf`.
   - `docker-compose.yml` y `docker-compose.prod.yml`: servicio `mailer`.
-  - `.env.example`: variables de email.
+  - `.env.example`: variables de email y `FACTURACION_EMISION_AUTOMATICA=True`.
   - `generar_docs.py`: módulo `comprobantes` en la documentación pdoc.
-  - `tests/comprobantes/`: pruebas de envío, destinatarios, reintentos y PDF.
+  - `tests/comprobantes/`: pruebas de encolado, envío del KuDE, destinatarios, reintentos y comando.
 
-* **Resultado / Decisión**: Los pagos confirmados envían el comprobante en PDF al correo de los usuarios del cliente; ante una caída del SMTP el envío queda encolado y se reintenta durante una hora sin afectar la operación. La app queda lista para adjuntar la factura electrónica cuando se implementen SCRUM-22/56.
+* **Resultado / Decisión**: Cuando SIFEN aprueba la factura de una operación, su KuDE se envía al correo de los usuarios del cliente; si el SMTP o Factura Segura no responden, el envío queda encolado y se reintenta durante una hora sin afectar la operación. La suite completa (250 pruebas) pasa.

@@ -1,7 +1,8 @@
-"""Envío por email de los comprobantes de transacciones pagadas (SCRUM-23).
+"""Envío por email de las facturas electrónicas aprobadas (SCRUM-23).
 
-Cuando una transacción pasa a `PAGADA` se genera el PDF del comprobante y se
-envía a los usuarios asociados al cliente. Si el servidor SMTP no responde, el
-envío queda encolado en `EnvioComprobante` y el comando `procesar_envios` lo
-reintenta durante una hora.
+Cuando una `FacturaElectronica` (app `facturacion`, SCRUM-56) queda `APROBADA`
+por SIFEN, se encola el envío de su KuDE a los usuarios asociados al cliente.
+El comando `procesar_envios` (servicio `mailer`) descarga el KuDE de Factura
+Segura y lo envía; si el SMTP o Factura Segura no responden, lo reintenta
+durante una hora.
 """
