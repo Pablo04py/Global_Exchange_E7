@@ -48,5 +48,19 @@ services:
       db:
         condition: service_healthy
 
+  # SCRUM-23: reintenta cada 60 s los comprobantes cuyo envío por email falló.
+  mailer:
+    build:
+      context: .
+      dockerfile: docker/django/Dockerfile
+    command: python manage.py procesar_envios --loop --intervalo 60
+    volumes:
+      - ./app:/app
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   postgres_data:

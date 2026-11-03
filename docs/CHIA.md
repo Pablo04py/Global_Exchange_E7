@@ -724,3 +724,49 @@ Registro #11 - 12/10/2026
 =======
 - **Tests Unitarios:** Ejecución exitosa de la suite completa con `docker compose exec web python manage.py test tests.caja`.
 >>>>>>> Stashed changes
+
+---
+
+### Registro #13 - 28/10/2026
+
+* **Tarea / Historia**: `SCRUM-23` (Envío de comprobantes por email, épica SCRUM-7 Facturación)
+* **Autor**: Alejandro David Gimenez
+* **Herramienta / Modelo**: Claude Code (Claude Opus 5.5)
+* **Contexto / Objetivo**: Enviar automáticamente por email el PDF del comprobante cuando una transacción pasa a `PAGADA` y, si el servidor SMTP está caído, encolar el correo y reintentarlo durante 1 hora. Al inicio del Sprint 5 todavía no existía el modelo de factura electrónica (SCRUM-22/56), por lo que había que avanzar sin depender de esas historias.
+
+* **Prompts Determinantes Utilizados**:
+
+  1. **Análisis de dependencias con otras historias:**
+     > *"Mi scrum es el de 'Envío de comprobantes por email', ¿hay posibilidad que yo haga algo sin tener los demás scrums? ... Si tienes dudas o algo es ambiguo hazme preguntas"*
+     >
+     > **Decisión**: Se envía un **comprobante provisorio** en PDF armado con los datos de la `Transaccion`. La generación queda aislada en `comprobantes.pdf.generar_pdf_comprobante`, de modo que cuando exista el KuDE solo se reemplaza esa función; la cola, el envío y los reintentos no cambian.
+
+  2. **Destinatario, cola y servidor SMTP (preguntas de ambigüedad):**
+     > *Respuestas elegidas: "Usuarios del cliente", "Comprobante provisorio", "Cola en BD + comando" (el SMTP se definió después, ver punto 4).*
+     >
+     > **Decisión**:
+     > - `Cliente` no tiene email: se envía a los usuarios activos asociados al cliente (`UsuarioCliente`). No se usa `transaccion.usuario` porque en caja es el cajero.
+     > - Sin Celery en el proyecto: la cola es el modelo `EnvioComprobante` (`PENDIENTE`/`ENVIADO`/`FALLIDO`) y el comando `procesar_envios --loop` la procesa desde un servicio `mailer` de docker-compose. Se reintenta cada 5 minutos hasta cumplir 60 minutos; después queda `FALLIDO`.
+     > - SMTP configurable por `.env` (`EMAIL_*`), con `EMAIL_TIMEOUT` para que una caída no cuelgue la confirmación del pago.
+
+  4. **Reutilizar el SMTP de Keycloak:**
+     > *"Usamos Keycloak para enviar los correos al crear una cuenta ... se utiliza un servidor SMTP"*
+     >
+     > **Decisión**: En lugar de Gmail directo se usa el mismo servidor SMTP de Brevo que Keycloak (`smtp-relay.brevo.com:587`, STARTTLS, remitente `bgx.globalexchange@gmail.com`). La clave se toma de la variable `SMTP_PASSWORD` ya existente si no se define `EMAIL_HOST_PASSWORD`, para no duplicar el secreto en el `.env`.
+
+  3. **Punto de enganche sin tocar código ajeno:**
+     > *"Puedes generar una rama aparte con el número de scrum-23 y ahí empezar a trabajar"*
+     >
+     > **Decisión**: Se trabajó en `feature/SCRUM-23`, en una app nueva `comprobantes`. El envío se dispara con una señal `post_save` de `Transaccion` (solo cuando `update_fields` incluye `estado` y el nuevo estado es `PAGADA`), que cubre Stripe, SIPAP, efectivo y caja porque todos pasan por `cambiar_estado_transaccion`. Se usa `transaction.on_commit(..., robust=True)`: el correo solo sale si el pago quedó guardado y un error de envío no revierte el pago.
+
+* **Archivos Creados / Modificados**:
+
+  - `comprobantes/` (app nueva): `models.py`, `pdf.py`, `services.py`, `signals.py`, `admin.py`, `management/commands/procesar_envios.py`, plantillas del PDF y del correo, migración `0001_initial`.
+  - `core/settings.py`: app registrada y bloque de configuración `EMAIL_*`.
+  - `requirements.txt`: `xhtml2pdf`.
+  - `docker-compose.yml` y `docker-compose.prod.yml`: servicio `mailer`.
+  - `.env.example`: variables de email.
+  - `generar_docs.py`: módulo `comprobantes` en la documentación pdoc.
+  - `tests/comprobantes/`: pruebas de envío, destinatarios, reintentos y PDF.
+
+* **Resultado / Decisión**: Los pagos confirmados envían el comprobante en PDF al correo de los usuarios del cliente; ante una caída del SMTP el envío queda encolado y se reintenta durante una hora sin afectar la operación. La app queda lista para adjuntar la factura electrónica cuando se implementen SCRUM-22/56.

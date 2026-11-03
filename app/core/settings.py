@@ -34,8 +34,9 @@ INSTALLED_APPS = [
     'arqueos',
     'caja',
     'notificaciones',
+    'comprobantes',
     'main',
-    
+
     # Librerías de terceros
     'mozilla_django_oidc',
 ]
@@ -145,3 +146,20 @@ STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
 STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='')
 STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
 STRIPE_CURRENCY = config('STRIPE_CURRENCY', default='pyg').lower()
+
+
+# Email (SCRUM-23): envío de comprobantes por el mismo SMTP (Brevo) que usa Keycloak
+# para los correos de cuentas. La clave se toma de SMTP_PASSWORD si no se define
+# EMAIL_HOST_PASSWORD, para no duplicarla en el .env.
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', default='smtp-relay.brevo.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default=config('SMTP_PASSWORD', default=''))
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Global Exchange <bgx.globalexchange@gmail.com>')
+# Segundos de espera al SMTP: si está caído, la confirmación del pago no queda colgada.
+EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=10, cast=int)
+# Reintentos ante caída del SMTP: cada EMAIL_REINTENTO_MINUTOS durante EMAIL_REINTENTO_VENTANA_MINUTOS.
+EMAIL_REINTENTO_MINUTOS = config('EMAIL_REINTENTO_MINUTOS', default=5, cast=int)
+EMAIL_REINTENTO_VENTANA_MINUTOS = config('EMAIL_REINTENTO_VENTANA_MINUTOS', default=60, cast=int)

@@ -20,7 +20,7 @@ SALIDA = BASE_DIR.parent / "docs" / "api"           # docs/api/ en la raíz del 
 # Apps del proyecto a documentar. Los patrones con "!" excluyen módulos (regex).
 MODULOS = [
     "core", "usuarios", "clientes", "mpagos",
-    "cotizaciones", "operaciones", "arqueos", "main",
+    "cotizaciones", "operaciones", "arqueos", "comprobantes", "main",
     r"!.*\.migrations",
 ]
 
