@@ -13,7 +13,9 @@ from django.utils import timezone
 from clientes.models import UsuarioCliente
 from facturacion.services.factura_segura import FacturaSeguraError, FacturaSeguraService
 
+from .kude import generar_kude_simulado
 from .models import EnvioComprobante
+from .simulacion import es_factura_simulada
 
 logger = logging.getLogger(__name__)
 
@@ -102,8 +104,26 @@ def encolar_envio(factura):
     return envio
 
 
+def obtener_kude(factura):
+    """PDF del KuDE de la factura.
+
+    Args:
+        factura: Factura aprobada.
+
+    Returns:
+        bytes: El KuDE descargado de Factura Segura o, si la factura es
+        simulada (ver `comprobantes.simulacion`), el KuDE simulado generado localmente.
+
+    Raises:
+        FacturaSeguraError: Si no se pudo descargar el KuDE real.
+    """
+    if es_factura_simulada(factura):
+        return generar_kude_simulado(factura)
+    return FacturaSeguraService.descargar_kude(ruc_emisor=factura.configuracion.ruc_emisor, cdc=factura.cdc)
+
+
 def _enviar_email(envio):
-    """Descarga el KuDE de Factura Segura y lo envía por SMTP como adjunto.
+    """Obtiene el KuDE de la factura y lo envía por SMTP como adjunto.
 
     Args:
         envio: Envío a realizar.
@@ -113,11 +133,13 @@ def _enviar_email(envio):
         smtplib.SMTPException | OSError: Si el servidor SMTP no responde o rechaza el envío.
     """
     factura = envio.factura
-    kude = FacturaSeguraService.descargar_kude(ruc_emisor=factura.configuracion.ruc_emisor, cdc=factura.cdc)
+    kude = obtener_kude(factura)
     tx = factura.transaccion
     mensaje = EmailMessage(
         subject=f"Global Exchange - Factura electrónica N.° {factura.numero_documento}",
-        body=render_to_string('comprobantes/email_factura.txt', {'factura': factura, 'transaccion': tx}),
+        body=render_to_string('comprobantes/email_factura.txt', {
+            'factura': factura, 'transaccion': tx, 'simulada': es_factura_simulada(factura),
+        }),
         to=envio.destinatarios,
     )
     mensaje.attach(nombre_archivo(factura), kude, 'application/pdf')

@@ -6,6 +6,7 @@ Ver `.env.example` en la raíz del repositorio.
 """
 
 import os
+import sys
 from pathlib import Path
 from decouple import config
 
@@ -169,3 +170,8 @@ EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=10, cast=int)
 # Reintentos ante caída del SMTP: cada EMAIL_REINTENTO_MINUTOS durante EMAIL_REINTENTO_VENTANA_MINUTOS.
 EMAIL_REINTENTO_MINUTOS = config('EMAIL_REINTENTO_MINUTOS', default=5, cast=int)
 EMAIL_REINTENTO_VENTANA_MINUTOS = config('EMAIL_REINTENTO_VENTANA_MINUTOS', default=60, cast=int)
+# Modo simulación (solo desarrollo/demostración): cada pago genera una factura APROBADA
+# simulada, sin Factura Segura ni numeración fiscal (ver comprobantes.simulacion).
+# Al correr `manage.py test` queda siempre apagado, para que las pruebas no dependan del .env.
+COMPROBANTES_SIMULAR_FACTURA = (config('COMPROBANTES_SIMULAR_FACTURA', default=False, cast=bool)
+                                and sys.argv[1:2] != ['test'])

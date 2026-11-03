@@ -1,6 +1,6 @@
 Estimado/a {{ transaccion.cliente.nombre_o_denominacion }}:
 
-Su factura electrónica fue aprobada por SIFEN. Adjuntamos el KuDE en PDF.
+{% if simulada %}Le enviamos la factura de su operación. ATENCIÓN: es una SIMULACIÓN de prueba (no fue emitida en SIFEN y no tiene validez fiscal).{% else %}Su factura electrónica fue aprobada por SIFEN. Adjuntamos el KuDE en PDF.{% endif %}
 
   Factura N.°: {{ factura.configuracion.establecimiento }}-{{ factura.configuracion.punto_expedicion }}-{{ factura.numero_documento }}
   CDC: {{ factura.cdc }}
@@ -8,6 +8,6 @@ Su factura electrónica fue aprobada por SIFEN. Adjuntamos el KuDE en PDF.
   Pagado: {{ transaccion.monto_pagado }} {{ transaccion.moneda_pagada }}
   Recibido: {{ transaccion.monto_recibido }} {{ transaccion.moneda_recibida }}
 
-Puede verificar la validez del documento con el CDC en el portal de la DNIT (e-Kuatia).
+{% if not simulada %}Puede verificar la validez del documento con el CDC en el portal de la DNIT (e-Kuatia).
 
-Global Exchange
+{% endif %}Global Exchange

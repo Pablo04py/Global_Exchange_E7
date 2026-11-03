@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>KuDE simulado {{ numero_completo }}</title>
+<style>
+  @page { size: a4 portrait; margin: 1.5cm; }
+  body { font-family: Helvetica, Arial, sans-serif; font-size: 9pt; color: #1A2840; }
+  .simulacion { border: 2px solid #B91C1C; color: #B91C1C; text-align: center; font-weight: bold;
+                font-size: 11pt; padding: 6px; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; }
+  .caja td { border: 1px solid #94A3B8; padding: 6px; vertical-align: top; }
+  .emisor-nombre { font-size: 13pt; font-weight: bold; }
+  .titulo { font-size: 13pt; font-weight: bold; text-align: center; }
+  .items th { border: 1px solid #94A3B8; background-color: #E2E8F0; padding: 4px; font-size: 8pt; }
+  .items td { border: 1px solid #94A3B8; padding: 4px; }
+  .num { text-align: right; }
+  .total td { border: 1px solid #94A3B8; padding: 5px; font-weight: bold; }
+  .cdc { font-size: 11pt; font-weight: bold; text-align: center; letter-spacing: 1px; }
+  .pie { font-size: 7.5pt; color: #475569; }
+</style>
+</head>
+<body>
+  <div class="simulacion">SIMULACIÓN &ndash; DE sin valor comercial ni fiscal (no emitido en SIFEN)</div>
+
+  <table class="caja">
+    <tr>
+      <td width="62%">
+        <div class="emisor-nombre">{{ config.nombre_emisor }}</div>
+        {{ config.direccion }} #{{ config.numero_casa }}<br>
+        Ciu.: {{ config.ciudad_descripcion|default:"-" }} &nbsp; Dep.: {{ config.departamento_descripcion|default:"-" }}<br>
+        Tel.: {{ config.telefono|default:"-" }} &nbsp; Email: {{ config.email|default:"-" }}<br>
+        {{ actividad }}
+      </td>
+      <td width="38%">
+        RUC: <b>{{ config.ruc_emisor }}-{{ config.dv_emisor }}</b><br>
+        Timbrado N.°: <b>{{ config.timbrado }}</b><br>
+        Fecha de vigencia: {{ config.fecha_inicio_timbrado|date:"d/m/Y" }}<br>
+        <div class="titulo">Factura electrónica</div>
+        <div class="titulo">{{ numero_completo }}</div>
+      </td>
+    </tr>
+  </table>
+
+  <table class="caja" style="margin-top: 6px;">
+    <tr>
+      <td width="62%">
+        Fecha y hora de emisión: <b>{{ fecha_emision|date:"d/m/Y H:i:s" }}</b><br>
+        Condición de venta: Contado<br>
+        Moneda: PYG<br>
+        Tipo de operación: {{ descripcion }}
+      </td>
+      <td width="38%">
+        Nombre: <b>{{ transaccion.cliente.nombre_o_denominacion }}</b><br>
+        {{ documento_receptor.0 }}: <b>{{ documento_receptor.1 }}</b>
+      </td>
+    </tr>
+  </table>
+
+  <table class="items" style="margin-top: 8px;">
+    <tr>
+      <th width="13%">Código</th><th width="37%">Descripción</th><th width="8%">Unidad</th>
+      <th width="8%">Cantidad</th><th width="12%">Precio unitario</th>
+      <th width="10%">Exentas</th><th width="6%">5%</th><th width="6%">10%</th>
+    </tr>
+    <tr>
+      <td>{{ codigo_item }}</td>
+      <td>
+        {{ descripcion }}<br>
+        <span class="pie">Tasa aplicada: {{ transaccion.tasa_aplicada }} | Comisión: {{ transaccion.porcentaje_comision }}%
+        ({{ transaccion.monto_comision }} {{ transaccion.moneda_comision }}) | Operación: {{ transaccion.id }}</span>
+      </td>
+      <td>UNI</td><td class="num">1</td><td class="num">{{ total }}</td>
+      <td class="num">{{ total }}</td><td class="num">0</td><td class="num">0</td>
+    </tr>
+  </table>
+
+  <table class="total" style="margin-top: 6px;">
+    <tr><td width="78%">TOTAL DE LA OPERACIÓN</td><td class="num">{{ total }}</td></tr>
+    <tr><td>LIQUIDACIÓN IVA (5%) 0 &nbsp; (10%) 0</td><td class="num">Total IVA: 0</td></tr>
+  </table>
+
+  <p style="margin-top: 14px; text-align: center;">CDC:</p>
+  <div class="cdc">{{ cdc_agrupado }}</div>
+
+  <p class="pie" style="margin-top: 14px;">
+    Este KuDE fue generado localmente por el modo simulación de Global Exchange (SCRUM-23) para pruebas
+    del envío por email. No es una representación de un Documento Electrónico aprobado por SIFEN y su
+    CDC no puede consultarse en https://ekuatia.set.gov.py/consultas.
+  </p>
+</body>
+</html>

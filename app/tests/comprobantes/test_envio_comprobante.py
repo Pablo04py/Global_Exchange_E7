@@ -59,9 +59,9 @@ class EncoladoTests(ComprobantesDatosMixin, TestCase):
         self.aprobar(factura)
         self.assertEqual(EnvioComprobante.objects.filter(factura=factura).count(), 1)
 
-    @override_settings(FACTURACION_EMISION_AUTOMATICA=False)
+    @override_settings(FACTURACION_EMISION_AUTOMATICA=False, COMPROBANTES_SIMULAR_FACTURA=False)
     def test_pagar_la_transaccion_no_envia_correo(self):
-        """El correo depende de la factura aprobada, no del pago."""
+        """Sin modo simulación, el correo depende de la factura aprobada, no del pago."""
         tx = self.crear_pendiente()
         with self.captureOnCommitCallbacks(execute=True):
             cambiar_estado_transaccion(tx, Transaccion.Estado.PAGADA, self.cajero)

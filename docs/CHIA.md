@@ -768,13 +768,23 @@ Registro #11 - 12/10/2026
      >
      > **Decisión**: No se adelantó nada de SCRUM-22. Hoy el estado se actualiza cuando alguien abre el detalle de la transacción (`sincronizar_estado_sifen` de SCRUM-56) y en ese momento se encola el correo. Cuando SCRUM-22 actualice el estado automáticamente, el correo saldrá solo sin cambios en `comprobantes`.
 
+  6. **Modo simulación de facturas aprobadas (03/11):**
+     > *"¿Podemos hacer que en nuestra rama todas las facturas estén aprobadas y cada que se hace una compra o venta se haga la factura y se envíe al correo electrónico asociado al usuario? Luego que los demás se encarguen de modificar el estado de factura"*
+     >
+     > *Respuestas elegidas: "Simuladas, con un interruptor", "Usuarios del cliente", "Sí, apagado por defecto", "KuDE simulado completo".*
+     >
+     > **Decisión**:
+     > - `COMPROBANTES_SIMULAR_FACTURA=True` hace que cada pago genere una `FacturaElectronica` ya `APROBADA` (serie `9000001`, CDC `SIMULADO…`) sin llamar a Factura Segura ni tocar `siguiente_numero_documento`, respetando la guía técnica de facturación (la 0000217 queda reservada para la prueba End-to-End).
+     > - El mailer adjunta un KuDE simulado generado localmente (`xhtml2pdf`), con los mismos montos y descripciones del builder de SCRUM-56 y la leyenda "SIMULACIÓN – sin valor fiscal".
+     > - No actúa si la emisión real está activa y queda apagado al correr `manage.py test`, para que las pruebas (incluidas las de SCRUM-56) no dependan del `.env`. En `.env.example` y producción va en `False`.
+
 * **Archivos Creados / Modificados**:
 
-  - `comprobantes/` (app nueva): `models.py`, `services.py`, `signals.py`, `admin.py`, `management/commands/procesar_envios.py`, plantilla `email_factura.txt`, migración `0001_initial`.
+  - `comprobantes/` (app nueva): `models.py`, `services.py`, `signals.py`, `simulacion.py`, `kude.py`, `admin.py`, `management/commands/procesar_envios.py`, plantillas `email_factura.txt` y `kude_simulado.html`, migración `0001_initial`.
   - `core/settings.py`: app registrada y bloque de configuración `EMAIL_*`.
   - `docker-compose.yml` y `docker-compose.prod.yml`: servicio `mailer`.
   - `.env.example`: variables de email y `FACTURACION_EMISION_AUTOMATICA=False` documentada (según la guía técnica de facturación, la emisión real se activa solo para la prueba End-to-End final, preservando la factura 0000217).
   - `generar_docs.py`: módulo `comprobantes` en la documentación pdoc.
   - `tests/comprobantes/`: pruebas de encolado, envío del KuDE, destinatarios, reintentos y comando.
 
-* **Resultado / Decisión**: Cuando SIFEN aprueba la factura de una operación, su KuDE se envía al correo de los usuarios del cliente; si el SMTP o Factura Segura no responden, el envío queda encolado y se reintenta durante una hora sin afectar la operación. La suite completa (250 pruebas) pasa.
+* **Resultado / Decisión**: Cuando SIFEN aprueba la factura de una operación, su KuDE se envía al correo de los usuarios del cliente; si el SMTP o Factura Segura no responden, el envío queda encolado y se reintenta durante una hora sin afectar la operación. Con el modo simulación, cada compra o venta pagada genera su factura aprobada simulada y se envía por email sin consumir numeración fiscal. La suite completa (262 pruebas) pasa.

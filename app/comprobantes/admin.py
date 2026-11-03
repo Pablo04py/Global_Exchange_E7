@@ -3,13 +3,14 @@
 from django.contrib import admin
 
 from .models import EnvioComprobante
+from .simulacion import es_factura_simulada
 
 
 @admin.register(EnvioComprobante)
 class EnvioComprobanteAdmin(admin.ModelAdmin):
     """Permite consultar la cola de envíos y su estado sin modificarla."""
 
-    list_display = ('numero_factura', 'cliente', 'estado', 'intentos', 'fecha_creacion',
+    list_display = ('numero_factura', 'cliente', 'simulada', 'estado', 'intentos', 'fecha_creacion',
                     'proximo_intento', 'fecha_envio')
     list_filter = ('estado',)
     list_select_related = ('factura', 'factura__transaccion__cliente')
@@ -25,6 +26,11 @@ class EnvioComprobanteAdmin(admin.ModelAdmin):
     def cliente(self, obj):
         """Cliente de la transacción facturada."""
         return obj.factura.transaccion.cliente
+
+    @admin.display(description='Simulada', boolean=True)
+    def simulada(self, obj):
+        """Si la factura la generó el modo simulación (sin validez fiscal)."""
+        return es_factura_simulada(obj.factura)
 
     @admin.display(description='CDC')
     def cdc(self, obj):

@@ -1,9 +1,12 @@
 """Señales de la app comprobantes.
 
-El envío se encola cuando una `FacturaElectronica` (SCRUM-56) queda `APROBADA`
-por SIFEN. Hoy el estado se actualiza en `facturacion.services.emision.sincronizar_estado_sifen`,
-que se llama al abrir el detalle de la transacción; cuando exista la consulta
-periódica de SCRUM-22, el envío se dispara igual sin cambios en esta app.
+- El envío se encola cuando una `FacturaElectronica` (SCRUM-56) queda `APROBADA`
+  por SIFEN. Hoy el estado se actualiza en `facturacion.services.emision.sincronizar_estado_sifen`,
+  que se llama al abrir el detalle de la transacción; cuando exista la consulta
+  periódica de SCRUM-22, el envío se dispara igual sin cambios en esta app.
+- Con el modo simulación activo (ver `comprobantes.simulacion`), al pasar una
+  `Transaccion` a `PAGADA` se genera su factura aprobada simulada, que a su vez
+  dispara el envío.
 """
 
 from django.db import transaction
@@ -11,8 +14,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from facturacion.models import FacturaElectronica
+from operaciones.models import Transaccion
 
 from .services import encolar_envio
+from .simulacion import emitir_factura_simulada, simulacion_activa
 
 
 @receiver(post_save, sender=FacturaElectronica, dispatch_uid='comprobantes_envio_factura_aprobada')
@@ -34,3 +39,28 @@ def encolar_envio_al_aprobar(sender, instance, **kwargs):
     if instance.estado != FacturaElectronica.Estado.APROBADA or not instance.cdc:
         return
     transaction.on_commit(lambda: encolar_envio(instance), robust=True)
+
+
+@receiver(post_save, sender=Transaccion, dispatch_uid='comprobantes_factura_simulada_al_pagar')
+def simular_factura_al_pagar(sender, instance, created, update_fields=None, **kwargs):
+    """Genera la factura aprobada simulada cuando la transacción pasa a `PAGADA`.
+
+    Solo actúa con el modo simulación activo y ante cambios de estado
+    (`update_fields` con `estado`, como guarda `cambiar_estado_transaccion`):
+    las transacciones creadas directamente como pagadas (datos de prueba) no
+    generan facturas. Se ejecuta con `on_commit(..., robust=True)`: solo si el
+    pago quedó guardado y sin revertirlo ante un error.
+
+    Args:
+        sender: Clase `Transaccion`.
+        instance: Transacción guardada.
+        created: Si el registro es nuevo.
+        update_fields: Campos guardados, o `None` si se guardaron todos.
+        **kwargs: Argumentos adicionales de la señal.
+    """
+    if created or not update_fields or 'estado' not in update_fields:
+        return
+    if instance.estado != Transaccion.Estado.PAGADA or not simulacion_activa():
+        return
+    transaccion_id = instance.pk
+    transaction.on_commit(lambda: emitir_factura_simulada(transaccion_id), robust=True)
