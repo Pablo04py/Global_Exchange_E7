@@ -773,7 +773,7 @@ Registro #11 - 12/10/2026
   - `comprobantes/` (app nueva): `models.py`, `services.py`, `signals.py`, `admin.py`, `management/commands/procesar_envios.py`, plantilla `email_factura.txt`, migración `0001_initial`.
   - `core/settings.py`: app registrada y bloque de configuración `EMAIL_*`.
   - `docker-compose.yml` y `docker-compose.prod.yml`: servicio `mailer`.
-  - `.env.example`: variables de email y `FACTURACION_EMISION_AUTOMATICA=True`.
+  - `.env.example`: variables de email y `FACTURACION_EMISION_AUTOMATICA=False` documentada (según la guía técnica de facturación, la emisión real se activa solo para la prueba End-to-End final, preservando la factura 0000217).
   - `generar_docs.py`: módulo `comprobantes` en la documentación pdoc.
   - `tests/comprobantes/`: pruebas de encolado, envío del KuDE, destinatarios, reintentos y comando.
 
