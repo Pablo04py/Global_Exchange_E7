@@ -56,6 +56,15 @@ class ReintentosTests(ComprobantesDatosMixin, TestCase):
         self.assertEqual(envio.estado, EnvioComprobante.Estado.ENVIADO)
         self.assertEqual(len(mail.outbox), 1)
 
+    def test_falla_al_descargar_el_xml_tambien_se_reintenta(self, _kude):
+        envio = encolar_envio(self.crear_factura())
+        self.mock_descargar_xml.side_effect = FacturaSeguraError('XML no disponible')
+        with self.assertLogs('comprobantes.services', level='WARNING'):
+            procesar_pendientes(ahora=envio.fecha_creacion)
+        envio.refresh_from_db()
+        self.assertEqual(envio.estado, EnvioComprobante.Estado.PENDIENTE)
+        self.assertIn('XML no disponible', envio.ultimo_error)
+
     def test_no_reintenta_antes_del_proximo_intento(self, _kude):
         envio = self.encolar_y_fallar()
         resumen = procesar_pendientes(ahora=envio.proximo_intento - timedelta(seconds=1))

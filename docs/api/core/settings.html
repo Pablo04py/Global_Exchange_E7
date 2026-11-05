@@ -193,6 +193,9 @@
                     <a class="variable" href="#EMAIL_REINTENTO_VENTANA_MINUTOS">EMAIL_REINTENTO_VENTANA_MINUTOS</a>
             </li>
             <li>
+                    <a class="variable" href="#COMPROBANTES_ENVIO_PROPIO_REALES">COMPROBANTES_ENVIO_PROPIO_REALES</a>
+            </li>
+            <li>
                     <a class="variable" href="#COMPROBANTES_SIMULAR_FACTURA">COMPROBANTES_SIMULAR_FACTURA</a>
             </li>
     </ul>
@@ -398,8 +401,11 @@ Ver <code>.env.example</code> en la raíz del repositorio.</p>
 </span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a><span class="c1"># Modo simulación (solo desarrollo/demostración): cada pago genera una factura APROBADA</span>
 </span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a><span class="c1"># simulada, sin Factura Segura ni numeración fiscal (ver comprobantes.simulacion).</span>
 </span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a><span class="c1"># Al correr `manage.py test` queda siempre apagado, para que las pruebas no dependan del .env.</span>
-</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a><span class="n">COMPROBANTES_SIMULAR_FACTURA</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="p">(</span><span class="s1">'COMPROBANTES_SIMULAR_FACTURA'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cast</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>                                <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="p">[</span><span class="s1">'test'</span><span class="p">])</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a><span class="c1"># Factura Segura ya envía el KuDE y el XML al receptor de cada factura real. El envío</span>
+</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a><span class="c1"># propio (con cola y reintentos) de las facturas reales queda como respaldo opcional.</span>
+</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a><span class="n">COMPROBANTES_ENVIO_PROPIO_REALES</span> <span class="o">=</span> <span class="n">config</span><span class="p">(</span><span class="s1">'COMPROBANTES_ENVIO_PROPIO_REALES'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cast</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a><span class="n">COMPROBANTES_SIMULAR_FACTURA</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="p">(</span><span class="s1">'COMPROBANTES_SIMULAR_FACTURA'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cast</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>                                <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="p">[</span><span class="s1">'test'</span><span class="p">])</span>
 </span></pre></div>
 
 
@@ -1053,6 +1059,18 @@ Ver <code>.env.example</code> en la raíz del repositorio.</p>
         
     </div>
     <a class="headerlink" href="#EMAIL_REINTENTO_VENTANA_MINUTOS"></a>
+    
+    
+
+                </section>
+                <section id="COMPROBANTES_ENVIO_PROPIO_REALES">
+                    <div class="attr variable">
+            <span class="name">COMPROBANTES_ENVIO_PROPIO_REALES</span>        =
+<span class="default_value">False</span>
+
+        
+    </div>
+    <a class="headerlink" href="#COMPROBANTES_ENVIO_PROPIO_REALES"></a>
     
     
 

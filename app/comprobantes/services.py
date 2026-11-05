@@ -1,4 +1,4 @@
-"""Servicios de envío por email del KuDE de las facturas y reintentos ante fallas."""
+"""Servicios de envío por email de la factura (KuDE y XML) y reintentos ante fallas."""
 
 import logging
 import smtplib
@@ -10,10 +10,10 @@ from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils import timezone
 
-from clientes.models import UsuarioCliente
 from facturacion.services.factura_segura import FacturaSeguraError, FacturaSeguraService
 
-from .kude import generar_kude_simulado
+from .destinatarios import email_receptor_factura
+from .kude import generar_kude_simulado, generar_xml_simulado
 from .models import EnvioComprobante
 from .simulacion import es_factura_simulada
 
@@ -42,38 +42,119 @@ def ventana_de_reintentos():
 
 
 def obtener_destinatarios(transaccion):
-    """Emails de los usuarios activos asociados al cliente de la transacción.
+    """Destinatario del correo: el cliente que hizo la operación.
 
-    Se usa la relación `UsuarioCliente` y no `transaccion.usuario`, porque en
-    las operaciones de caja ese usuario es el cajero y no el cliente.
+    Es el mismo email que va en el Documento Electrónico (`dEmailRec`), así el
+    envío propio y el de Factura Segura llegan a la misma persona. En caja no
+    es el cajero, sino la cuenta del cliente (ver `comprobantes.destinatarios`).
 
     Args:
         transaccion: Transacción facturada.
 
     Returns:
-        list[str]: Emails únicos, en minúsculas y ordenados; vacía si ningún
-        usuario del cliente tiene email cargado.
+        list[str]: Un email, o lista vacía si el cliente no tiene ninguno.
     """
-    emails = UsuarioCliente.objects.filter(
-        cliente=transaccion.cliente, usuario__is_active=True
-    ).values_list('usuario__email', flat=True)
-    return sorted({email.strip().lower() for email in emails if email and email.strip()})
+    email = email_receptor_factura(transaccion)
+    return [email] if email else []
 
 
-def nombre_archivo(factura):
-    """Nombre del adjunto, igual al de la descarga del KuDE de `facturacion`.
+def es_ambiente_prueba():
+    """Indica si Factura Segura apunta a su ambiente de pruebas (TEST).
+
+    Returns:
+        bool: `True` si `FACTURA_SEGURA_BASE_URL` es la API de test (`apitest`).
+    """
+    return 'apitest' in getattr(settings, 'FACTURA_SEGURA_BASE_URL', '')
+
+
+def numero_completo(factura):
+    """Número de factura con establecimiento y punto de expedición.
 
     Args:
         factura: Factura electrónica.
 
     Returns:
-        str: `factura_<número de documento>.pdf`.
+        str: Por ejemplo `001-003-0000217`.
     """
-    return f"factura_{factura.numero_documento}.pdf"
+    config = factura.configuracion
+    return f"{config.establecimiento}-{config.punto_expedicion}-{factura.numero_documento}"
+
+
+def leyenda_ambiente(factura):
+    """Leyenda del ambiente, como la que usa Factura Segura en sus correos.
+
+    Args:
+        factura: Factura electrónica.
+
+    Returns:
+        str: Texto del ambiente; vacío en producción.
+    """
+    if es_factura_simulada(factura):
+        return 'DE simulado localmente - sin valor comercial ni fiscal'
+    if es_ambiente_prueba():
+        return 'DE generado en ambiente de prueba - sin valor comercial ni fiscal'
+    return ''
+
+
+def asunto_email(factura):
+    """Asunto del correo, con el mismo formato que el de Factura Segura.
+
+    Args:
+        factura: Factura electrónica.
+
+    Returns:
+        str: Por ejemplo `TEST KuDE Factura electrónica 001-003-0000217 - DE generado
+        en ambiente de prueba - sin valor comercial ni fiscal`.
+    """
+    asunto = f"KuDE Factura electrónica {numero_completo(factura)}"
+    if es_factura_simulada(factura):
+        return f"SIMULACIÓN {asunto} - {leyenda_ambiente(factura)}"
+    if es_ambiente_prueba():
+        return f"TEST {asunto} - {leyenda_ambiente(factura)}"
+    return asunto
+
+
+def nombres_adjuntos(factura, momento=None):
+    """Nombres del XML y del KuDE, con el formato de Factura Segura.
+
+    Args:
+        factura: Factura electrónica.
+        momento: Fecha y hora del envío (por defecto, ahora).
+
+    Returns:
+        tuple[str, str]: `<CDC>.xml` y `<CDC>_<AAAAMMDD>_<HHMMSS>.pdf`.
+    """
+    momento = timezone.localtime(momento or timezone.now())
+    return f"{factura.cdc}.xml", f"{factura.cdc}_{momento:%Y%m%d_%H%M%S}.pdf"
+
+
+def obtener_adjuntos(factura, momento=None):
+    """XML y KuDE de la factura, en el orden en que los adjunta Factura Segura.
+
+    Args:
+        factura: Factura aprobada.
+        momento: Fecha y hora del envío, para el nombre del PDF.
+
+    Returns:
+        list[tuple[str, bytes, str]]: `(nombre, contenido, tipo MIME)` del XML y del PDF.
+        Si la factura es simulada (ver `comprobantes.simulacion`) se generan
+        localmente; si no, se descargan de Factura Segura.
+
+    Raises:
+        FacturaSeguraError: Si no se pudo descargar el XML o el KuDE real.
+    """
+    nombre_xml, nombre_pdf = nombres_adjuntos(factura, momento)
+    if es_factura_simulada(factura):
+        xml, kude = generar_xml_simulado(factura), generar_kude_simulado(factura)
+    else:
+        ruc, cdc = factura.configuracion.ruc_emisor, factura.cdc
+        xml = FacturaSeguraService.descargar_xml(ruc_emisor=ruc, cdc=cdc)
+        kude = FacturaSeguraService.descargar_kude(ruc_emisor=ruc, cdc=cdc)
+    return [(nombre_xml, xml, 'application/xml'), (nombre_pdf, kude, 'application/pdf')]
 
 
 def encolar_envio(factura):
-    """Registra el envío del KuDE de una factura aprobada.
+    """Registra el envío de la factura aprobada.
 
     Solo crea el registro `PENDIENTE`; el correo lo manda el comando
     `procesar_envios` (servicio `mailer`). Así quien aprobó la factura, por
@@ -91,7 +172,7 @@ def encolar_envio(factura):
     destinatarios = obtener_destinatarios(factura.transaccion)
     if not destinatarios:
         logger.warning(
-            "Factura %s no enviada: el cliente %s no tiene usuarios con email.",
+            "Factura %s no enviada: el cliente %s no tiene un correo electrónico registrado.",
             factura.numero_documento, factura.transaccion.cliente_id,
         )
         return None
@@ -104,45 +185,32 @@ def encolar_envio(factura):
     return envio
 
 
-def obtener_kude(factura):
-    """PDF del KuDE de la factura.
-
-    Args:
-        factura: Factura aprobada.
-
-    Returns:
-        bytes: El KuDE descargado de Factura Segura o, si la factura es
-        simulada (ver `comprobantes.simulacion`), el KuDE simulado generado localmente.
-
-    Raises:
-        FacturaSeguraError: Si no se pudo descargar el KuDE real.
-    """
-    if es_factura_simulada(factura):
-        return generar_kude_simulado(factura)
-    return FacturaSeguraService.descargar_kude(ruc_emisor=factura.configuracion.ruc_emisor, cdc=factura.cdc)
-
-
-def _enviar_email(envio):
-    """Obtiene el KuDE de la factura y lo envía por SMTP como adjunto.
+def _enviar_email(envio, ahora=None):
+    """Arma el correo con el XML y el KuDE adjuntos y lo envía por SMTP.
 
     Args:
         envio: Envío a realizar.
+        ahora: Momento del envío, para el nombre del PDF.
 
     Raises:
-        FacturaSeguraError: Si no se pudo descargar el KuDE.
+        FacturaSeguraError: Si no se pudo descargar el XML o el KuDE.
         smtplib.SMTPException | OSError: Si el servidor SMTP no responde o rechaza el envío.
     """
     factura = envio.factura
-    kude = obtener_kude(factura)
-    tx = factura.transaccion
+    adjuntos = obtener_adjuntos(factura, ahora)
     mensaje = EmailMessage(
-        subject=f"Global Exchange - Factura electrónica N.° {factura.numero_documento}",
+        subject=asunto_email(factura),
         body=render_to_string('comprobantes/email_factura.txt', {
-            'factura': factura, 'transaccion': tx, 'simulada': es_factura_simulada(factura),
+            'factura': factura,
+            'transaccion': factura.transaccion,
+            'numero_completo': numero_completo(factura),
+            'leyenda_ambiente': leyenda_ambiente(factura),
+            'simulada': es_factura_simulada(factura),
         }),
         to=envio.destinatarios,
     )
-    mensaje.attach(nombre_archivo(factura), kude, 'application/pdf')
+    for nombre, contenido, tipo in adjuntos:
+        mensaje.attach(nombre, contenido, tipo)
     mensaje.send(fail_silently=False)
 
 
@@ -165,7 +233,7 @@ def intentar_envio(envio, ahora=None):
     ahora = ahora or timezone.now()
     envio.intentos += 1
     try:
-        _enviar_email(envio)
+        _enviar_email(envio, ahora)
     except ERRORES_REINTENTABLES as exc:
         envio.ultimo_error = f"{type(exc).__name__}: {exc}"
         limite = envio.fecha_creacion + ventana_de_reintentos()

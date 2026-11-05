@@ -1,13 +1,11 @@
-Estimado/a {{ transaccion.cliente.nombre_o_denominacion }}:
+Estimado/a cliente {{ transaccion.cliente.nombre_o_denominacion }}:
 
-{% if simulada %}Le enviamos la factura de su operación. ATENCIÓN: es una SIMULACIÓN de prueba (no fue emitida en SIFEN y no tiene validez fiscal).{% else %}Su factura electrónica fue aprobada por SIFEN. Adjuntamos el KuDE en PDF.{% endif %}
+Adjunto encontrará el KuDE y el XML de la Factura electrónica {{ numero_completo }}
 
-  Factura N.°: {{ factura.configuracion.establecimiento }}-{{ factura.configuracion.punto_expedicion }}-{{ factura.numero_documento }}
-  CDC: {{ factura.cdc }}
-  Operación: {{ transaccion.get_tipo_display }} de {{ transaccion.moneda.codigo }} del {{ transaccion.fecha|date:"d/m/Y H:i" }}
-  Pagado: {{ transaccion.monto_pagado }} {{ transaccion.moneda_pagada }}
-  Recibido: {{ transaccion.monto_recibido }} {{ transaccion.moneda_recibida }}
+CDC: {{ factura.cdc }}
 
-{% if not simulada %}Puede verificar la validez del documento con el CDC en el portal de la DNIT (e-Kuatia).
+Cordialmente,
 
-{% endif %}Global Exchange
+--
+{% if leyenda_ambiente %}{{ leyenda_ambiente }} {% endif %}RUC:{{ factura.configuracion.ruc_emisor }}-{{ factura.configuracion.dv_emisor }}
+{% if simulada %}Documento generado localmente por Global Exchange (simulación, no emitido en SIFEN){% else %}Documento Tributario Electrónico generado por #FacturaSegura{% endif %}

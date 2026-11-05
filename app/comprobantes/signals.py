@@ -1,14 +1,16 @@
 """Señales de la app comprobantes.
 
-- El envío se encola cuando una `FacturaElectronica` (SCRUM-56) queda `APROBADA`
-  por SIFEN. Hoy el estado se actualiza en `facturacion.services.emision.sincronizar_estado_sifen`,
-  que se llama al abrir el detalle de la transacción; cuando exista la consulta
-  periódica de SCRUM-22, el envío se dispara igual sin cambios en esta app.
+- Las facturas reales las envía Factura Segura al emitirlas, al correo del
+  cliente que va en el Documento Electrónico (`dEmailRec`, ver
+  `comprobantes.destinatarios`). El envío propio por el mailer se encola cuando
+  una factura simulada queda `APROBADA`, o también las reales si se activa
+  `COMPROBANTES_ENVIO_PROPIO_REALES` como respaldo.
 - Con el modo simulación activo (ver `comprobantes.simulacion`), al pasar una
   `Transaccion` a `PAGADA` se genera su factura aprobada simulada, que a su vez
   dispara el envío.
 """
 
+from django.conf import settings
 from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -17,13 +19,14 @@ from facturacion.models import FacturaElectronica
 from operaciones.models import Transaccion
 
 from .services import encolar_envio
-from .simulacion import emitir_factura_simulada, simulacion_activa
+from .simulacion import emitir_factura_simulada, es_factura_simulada, simulacion_activa
 
 
 @receiver(post_save, sender=FacturaElectronica, dispatch_uid='comprobantes_envio_factura_aprobada')
 def encolar_envio_al_aprobar(sender, instance, **kwargs):
-    """Encola el envío del KuDE cuando la factura queda `APROBADA`.
+    """Encola el envío propio cuando la factura queda `APROBADA`.
 
+    Solo para facturas simuladas, o reales con `COMPROBANTES_ENVIO_PROPIO_REALES`.
     No usa `update_fields` porque `sincronizar_estado_sifen` guarda la factura
     completa. Los guardados repetidos no duplican el envío (ver `encolar_envio`).
 
@@ -37,6 +40,10 @@ def encolar_envio_al_aprobar(sender, instance, **kwargs):
         **kwargs: Argumentos adicionales de la señal.
     """
     if instance.estado != FacturaElectronica.Estado.APROBADA or not instance.cdc:
+        return
+    # Las facturas reales ya las envía Factura Segura al receptor (dEmailRec): el envío
+    # propio queda para las simuladas, salvo que se active como respaldo.
+    if not es_factura_simulada(instance) and not getattr(settings, 'COMPROBANTES_ENVIO_PROPIO_REALES', False):
         return
     transaction.on_commit(lambda: encolar_envio(instance), robust=True)
 

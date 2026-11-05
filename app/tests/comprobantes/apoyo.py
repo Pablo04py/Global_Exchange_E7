@@ -2,6 +2,7 @@
 
 from datetime import date
 from decimal import Decimal
+from unittest.mock import patch
 
 from facturacion.models import ConfiguracionFacturacion, FacturaElectronica
 from operaciones.models import TasaDeCambio, Transaccion
@@ -9,6 +10,7 @@ from tests.operaciones.datos_historial import HistorialDatosMixin
 
 CDC_MOCK = '01025957333001003000021722026110312345678901'
 KUDE_MOCK = b'%PDF-1.4 KuDE de prueba'
+XML_MOCK = b'<?xml version="1.0"?><rDE><DE Id="mock"/></rDE>'
 
 
 class ComprobantesDatosMixin(HistorialDatosMixin):
@@ -16,6 +18,8 @@ class ComprobantesDatosMixin(HistorialDatosMixin):
 
     - `usuario_a` (asociado a `cliente_a`) tiene email `ana@cliente.test`.
     - El cajero tiene email propio, para comprobar que no recibe la factura.
+    - `FacturaSeguraService.descargar_xml` queda simulado (`self.mock_descargar_xml`)
+      para que ningún test llame a Factura Segura.
     """
 
     EMAIL_CLIENTE = 'ana@cliente.test'
@@ -23,6 +27,9 @@ class ComprobantesDatosMixin(HistorialDatosMixin):
     def setUp(self):
         """Carga los datos del historial y los completa para poder facturar transacciones."""
         super().setUp()
+        patcher = patch('comprobantes.services.FacturaSeguraService.descargar_xml', return_value=XML_MOCK)
+        self.mock_descargar_xml = patcher.start()
+        self.addCleanup(patcher.stop)
         self.usuario_a.email = self.EMAIL_CLIENTE
         self.usuario_a.save(update_fields=['email'])
         self.cajero.email = 'cajero@globalexchange.test'

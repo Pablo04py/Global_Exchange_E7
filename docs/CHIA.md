@@ -778,13 +778,23 @@ Registro #11 - 12/10/2026
      > - El mailer adjunta un KuDE simulado generado localmente (`xhtml2pdf`), con los mismos montos y descripciones del builder de SCRUM-56 y la leyenda "SIMULACIÓN – sin valor fiscal".
      > - No actúa si la emisión real está activa y queda apagado al correr `manage.py test`, para que las pruebas (incluidas las de SCRUM-56) no dependan del `.env`. En `.env.example` y producción va en `False`.
 
+  7. **El correo de Factura Segura al cliente que compró (05/11):**
+     > *"Pablo me dijo: 'yo ya agregué el correo con la API, internamente ya envía' ... hagamos nosotros que llegue al correo asociado al cliente, ya que es parte de nuestro scrum ... necesito que le llegue al cliente que hizo la compra de divisas. Cada usuario debe de meter un mail para crear su cuenta, a ese mail le debe de llegar"*
+     >
+     > **Decisión**:
+     > - Se confirmó con las capturas y el PDF de la prueba de Pablo (factura 0000216) que Factura Segura envía sola el KuDE y el XML al `dEmailRec` del Documento Electrónico. Para no duplicar correos, el envío propio de facturas reales queda como respaldo opcional (`COMPROBANTES_ENVIO_PROPIO_REALES=False`).
+     > - `comprobantes.destinatarios.email_receptor_factura` elige el email de la cuenta del cliente que hizo la operación: en web el usuario que compró y en caja la cuenta del cliente (no el cajero). Con un cambio mínimo y avisado en `construir_receptor` (SCRUM-56) ese email pasa a ser el `dEmailRec`.
+     > - El correo propio (modo simulación) replica el formato del de Factura Segura: asunto `TEST/SIMULACIÓN KuDE Factura electrónica ...`, cuerpo con el CDC y la firma con el RUC, y dos adjuntos (`<CDC>.xml` y `<CDC>_<fecha>.pdf`); en las simuladas el XML también se genera localmente. El remitente es Global Exchange, no se suplanta al proveedor.
+     > - Se descartó la consulta periódica a SIFEN: con el envío del proveedor no hace falta y es parte de SCRUM-22.
+
 * **Archivos Creados / Modificados**:
 
-  - `comprobantes/` (app nueva): `models.py`, `services.py`, `signals.py`, `simulacion.py`, `kude.py`, `admin.py`, `management/commands/procesar_envios.py`, plantillas `email_factura.txt` y `kude_simulado.html`, migración `0001_initial`.
-  - `core/settings.py`: app registrada y bloque de configuración `EMAIL_*`.
+  - `comprobantes/` (app nueva): `models.py`, `services.py`, `signals.py`, `simulacion.py`, `kude.py`, `destinatarios.py`, `admin.py`, `management/commands/procesar_envios.py`, plantillas `email_factura.txt` y `kude_simulado.html`, migración `0001_initial`.
+  - `core/settings.py`: app registrada y bloque de configuración `EMAIL_*` / `COMPROBANTES_*`.
+  - `facturacion/services/factura_builder.py` (SCRUM-56, cambio mínimo avisado a Pablo): `dEmailRec` toma el email del cliente que hizo la operación.
   - `docker-compose.yml` y `docker-compose.prod.yml`: servicio `mailer`.
   - `.env.example`: variables de email y `FACTURACION_EMISION_AUTOMATICA=False` documentada (según la guía técnica de facturación, la emisión real se activa solo para la prueba End-to-End final, preservando la factura 0000217).
   - `generar_docs.py`: módulo `comprobantes` en la documentación pdoc.
   - `tests/comprobantes/`: pruebas de encolado, envío del KuDE, destinatarios, reintentos y comando.
 
-* **Resultado / Decisión**: Cuando SIFEN aprueba la factura de una operación, su KuDE se envía al correo de los usuarios del cliente; si el SMTP o Factura Segura no responden, el envío queda encolado y se reintenta durante una hora sin afectar la operación. Con el modo simulación, cada compra o venta pagada genera su factura aprobada simulada y se envía por email sin consumir numeración fiscal. La suite completa (262 pruebas) pasa.
+* **Resultado / Decisión**: Cuando SIFEN aprueba la factura de una operación, su KuDE se envía al correo de los usuarios del cliente; si el SMTP o Factura Segura no responden, el envío queda encolado y se reintenta durante una hora sin afectar la operación. Con el modo simulación, cada compra o venta pagada genera su factura aprobada simulada y se envía por email sin consumir numeración fiscal. La factura real la envía Factura Segura al correo del cliente que compró (también en caja). La suite completa (273 pruebas) pasa.

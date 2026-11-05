@@ -52,7 +52,8 @@
       </td>
       <td width="38%">
         Nombre: <b>{{ transaccion.cliente.nombre_o_denominacion }}</b><br>
-        {{ documento_receptor.0 }}: <b>{{ documento_receptor.1 }}</b>
+        {{ documento_receptor.0 }}: <b>{{ documento_receptor.1 }}</b><br>
+        Email: {{ email_receptor|default:"-" }}
       </td>
     </tr>
   </table>

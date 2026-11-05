@@ -1,12 +1,13 @@
 """Pruebas del modo simulación: cada pago genera una factura aprobada y se envía por email (SCRUM-23)."""
 
 from unittest.mock import patch
+from xml.etree import ElementTree as ET
 
 from django.core import mail
 from django.template.loader import render_to_string
 from django.test import TestCase, override_settings
 
-from comprobantes.kude import PLANTILLA, contexto_kude, generar_kude_simulado
+from comprobantes.kude import PLANTILLA, contexto_kude, generar_kude_simulado, generar_xml_simulado
 from comprobantes.models import EnvioComprobante
 from comprobantes.services import procesar_pendientes
 from comprobantes.simulacion import emitir_factura_simulada, es_factura_simulada
@@ -55,20 +56,27 @@ class SimulacionAlPagarTests(ComprobantesDatosMixin, TestCase):
         self.assertEqual(segunda.factura.numero_documento, '9000002')
 
     @patch(DESCARGAR_KUDE)
-    def test_el_mailer_envia_el_kude_simulado_sin_llamar_a_factura_segura(self, mock_kude):
+    def test_el_mailer_envia_xml_y_kude_simulados_sin_llamar_a_factura_segura(self, mock_kude):
         tx = self.pagar()
 
         resumen = procesar_pendientes()
 
         self.assertEqual(resumen['enviados'], 1)
         mock_kude.assert_not_called()
+        self.mock_descargar_xml.assert_not_called()
+        self.assertEqual(len(mail.outbox), 1)
         correo = mail.outbox[0]
         self.assertEqual(correo.to, [self.EMAIL_CLIENTE])
-        self.assertIn('SIMULACIÓN', correo.body)
-        nombre, contenido, tipo = correo.attachments[0]
-        self.assertEqual(nombre, f'factura_{tx.factura.numero_documento}.pdf')
-        self.assertEqual(tipo, 'application/pdf')
-        self.assertTrue(contenido.startswith(b'%PDF'))
+        self.assertEqual(correo.subject, 'SIMULACIÓN KuDE Factura electrónica 001-003-9000001 - DE simulado '
+                                         'localmente - sin valor comercial ni fiscal')
+        self.assertIn('Adjunto encontrará el KuDE y el XML de la Factura electrónica 001-003-9000001', correo.body)
+        self.assertIn('simulación', correo.body)
+        (nombre_xml, xml, tipo_xml), (nombre_pdf, pdf, tipo_pdf) = correo.attachments
+        self.assertEqual((nombre_xml, tipo_xml), (f'{tx.factura.cdc}.xml', 'application/xml'))
+        self.assertEqual(ET.fromstring(xml).find('DE').get('Id'), tx.factura.cdc)
+        self.assertTrue(nombre_pdf.startswith(tx.factura.cdc) and nombre_pdf.endswith('.pdf'))
+        self.assertEqual(tipo_pdf, 'application/pdf')
+        self.assertTrue(pdf.startswith(b'%PDF'))
 
     def test_en_caja_lo_recibe_el_cliente_y_no_el_cajero(self):
         tx = self.pagar(self.crear_pendiente(usuario=self.cajero, canal=Transaccion.Canal.CAJA))
@@ -136,6 +144,16 @@ class KudeSimuladoTests(ComprobantesDatosMixin, TestCase):
                      '1111111', 'Venta de divisas USD', 'GE-VD-USD', '765.000', 'SIMULACIÓN',
                      self.factura.cdc[:4] + ' ' + self.factura.cdc[4:8]):
             self.assertIn(dato, html)
+
+    def test_el_xml_simulado_tiene_los_datos_y_la_marca_de_simulacion(self):
+        rde = ET.fromstring(generar_xml_simulado(self.factura))
+        self.assertIn('SIMULACIÓN', rde.findtext('simulacion'))
+        de = rde.find('DE')
+        self.assertEqual(de.get('Id'), self.factura.cdc)
+        self.assertEqual(de.findtext('gTimb/dNumDoc'), '9000001')
+        self.assertEqual(de.findtext('gTimb/dNumTim'), '02595733')
+        self.assertEqual(de.findtext('gDatGralOpe/gDatRec/dEmailRec'), self.EMAIL_CLIENTE)
+        self.assertEqual(de.findtext('gDatGralOpe/gEmis/dRucEm'), '2595733')
 
     def test_genera_un_pdf(self):
         contenido = generar_kude_simulado(self.factura)

@@ -135,21 +135,25 @@ def construir_receptor(transaccion):
     Construye los datos del receptor de la factura.
 
     El Cliente es el receptor fiscal.
-    El correo utilizado es el del Usuario que realizó la operación.
+    El correo es el de la cuenta del cliente que hizo la operación
+    (SCRUM-23, ver comprobantes.destinatarios): en caja no es el del cajero.
+    Factura Segura envía el KuDE y el XML a ese correo.
     """
 
-    cliente = transaccion.cliente
-    usuario = transaccion.usuario
+    from comprobantes.destinatarios import email_receptor_factura
 
-    if not usuario.email:
+    cliente = transaccion.cliente
+    email_receptor = email_receptor_factura(transaccion)
+
+    if not email_receptor:
         raise ValidationError(
-            'El usuario que realizó la operación no posee correo electrónico.'
+            'El cliente no tiene un correo electrónico registrado.'
         )
 
     receptor = {
         'cPaisRec': 'PRY',
         'dNomRec': cliente.nombre_o_denominacion,
-        'dEmailRec': usuario.email,
+        'dEmailRec': email_receptor,
     }
 
     if cliente.tipo_persona == Cliente.TipoPersona.FISICA:

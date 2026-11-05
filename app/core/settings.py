@@ -173,5 +173,8 @@ EMAIL_REINTENTO_VENTANA_MINUTOS = config('EMAIL_REINTENTO_VENTANA_MINUTOS', defa
 # Modo simulación (solo desarrollo/demostración): cada pago genera una factura APROBADA
 # simulada, sin Factura Segura ni numeración fiscal (ver comprobantes.simulacion).
 # Al correr `manage.py test` queda siempre apagado, para que las pruebas no dependan del .env.
+# Factura Segura ya envía el KuDE y el XML al receptor de cada factura real. El envío
+# propio (con cola y reintentos) de las facturas reales queda como respaldo opcional.
+COMPROBANTES_ENVIO_PROPIO_REALES = config('COMPROBANTES_ENVIO_PROPIO_REALES', default=False, cast=bool)
 COMPROBANTES_SIMULAR_FACTURA = (config('COMPROBANTES_SIMULAR_FACTURA', default=False, cast=bool)
                                 and sys.argv[1:2] != ['test'])
