@@ -11,6 +11,30 @@
   <link rel="stylesheet" href="{% static 'css/layout.css' %}" />
   {% block extra_css %}{% endblock %}
 </head>
+
+<script>
+document.addEventListener("input", e => {
+  if (!e.target.matches(".input-miles")) return;
+  const [ent, ...dec] = e.target.value.replace(/[^\d,]/g, "").split(",");
+  e.target.value = ent.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                + (dec.length ? "," + dec.join("").slice(0, 4) : "");
+});
+
+// al enviar, se mandan los números sin puntos
+document.addEventListener("submit", e => {
+  e.target.querySelectorAll(".input-miles").forEach(i => {
+    i.value = i.value.replace(/\./g, "").replace(",", ".");
+  });
+});
+
+// si la página vuelve a cargar con un valor, se vuelve a mostrar con puntos
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".input-miles").forEach(i => {
+    i.value = i.value.replace(".", ",");
+    i.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+});
+</script>
 <body>
 
   {# ── SIDEBAR ─────────────────────────────────────────────── #}

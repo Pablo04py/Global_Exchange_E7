@@ -170,7 +170,12 @@ class OperacionForm(forms.Form):
         max_digits=18,
         decimal_places=4,
         min_value=0.0001,
-        label="Monto"
+        label="Monto",
+        widget=forms.TextInput(attrs={
+            'class': 'input-miles',
+            'inputmode': 'decimal',
+            'autocomplete': 'off',
+        }),
     )
 
     medio_pago = _MedioPagoChoiceField(
