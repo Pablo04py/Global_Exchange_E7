@@ -16,6 +16,131 @@
   {% endif %}
 {% endblock %}
 
+{% block extra_css %}
+<style>
+  /* Selector de clientes: únicamente visible en el dashboard */
+  .ge-clients-panel {
+    background: #fff;
+    border: 1px solid #E5E9F0;
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 28px;
+  }
+  .ge-clients-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .ge-clients-heading h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1A2840;
+    margin: 0 0 5px;
+  }
+  .ge-clients-heading p { color: #6B7A99; font-size: 13px; line-height: 1.5; }
+  .ge-clients-count {
+    flex-shrink: 0;
+    background: #EFF6FF;
+    color: #1D4ED8;
+    padding: 6px 11px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .ge-clients-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 14px;
+  }
+  .ge-client-card {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    border: 1px solid #E5E9F0;
+    background: #FCFDFE;
+    border-radius: 10px;
+    padding: 16px;
+    min-width: 0;
+  }
+  .ge-client-card.is-active {
+    border-color: #86EFAC;
+    background: #F0FDF4;
+  }
+  .ge-client-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: #DBEAFE;
+    color: #2563EB;
+    font-size: 21px;
+  }
+  .ge-client-card.is-active .ge-client-icon {
+    background: #DCFCE7;
+    color: #15803D;
+  }
+  .ge-client-details { flex: 1; min-width: 0; }
+  .ge-client-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1A2840;
+    overflow-wrap: anywhere;
+  }
+  .ge-client-meta {
+    display: block;
+    margin-top: 5px;
+    font-size: 11px;
+    color: #6B7A99;
+    line-height: 1.4;
+  }
+  .ge-client-action {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    padding: 9px 12px;
+    border-radius: 7px;
+    background: #2563EB;
+    border: 1px solid #2563EB;
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .ge-client-action:hover { background: #1D4ED8; color: #fff; }
+  .ge-client-action.is-current {
+    background: #fff;
+    border-color: #BBF7D0;
+    color: #166534;
+  }
+  .ge-client-status {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #15803D;
+    margin-top: 7px;
+  }
+  @media (max-width: 620px) {
+    .ge-clients-panel { padding: 16px; }
+    .ge-clients-heading { flex-wrap: wrap; }
+    .ge-client-card { flex-wrap: wrap; }
+    .ge-client-action { margin-left: auto; }
+    .ge-clients-list { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 
 {# ── 1. VISITANTE PÚBLICO (No registrado / No autenticado) ── #}
@@ -242,6 +367,45 @@
     </div>
     {% endfor %}
   </div>
+
+  {% if associated_clients %}
+  <section class="ge-clients-panel" aria-labelledby="ge-clients-title">
+    <div class="ge-clients-heading">
+      <div>
+        <h2 id="ge-clients-title"><i class="ti ti-users"></i> Mis clientes asociados</h2>
+        <p>Seleccioná con qué cliente querés operar. También podés cambiarlo desde la barra superior.</p>
+      </div>
+      <span class="ge-clients-count">{{ associated_clients|length }} asociado{{ associated_clients|length|pluralize }}</span>
+    </div>
+
+    {# Garantiza que Django establezca la cookie CSRF usada por switchClient(). #}
+    <form method="post" hidden aria-hidden="true">{% csrf_token %}</form>
+
+    <div class="ge-clients-list">
+      {% for client in associated_clients %}
+      <article class="ge-client-card {% if active_client and client.id == active_client.id %}is-active{% endif %}">
+        <div class="ge-client-icon"><i class="ti ti-building-bank"></i></div>
+        <div class="ge-client-details">
+          <span class="ge-client-name">{{ client.name }}</span>
+          <span class="ge-client-meta">{{ client.category }} · {{ client.role_label }}</span>
+          {% if active_client and client.id == active_client.id %}
+            <span class="ge-client-status"><i class="ti ti-circle-check"></i> Cliente activo</span>
+          {% endif %}
+        </div>
+        {% if active_client and client.id == active_client.id %}
+          <a class="ge-client-action is-current" href="{% url 'operar' %}">
+            <i class="ti ti-arrows-exchange"></i> Operar
+          </a>
+        {% else %}
+          <button class="ge-client-action" type="button" onclick="switchClient('{{ client.id|escapejs }}')">
+            Seleccionar
+          </button>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 
 {% endif %}
 {% endblock %}

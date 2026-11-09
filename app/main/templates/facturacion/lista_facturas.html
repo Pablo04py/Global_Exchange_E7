@@ -1,0 +1,88 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Mis Facturas DNIT — Global Exchange{% endblock %}
+{% block page_title %}Facturas DNIT{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/facturas.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="facturas-panel">
+  <div class="facturas-heading">
+    <div>
+      <span class="facturas-eyebrow">Comprobantes electrónicos</span>
+      <h1><i class="ti ti-file-invoice"></i> Mis facturas DNIT</h1>
+      <p>Facturas correspondientes a las operaciones que realizaste, incluso para distintos clientes asociados.</p>
+    </div>
+    <span class="facturas-counter">{{ total_facturas }} factura{{ total_facturas|pluralize }}</span>
+  </div>
+
+  <form method="get" class="facturas-filtros">
+    <label for="facturasEstado">Estado</label>
+    <select name="estado" id="facturasEstado">
+      <option value="">Todos los estados</option>
+      {% for valor, etiqueta in estados %}
+      <option value="{{ valor }}" {% if estado_filtro == valor %}selected{% endif %}>{{ etiqueta }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit"><i class="ti ti-filter"></i> Filtrar</button>
+    {% if estado_filtro %}<a href="{% url 'facturacion:lista_facturas' %}" class="facturas-limpiar">Limpiar</a>{% endif %}
+  </form>
+
+  {% if page_obj.object_list %}
+  <div class="facturas-tabla-scroll">
+    <table class="facturas-tabla">
+      <thead>
+      <tr><th>Factura</th><th>Fecha</th><th>Cliente fiscal</th><th>Estado SIFEN</th><th>Comprobante</th></tr>
+      </thead>
+      <tbody>
+      {% for factura in page_obj %}
+      <tr>
+        <td>
+          <strong>{{ factura.configuracion.establecimiento }}-{{ factura.configuracion.punto_expedicion }}-{{ factura.numero_documento }}</strong>
+          {% if factura.cdc %}
+            <span class="factura-cdc" title="{{ factura.cdc }}">CDC: {{ factura.cdc|truncatechars:20 }}</span>
+          {% else %}
+            <span class="factura-cdc">Sin CDC</span>
+          {% endif %}
+        </td>
+        <td>{{ factura.fecha_creacion|date:"d/m/Y" }}<span class="factura-cdc">{{ factura.fecha_creacion|date:"H:i" }}</span></td>
+        <td>{{ factura.transaccion.cliente.nombre_o_denominacion }}</td>
+        <td>
+          <span class="facturas-estado facturas-estado--{{ factura.estado|lower }}">{{ factura.get_estado_display }}</span>
+          {% if factura.estado == 'RECHAZADA' and factura.descripcion_respuesta %}
+          <span class="factura-cdc factura-motivo" title="{{ factura.descripcion_respuesta }}">{{ factura.descripcion_respuesta|truncatechars:56 }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if factura.estado == 'APROBADA' and factura.cdc %}
+            <a class="facturas-descargar" href="{% url 'facturacion:descargar_kude' factura.id %}"><i class="ti ti-file-type-pdf"></i> Descargar PDF</a>
+          {% else %}
+            <span class="facturas-no-pdf"><i class="ti ti-lock"></i> No disponible</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <nav class="facturas-paginacion" aria-label="Páginas de facturas">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if estado_filtro %}&amp;estado={{ estado_filtro }}{% endif %}">Anterior</a>{% endif %}
+    <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if estado_filtro %}&amp;estado={{ estado_filtro }}{% endif %}">Siguiente</a>{% endif %}
+  </nav>
+  {% endif %}
+
+  {% else %}
+  <div class="facturas-vacio">
+    <i class="ti ti-file-off"></i>
+    <h2>No hay facturas para mostrar</h2>
+    <p>{% if estado_filtro %}No tenés facturas con ese estado.{% else %}Cuando se emita una factura por una operación tuya, aparecerá aquí.{% endif %}</p>
+  </div>
+  {% endif %}
+  <p class="facturas-nota"><i class="ti ti-info-circle"></i> Los estados corresponden a la última actualización guardada en Global Exchange. Descargar el KuDE no genera una nueva factura.</p>
+</section>
+{% endblock %}

@@ -177,7 +177,7 @@ def get_menu_sections(role, active_client, is_authenticated=False, roles=None):
             "items": [
                 {"name": "Operar / Cambiar Divisas", "url": reverse("operar"), "icon": "ti-arrows-exchange"},
                 {"name": "Historial de Operaciones", "url": reverse("historial_transacciones"), "icon": "ti-history"},
-                {"name": "Facturas DNIT", "url": "/facturas/", "icon": "ti-receipt"},
+                {"name": "Facturas DNIT", "url": reverse("facturacion:lista_facturas"), "icon": "ti-receipt"},
             ]
         })
 
