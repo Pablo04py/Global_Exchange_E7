@@ -221,19 +221,13 @@ Operar / Cambiar Divisas
         {{ form.monto.errors }}
       </div>
 
-      <div class="operation-field">
-        {{ form.medio_pago.label_tag }}
-        {{ form.medio_pago }}
-        {{ form.medio_pago.errors }}
-      </div>
-
       <button
         type="submit"
         name="accion"
         value="simular"
         class="operation-button operation-button-primary"
       >
-        Simular operación
+        Mostrar conversion
       </button>
     </div>
 
@@ -250,7 +244,7 @@ Operar / Cambiar Divisas
 
         <div class="operation-summary-row">
           <span>Tasa aplicada:</span>
-          <strong>{{ simulacion.tasa_aplicada }}</strong>
+          <strong>{{ simulacion.tasa_aplicada|floatformat:"-4g" }}</strong>
         </div>
       </div>
 
@@ -258,18 +252,22 @@ Operar / Cambiar Divisas
         <div class="operation-summary-block">
           <span class="operation-summary-label">Usted entrega</span>
           <strong class="operation-summary-amount">
-            {{ simulacion.monto_origen }} {{ simulacion.moneda_origen }}
+            {{ simulacion.monto_origen|floatformat:"-2g" }} {{ simulacion.moneda_origen }}
           </strong>
         </div>
 
         <div class="operation-summary-block">
           <span class="operation-summary-label">Usted recibe</span>
           <strong class="operation-summary-amount operation-summary-receive">
-            {{ simulacion.monto_destino }} {{ simulacion.moneda_destino }}
+            {{ simulacion.monto_destino|floatformat:"-2g" }} {{ simulacion.moneda_destino }}
           </strong>
         </div>
       </div>
-
+      <div class="operation-field" style="margin: 20px 0;">
+        {{ form.medio_pago.label_tag }}
+        {{ form.medio_pago }}
+        {{ form.medio_pago.errors }}
+      </div>
       <input
         type="hidden"
         name="tasa_id_simulada"
