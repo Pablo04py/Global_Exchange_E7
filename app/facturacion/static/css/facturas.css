@@ -1,0 +1,39 @@
+.facturas-panel{background:#fff;border:1px solid #E5E9F0;border-radius:14px;padding:24px;color:#1A2840;}
+.facturas-heading{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:24px;}
+.facturas-eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6B7A99;font-weight:700;}
+.facturas-heading h1{font-size:22px;margin:6px 0 8px;font-weight:700;display:flex;align-items:center;gap:9px;}
+.facturas-heading h1 i{font-size:25px;color:#2563EB;}
+.facturas-heading p{color:#6B7A99;font-size:13px;line-height:1.5;max-width:620px;}
+.facturas-counter{padding:7px 12px;background:#EFF6FF;color:#1D4ED8;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;}
+.facturas-filtros{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:18px;}
+.facturas-filtros label{font-size:12px;font-weight:650;color:#475569;}
+.facturas-filtros select{padding:9px 12px;border:1px solid #CBD5E1;border-radius:8px;background:#fff;color:#1A2840;font-size:13px;min-width:205px;}
+.facturas-filtros button{background:#2563EB;color:#fff;border:none;border-radius:8px;padding:10px 15px;font-size:12px;font-weight:700;cursor:pointer;}
+.facturas-filtros button:hover{background:#1D4ED8;}
+.facturas-limpiar{font-size:12px;color:#2563EB;font-weight:600;}
+.facturas-tabla-scroll{overflow-x:auto;border:1px solid #E5E9F0;border-radius:10px;}
+.facturas-tabla{width:100%;border-collapse:collapse;text-align:left;font-size:13px;min-width:810px;}
+.facturas-tabla th{font-size:11px;text-transform:uppercase;letter-spacing:.035em;color:#6B7A99;background:#F8FAFC;padding:14px 16px;font-weight:700;border-bottom:1px solid #E5E9F0;}
+.facturas-tabla td{padding:17px 16px;border-bottom:1px solid #EFF2F7;vertical-align:middle;}
+.facturas-tabla tr:last-child td{border-bottom:none;}
+.facturas-tabla tbody tr:hover{background:#FAFBFE;}
+.factura-cdc{display:block;font-size:11px;margin-top:5px;color:#7C89A0;max-width:290px;overflow:hidden;text-overflow:ellipsis;}
+.factura-motivo{max-width:240px;}
+.facturas-estado{display:inline-block;padding:5px 10px;border-radius:20px;font-weight:700;font-size:11px;white-space:nowrap;background:#F1F5F9;color:#475569;}
+.facturas-estado--aprobada{background:#D1FAE5;color:#047857;}
+.facturas-estado--rechazada,.facturas-estado--error{background:#FEE2E2;color:#B91C1C;}
+.facturas-estado--emitida,.facturas-estado--calculada,.facturas-estado--pendiente{background:#FEF3C7;color:#92400E;}
+.facturas-estado--anulada{background:#E2E8F0;color:#475569;}
+.facturas-descargar{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;color:#1D4ED8;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap;}
+.facturas-descargar i{font-size:17px;}
+.facturas-descargar:hover{background:#DBEAFE;}
+.facturas-no-pdf{color:#94A3B8;font-size:12px;white-space:nowrap;display:inline-flex;gap:5px;align-items:center;}
+.facturas-paginacion{display:flex;justify-content:center;gap:18px;align-items:center;margin-top:22px;font-size:12px;color:#64748B;}
+.facturas-paginacion a{color:#2563EB;font-weight:700;}
+.facturas-vacio{text-align:center;padding:45px 20px;}
+.facturas-vacio i{font-size:38px;color:#CBD5E1;}
+.facturas-vacio h2{font-size:17px;margin-top:14px;}
+.facturas-vacio p{font-size:13px;color:#64748B;margin-top:9px;}
+.facturas-nota{font-size:11px;color:#64748B;margin-top:18px;line-height:1.5;display:flex;align-items:flex-start;gap:6px;}
+.facturas-nota i{font-size:16px;flex-shrink:0;}
+@media(max-width:650px){.facturas-panel{padding:16px;}.facturas-heading h1{font-size:19px;}.facturas-filtros select{flex:1;min-width:160px;}}

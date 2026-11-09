@@ -2,6 +2,7 @@
 
 from django import forms
 from .models import Cliente, UsuarioCliente
+from django.contrib.auth import get_user_model
 
 
 class ClienteFisicaForm(forms.ModelForm):
@@ -37,8 +38,26 @@ class ClienteForm(forms.ModelForm):
 
         return cleaned_data
 
+Usuario = get_user_model()
+
+
+class UsuarioLegibleChoiceField(forms.ModelChoiceField):
+    """Muestra el nombre completo y correo del usuario."""
+
+    def label_from_instance(self, usuario):
+        nombre = usuario.get_full_name().strip()
+        correo = (usuario.email or "").strip()
+
+        if nombre and correo:
+            return f"{nombre} ({correo})"
+
+        return nombre or correo or usuario.username
+
 class AsignacionForm(forms.ModelForm):
     """Formulario para asociar un usuario del sistema con un cliente."""
+
+    usuario = UsuarioLegibleChoiceField(queryset=Usuario.objects.order_by('first_name', 'last_name', 'email'), label='Usuario', empty_label='Seleccione un usuario')
+    
     class Meta:
         """Campos: usuario y cliente."""
         model = UsuarioCliente
