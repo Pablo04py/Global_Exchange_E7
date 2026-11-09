@@ -193,7 +193,7 @@ def lista_facturas(request):
     No filtra por ge_active_client porque es un historial PERSONAL que puede
     incluir operaciones de varios clientes para los cuales operó el usuario.
     """
-    facturas = (
+    facturas = (j
         FacturaElectronica.objects
         .filter(transaccion__usuario=request.user)
         .select_related('transaccion__cliente', 'configuracion')

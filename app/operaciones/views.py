@@ -356,9 +356,14 @@ def operar(request):
     if request.method == 'POST':
 
         form = OperacionForm(
-            request.POST,
-            cliente=cliente
+        request.POST,
+        cliente=cliente
         )
+
+        # La simulación no requiere medio de pago.
+        # Se valida al confirmar la operación.
+        form.fields['medio_pago'].required = False
+
 
         if form.is_valid():
 
@@ -394,8 +399,26 @@ def operar(request):
             elif accion == 'confirmar':
                 tasa_id = request.POST.get('tasa_id_simulada')
 
-                if not tasa_id:
-                    form.add_error(None, "Debe simular la operación antes de confirmarla.")
+                if not medio_pago:
+                    form.add_error(
+                        'medio_pago',
+                        'Debe seleccionar un medio de pago.'
+                    )
+                    try:
+                        simulacion = simular_operacion(
+                            cliente=cliente,
+                            tipo_operacion=tipo_operacion,
+                            moneda=moneda,
+                            monto=monto,
+                        )
+                    except ValidationError as error:
+                        form.add_error(None, str(error))
+
+                elif not tasa_id:
+                    form.add_error(
+                        None,
+                        "Debe mostrar la conversión antes de confirmar."
+                    )
                 else:
                     try:
                         # 1. DELAY DE 20 SEGUNDOS (Da tiempo a cambiar la tasa en la otra pestaña)

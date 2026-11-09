@@ -360,20 +360,20 @@ Detalle de Operación
       <div class="detail-item">
         <span class="detail-label">Usted paga</span>
         <span class="detail-value detail-value-money">
-          {{ transaccion.monto_pagado }} {{ transaccion.moneda_pagada }}
+          {{ transaccion.monto_pagado|floatformat:"-2g" }} {{ transaccion.moneda_pagada }}
         </span>
       </div>
 
       <div class="detail-item">
         <span class="detail-label">Usted recibe</span>
         <span class="detail-value detail-value-money detail-value-received">
-          {{ transaccion.monto_recibido }} {{ transaccion.moneda_recibida }}
+          {{ transaccion.monto_recibido|floatformat:"-2g" }} {{ transaccion.moneda_recibida }}
         </span>
       </div>
 
       <div class="detail-item">
         <span class="detail-label">Tasa aplicada</span>
-        <span class="detail-value">{{ transaccion.tasa_aplicada }}</span>
+        <span class="detail-value">{{ transaccion.tasa_aplicada|floatformat:"-4g" }}</span>
       </div>
 
       <div class="detail-item">
@@ -437,7 +437,7 @@ Detalle de Operación
                 id="stripe-payment-button"
                 class="payment-button payment-button-primary"
               >
-                Pagar {{ transaccion.monto_pagado }} {{ transaccion.moneda_pagada }}
+                Pagar {{ transaccion.monto_pagado|floatformat:"-2g" }} {{ transaccion.moneda_pagada }}
               </button>
             </form>
           </div>
